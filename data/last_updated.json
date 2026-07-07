@@ -1,12 +1,10 @@
 {
   "last_updated": "2026-07-07",
-  "updated_at": "2026-07-07T00:30:57.746499",
-  "total_tickers": 96,
-  "updated": 95,
-  "skipped": 0,
-  "failed": [
-    "SQ"
-  ],
+  "updated_at": "2026-07-07T22:50:38.618702",
+  "total_tickers": 95,
+  "updated": 1,
+  "skipped": 94,
+  "failed": [],
   "categories": {
     "미국 대형주 ETF": [
       "SPY",
@@ -119,7 +117,6 @@
       "PLTR",
       "SNOW",
       "SHOP",
-      "SQ",
       "SPOT"
     ],
     "나라별 ETF": [
