@@ -11,8 +11,12 @@ import time
 from datetime import datetime, date, timedelta
 from tickers import ALL_TICKERS, TICKERS
 
-DATA_DIR = "data/prices"
-META_FILE = "data/last_updated.json"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, "data/prices")
+META_FILE = os.path.join(BASE_DIR, "data/last_updated.json")
+
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(os.path.dirname(META_FILE), exist_ok=True)
 
 
 def get_last_date(ticker: str) -> date | None:
@@ -109,7 +113,6 @@ def main():
         "failed": failed,
         "categories": {cat: tickers for cat, tickers in TICKERS.items()},
     }
-    os.makedirs(DATA_DIR, exist_ok=True)
     with open(META_FILE, "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=2)
 
