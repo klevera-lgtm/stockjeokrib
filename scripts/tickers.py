@@ -19,7 +19,7 @@ TICKERS = {
     "M7 + 인기 성장주": [
         "AAPL", "MSFT", "NVDA", "GOOGL", "AMZN", "META", "TSLA",
         "AMD", "AVGO", "ASML", "TSM", "QCOM",
-        "NFLX", "UBER", "COIN", "PLTR", "SNOW", "SHOP", "SQ", "SPOT"
+        "NFLX", "UBER", "COIN", "PLTR", "SNOW", "SHOP", "SPOT"
     ],
     "나라별 ETF": [
         "EWY", "EWJ", "FXI", "EWT", "INDA",
