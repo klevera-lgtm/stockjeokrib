@@ -1,0 +1,346 @@
+import { useState, useEffect, useRef } from "react";
+import { loadPrices } from "../utils/dataLoader.js";
+import {
+  runStrategy,
+  ALL_STRATEGIES,
+  STRATEGY_LABELS,
+  calcSMA,
+  calcRSI,
+} from "../utils/calculator.js";
+import { isBasic } from "../utils/premium.js";
+import { getTickerMeta } from "../utils/tickerMeta.js";
+import { getTickerLabel } from "../utils/tickers.js";
+import {
+  getAnonKey,
+  fetchPortfolio,
+  addPortfolioItem,
+  removePortfolioItem,
+} from "../utils/portfolioApi.js";
+import TickerSearch from "./TickerSearch.jsx";
+
+const FREE_LIMIT = 3;
+const BASIC_LIMIT = 10;
+
+function enrichItem(item) {
+  const meta = getTickerMeta(item.ticker);
+  const label = getTickerLabel(item.ticker);
+  return {
+    ...item,
+    tickerName: meta?.name ?? (label !== item.ticker ? label : null),
+  };
+}
+
+function findBestStrategy(prices) {
+  const end = new Date();
+  const start = new Date();
+  start.setFullYear(start.getFullYear() - 5);
+  const results = ALL_STRATEGIES
+    .map((s) => runStrategy(prices, s, 300000, start, end))
+    .filter(Boolean);
+  if (results.length === 0) return "monthly-first";
+  results.sort((a, b) => b.totalReturn - a.totalReturn);
+  return results[0].strategy;
+}
+
+function checkTodayCondition(prices, strategy) {
+  if (prices.length < 2) return false;
+  const last = prices[prices.length - 1];
+  const prev = prices[prices.length - 2];
+
+  if (strategy.startsWith("ma")) {
+    const period = parseInt(strategy.replace("ma", ""), 10);
+    const sma = calcSMA(prices, period);
+    const lastSMA = sma[sma.length - 1];
+    return lastSMA != null && last.close < lastSMA;
+  }
+  if (strategy.startsWith("rsi")) {
+    const threshold = parseInt(strategy.replace("rsi", ""), 10);
+    const rsi = calcRSI(prices, 14);
+    const lastRSI = rsi[rsi.length - 1];
+    return lastRSI != null && lastRSI < threshold;
+  }
+  if (strategy === "drop3") return (last.close - prev.close) / prev.close <= -0.03;
+  if (strategy === "drop5") return (last.close - prev.close) / prev.close <= -0.05;
+  if (strategy === "daily") return true;
+  if (strategy === "weekly-fri") return last.date.getDay() === 5;
+  if (strategy === "monthly-first") return last.date.getMonth() !== prev.date.getMonth();
+  if (strategy === "monthly-15") return last.date.getDate() >= 15 && prev.date.getDate() < 15;
+  if (strategy === "monthly-last") {
+    const daysInMonth = new Date(last.date.getFullYear(), last.date.getMonth() + 1, 0).getDate();
+    return last.date.getDate() >= daysInMonth - 2;
+  }
+  return false;
+}
+
+export default function MyPortfolio() {
+  const [items, setItems] = useState([]);
+  const [loadingCloud, setLoadingCloud] = useState(true);
+  const [syncError, setSyncError] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [selectedTicker, setSelectedTicker] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [conditions, setConditions] = useState({});
+  const [checking, setChecking] = useState(false);
+  const anonKeyRef = useRef(null);
+  const basic = isBasic();
+  const limit = basic ? BASIC_LIMIT : FREE_LIMIT;
+
+  // 앱 진입 시 클라우드에서 포트폴리오 로드
+  useEffect(() => {
+    (async () => {
+      setLoadingCloud(true);
+      setSyncError(false);
+      try {
+        const key = await getAnonKey();
+        anonKeyRef.current = key;
+        const cloudItems = await fetchPortfolio(key);
+        if (cloudItems === null) throw new Error("fetch failed");
+        const enriched = cloudItems.map(enrichItem);
+        setItems(enriched);
+        if (enriched.length > 0) checkAllConditions(enriched);
+      } catch {
+        setSyncError(true);
+      } finally {
+        setLoadingCloud(false);
+      }
+    })();
+  }, []); // eslint-disable-line
+
+  async function checkAllConditions(currentItems) {
+    setChecking(true);
+    const results = {};
+    await Promise.all(
+      currentItems.map(async (item) => {
+        try {
+          const prices = await loadPrices(item.ticker);
+          const triggered = checkTodayCondition(prices, item.strategy);
+          const lastDate = prices[prices.length - 1]?.date;
+          results[item.ticker] = { triggered, lastDate };
+        } catch {
+          results[item.ticker] = { triggered: false, lastDate: null };
+        }
+      })
+    );
+    setConditions(results);
+    setChecking(false);
+  }
+
+  useEffect(() => {
+    if (!selectedTicker) { setAnalysisResult(null); return; }
+    (async () => {
+      setAnalyzing(true);
+      setAnalysisResult(null);
+      try {
+        const prices = await loadPrices(selectedTicker);
+        const strategy = findBestStrategy(prices);
+        setAnalysisResult({ ticker: selectedTicker, strategy });
+      } catch {
+        setAnalysisResult(null);
+      } finally {
+        setAnalyzing(false);
+      }
+    })();
+  }, [selectedTicker]);
+
+  async function addItem() {
+    if (!analysisResult || !anonKeyRef.current) return;
+    const { ticker, strategy } = analysisResult;
+    if (items.some((i) => i.ticker === ticker)) return;
+    const result = await addPortfolioItem(anonKeyRef.current, { ticker, strategy });
+    if (!result) return;
+    const cloudItems = await fetchPortfolio(anonKeyRef.current);
+    if (cloudItems) {
+      const enriched = cloudItems.map(enrichItem);
+      setItems(enriched);
+      checkAllConditions(enriched);
+    }
+    setAdding(false);
+    setSelectedTicker(null);
+    setAnalysisResult(null);
+  }
+
+  async function removeItem(ticker) {
+    if (!anonKeyRef.current) return;
+    await removePortfolioItem(anonKeyRef.current, ticker);
+    setItems((prev) => prev.filter((i) => i.ticker !== ticker));
+    setConditions((c) => { const n = { ...c }; delete n[ticker]; return n; });
+  }
+
+  const triggeredItems = items.filter((i) => conditions[i.ticker]?.triggered);
+  const alreadyAdded = selectedTicker && items.some((i) => i.ticker === selectedTicker);
+
+  if (loadingCloud) {
+    return (
+      <div className="page">
+        <div className="page-header">
+          <h1 className="page-title">포트폴리오</h1>
+        </div>
+        <p className="loading-state" style={{ padding: "40px 0", textAlign: "center" }}>
+          불러오는 중...
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page">
+      <div className="page-header">
+        <h1 className="page-title">포트폴리오</h1>
+        <p className="page-subtitle">종목별 최적 전략 조건을 저장하고 관리해요</p>
+      </div>
+
+      {/* 동기화 오류 배너 */}
+      {syncError && (
+        <div className="login-connect-banner">
+          <div className="login-connect-info">
+            <p className="login-connect-title">⚠️ 클라우드 연결 실패</p>
+            <p className="login-connect-desc">저장된 데이터를 불러오지 못했어요. 잠시 후 다시 시도해주세요.</p>
+          </div>
+        </div>
+      )}
+
+      {/* 조건 충족 배너 */}
+      {triggeredItems.length > 0 && (
+        <div className="portfolio-alert-banner">
+          <span className="portfolio-alert-icon">🔔</span>
+          <div>
+            <p className="portfolio-alert-title">오늘 조건이 충족된 종목이 있어요!</p>
+            <p className="portfolio-alert-tickers">
+              {triggeredItems.map((i) => i.tickerName ?? i.ticker).join(", ")}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* 빈 상태 */}
+      {items.length === 0 && !adding && (
+        <div className="portfolio-empty">
+          <p className="portfolio-empty-icon">📋</p>
+          <p className="portfolio-empty-title">아직 저장된 종목이 없어요</p>
+          <p className="portfolio-empty-desc">
+            종목을 추가하면 지난 5년 최적 전략 조건을 알려드려요
+          </p>
+        </div>
+      )}
+
+      {/* 포트폴리오 목록 */}
+      {items.length > 0 && (
+        <div className="portfolio-list">
+          {checking && <p className="loading-state">조건 확인 중...</p>}
+          {items.map((item) => {
+            const cond = conditions[item.ticker];
+            return (
+              <div
+                key={item.ticker}
+                className={`portfolio-card${cond?.triggered ? " portfolio-card--triggered" : ""}`}
+              >
+                <div className="portfolio-card-header">
+                  <div className="portfolio-card-info">
+                    <span className="portfolio-card-ticker">{item.ticker}</span>
+                    {item.tickerName && (
+                      <span className="portfolio-card-name">{item.tickerName}</span>
+                    )}
+                  </div>
+                  <button
+                    className="portfolio-card-delete"
+                    onClick={() => removeItem(item.ticker)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="portfolio-card-strategy">
+                  <span className="portfolio-card-strategy-badge">5년 최적</span>
+                  <span className="portfolio-card-strategy-name">
+                    {STRATEGY_LABELS[item.strategy] ?? item.strategy}
+                  </span>
+                </div>
+                <div className="portfolio-card-status">
+                  {cond == null ? (
+                    <span className="portfolio-status portfolio-status--loading">확인 중...</span>
+                  ) : cond.triggered ? (
+                    <span className="portfolio-status portfolio-status--triggered">
+                      🔔 오늘 조건 충족!
+                    </span>
+                  ) : (
+                    <span className="portfolio-status portfolio-status--waiting">
+                      ⏳ 조건 대기 중
+                    </span>
+                  )}
+                  {cond?.lastDate && (
+                    <span className="portfolio-status-date">
+                      {new Date(cond.lastDate).toLocaleDateString("ko-KR", {
+                        month: "short", day: "numeric",
+                      })} 기준
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* 추가하기 */}
+      {adding ? (
+        <div className="form-section">
+          <label className="form-label">종목 선택</label>
+          <TickerSearch onSelect={setSelectedTicker} selected={selectedTicker} />
+
+          {alreadyAdded && (
+            <p className="weight-hint">이미 포트폴리오에 추가된 종목이에요</p>
+          )}
+
+          {selectedTicker && !alreadyAdded && (
+            <div className="portfolio-analysis">
+              {analyzing ? (
+                <p className="loading-state">5년 최적 전략 분석 중...</p>
+              ) : analysisResult ? (
+                <>
+                  <div className="portfolio-analysis-result">
+                    <p className="portfolio-analysis-label">지난 5년 최적 전략</p>
+                    <p className="portfolio-analysis-strategy">
+                      {STRATEGY_LABELS[analysisResult.strategy]}
+                    </p>
+                    <p className="portfolio-analysis-desc">
+                      이 조건이 충족되는 날 앱에서 알림을 확인할 수 있어요
+                    </p>
+                  </div>
+                  <button className="btn-primary" onClick={addItem}>
+                    포트폴리오에 추가
+                  </button>
+                </>
+              ) : null}
+            </div>
+          )}
+
+          <button
+            className="btn-secondary"
+            style={{ marginTop: 12, width: "100%" }}
+            onClick={() => {
+              setAdding(false);
+              setSelectedTicker(null);
+              setAnalysisResult(null);
+            }}
+          >
+            취소
+          </button>
+        </div>
+      ) : (
+        <div style={{ padding: "12px 16px 0" }}>
+          {items.length < limit ? (
+            <button className="btn-primary" onClick={() => setAdding(true)}>
+              + 종목 추가 ({items.length}/{limit})
+            </button>
+          ) : (
+            <p className="portfolio-limit-msg">
+              {basic
+                ? `베이직 플랜 최대 ${BASIC_LIMIT}개까지 저장할 수 있어요`
+                : `무료는 최대 ${FREE_LIMIT}개까지예요. 베이직에서 ${BASIC_LIMIT}개까지 가능해요.`}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
