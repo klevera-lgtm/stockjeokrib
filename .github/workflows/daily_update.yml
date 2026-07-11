@@ -23,7 +23,10 @@ jobs:
 
       - name: 📦 Install dependencies
         run: |
-          pip install yfinance pandas
+          pip install yfinance pandas requests
+
+      - name: 🌐 Fetch new WhatOthersBuy tickers
+        run: python scripts/fetch_others_tickers.py
 
       - name: 🔄 Run daily update
         run: |

@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync, readdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -6,6 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const PRICES_DIR = join(ROOT, "data", "prices");
 const OUTPUT = join(ROOT, "public", "featuredCombos.json");
+const SUPPORTED_OUTPUT = join(ROOT, "data", "supportedTickers.json");
 
 const LEVERAGE_TICKERS = new Set(["TQQQ", "SOXL", "UPRO"]);
 
@@ -172,10 +173,19 @@ function findBestForPeriod(allPrices, startDate, endDate) {
 
 // ── Main ───────────────────────────────────────────────────────────────────
 function main() {
-  console.log(`\n가격 데이터 로드 중... (${ALL_APP_TICKERS.length}개 티커)\n`);
+  // Combine hardcoded list with any CSV files that exist in data/prices/
+  let csvTickers = [];
+  try {
+    csvTickers = readdirSync(PRICES_DIR)
+      .filter(f => f.endsWith(".csv"))
+      .map(f => f.replace(".csv", ""));
+  } catch {}
+  const allTickers = [...new Set([...ALL_APP_TICKERS, ...csvTickers])];
+
+  console.log(`\n가격 데이터 로드 중... (${allTickers.length}개 티커)\n`);
 
   const priceData = {};
-  for (const ticker of ALL_APP_TICKERS) {
+  for (const ticker of allTickers) {
     const prices = loadPricesSync(ticker);
     if (prices && prices.length > 20) priceData[ticker] = prices;
   }
@@ -224,7 +234,12 @@ function main() {
   }
 
   writeFileSync(OUTPUT, JSON.stringify(result, null, 2));
-  console.log(`\n✅ 완료: ${OUTPUT}\n`);
+  console.log(`\n✅ featuredCombos.json: ${OUTPUT}`);
+
+  // Write supported tickers list for frontend dynamic lookup
+  const supportedList = Object.keys(priceData).sort();
+  writeFileSync(SUPPORTED_OUTPUT, JSON.stringify(supportedList, null, 2));
+  console.log(`✅ supportedTickers.json: ${supportedList.length}개 티커\n`);
 }
 
 main();

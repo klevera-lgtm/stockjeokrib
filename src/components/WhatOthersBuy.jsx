@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { loadWhatOthersBuy } from "../utils/dataLoader.js";
 import { isBasic } from "../utils/premium.js";
-import { SUPPORTED_TICKERS } from "../utils/tickers.js";
+import { SUPPORTED_TICKERS, SUPPORTED_TICKERS_URL } from "../utils/tickers.js";
 import UpgradeModal from "./UpgradeModal.jsx";
 
 const FREE_LIMIT = 10;
@@ -28,6 +28,7 @@ export default function WhatOthersBuy({ onTickerSelect }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [supportedSet, setSupportedSet] = useState(SUPPORTED_TICKERS);
   const basic = isBasic();
   const limit = basic ? BASIC_LIMIT : FREE_LIMIT;
 
@@ -36,6 +37,11 @@ export default function WhatOthersBuy({ onTickerSelect }) {
       .then(setData)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
+
+    fetch(SUPPORTED_TICKERS_URL)
+      .then((r) => r.json())
+      .then((list) => setSupportedSet(new Set(list)))
+      .catch(() => {}); // keep SUPPORTED_TICKERS as fallback
   }, []);
 
   return (
@@ -91,7 +97,7 @@ export default function WhatOthersBuy({ onTickerSelect }) {
                 </div>
 
                 {ticker && (
-                  SUPPORTED_TICKERS.has(ticker)
+                  supportedSet.has(ticker)
                     ? (
                       <button
                         className="btn-secondary others-analyze"

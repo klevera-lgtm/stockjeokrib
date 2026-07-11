@@ -67,7 +67,12 @@ def main():
 
     updated, skipped, failed = [], [], []
 
-    for ticker in ALL_TICKERS:
+    # Combine ALL_TICKERS with any extra CSVs added by fetch_others_tickers.py
+    extra_csv = {f.replace(".csv", "") for f in os.listdir(DATA_DIR) if f.endswith(".csv")}
+    tickers_to_update = list(ALL_TICKERS) + sorted(extra_csv - set(ALL_TICKERS))
+    print(f"대상 티커: {len(ALL_TICKERS)}개 (기본) + {len(tickers_to_update) - len(ALL_TICKERS)}개 (추가)")
+
+    for ticker in tickers_to_update:
         last_date = get_last_date(ticker)
 
         if last_date is None:

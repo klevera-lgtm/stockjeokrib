@@ -32,21 +32,22 @@ export const TICKER_LABELS = {
 export const ALL_TICKERS = Object.values(TICKER_CATEGORIES).flat();
 
 // All tickers that have a CSV price file and can be used in simulation
+// (fallback — runtime loads data/supportedTickers.json from GitHub raw)
 export const SUPPORTED_TICKERS = new Set([
   "000660","005930","069500","360750",
-  "AAPL","ACWI","AGG","AGQ","AMAT","AMD","AMZN","ARKF","ARKG","ARKK","ARKX",
-  "ARM","ASML","AVGO","BE","BND","BOTZ","BRK-B","COIN","COST","DGRO","DIA",
-  "DVY","EEM","EIDO","EWA","EWG","EWH","EWI","EWJ","EWL","EWM","EWQ","EWS",
-  "EWT","EWU","EWW","EWY","EWZ","EZU","FXI","GDX","GLD","GOOGL","GULF",
-  "HACK","HYG","IAU","ICLN","IEF","IEFA","IEMG","IGV","INDA","INTC","IONQ",
-  "ITA","IVV","IWM","JEPI","JEPQ","KO","KQ11","KS11","KSA","LIT","LLY",
-  "LRCX","MCHI","META","MRVL","MSFT","MU","NFLX","NVDA","NVDL","ORCL",
-  "PLTR","QCOM","QLD","QQQ","QQQM","QTUM","QYLD","RKLB","RYLD","SCHD",
-  "SCHG","SGOV","SHOP","SHY","SLV","SMCI","SMH","SNOW","SOXL","SOXX",
-  "SPOT","SPXL","SPY","SPYD","SSO","TECL","THD","TLT","TMF","TQQQ","TSLA",
-  "TSLL","TSM","UBER","UBT","UGL","UPRO","USD","USO","V","VB","VGK","VGT",
-  "VIG","VNM","VNQ","VOO","VT","VTI","VUG","VWO","VXUS","VYM","WCLD","WDC",
-  "XBI","XLB","XLC","XLE","XLF","XLI","XLK","XLP","XLRE","XLU","XLV","XLY",
+  "AAOI","AAPL","ACWI","AGG","AGQ","AMAT","AMD","AMZN","ARKF","ARKG","ARKK","ARKX",
+  "ARM","ASML","AVGO","BE","BND","BOTZ","BRK-B","COIN","COST","CRWV","DDOG","DGRO",
+  "DIA","DVY","EEM","EIDO","EWA","EWG","EWH","EWI","EWJ","EWL","EWM","EWQ","EWS",
+  "EWT","EWU","EWW","EWY","EWZ","EZU","FXI","GDX","GH","GLD","GOOGL",
+  "HACK","HYG","IAU","ICLN","IEF","IEFA","IEMG","IGV","INDA","INTC","IONQ","IONX",
+  "IREN","ITA","IVV","IWM","JEM","JEPI","JEPQ","JPM","KO","KORU","KQ11","KS11","KSA",
+  "LIT","LLY","LRCX","MCHI","META","MRVL","MSFT","MSTR","MSTU","MU","NFLX","NTRA",
+  "NVDA","NVDL","OKTA","ORCL","ORCX","PAVE","PLTR","QCOM","QLD","QQQ","QQQI","QQQM",
+  "QTUM","QYLD","RKLB","RYLD","SCHD","SCHG","SGOV","SHOP","SHY","SLV","SMCI","SMH",
+  "SMR","SNOW","SOXL","SOXX","SPOT","SPXL","SPY","SPYD","SPYM","SSO","TECL","THD",
+  "TLT","TMF","TQQQ","TSLA","TSLL","TSM","UBER","UBT","UCTT","UGL","UPRO","USD","USO",
+  "V","VB","VGK","VGT","VIG","VNM","VNQ","VOO","VT","VTI","VUG","VWO","VXUS","VYM",
+  "WCLD","WDC","XBI","XLB","XLC","XLE","XLF","XLI","XLK","XLP","XLRE","XLU","XLV","XLY",
 ]);
 
 export function getTickerLabel(ticker) {
@@ -55,3 +56,6 @@ export function getTickerLabel(ticker) {
 
 export const BASE_URL =
   "https://raw.githubusercontent.com/klevera-lgtm/stockjeokrib/main/data/prices/";
+
+export const SUPPORTED_TICKERS_URL =
+  "https://raw.githubusercontent.com/klevera-lgtm/stockjeokrib/main/data/supportedTickers.json";
