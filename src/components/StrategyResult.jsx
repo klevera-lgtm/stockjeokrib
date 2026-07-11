@@ -44,7 +44,7 @@ export default function StrategyResult({ initialTicker = null }) {
   const [ticker, setTicker] = useState(initialTicker);
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
   const [customStart, setCustomStart] = useState("");
-  const [results, setResults] = useState(null);
+  const [results, setResults] = useState(null); // { list, benchmark }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
@@ -78,7 +78,8 @@ export default function StrategyResult({ initialTicker = null }) {
       ).filter(Boolean);
 
       allResults.sort((a, b) => b.totalReturn - a.totalReturn);
-      setResults(allResults);
+      const benchmark = allResults.find((r) => r.strategy === "monthly-25") ?? null;
+      setResults({ list: allResults, benchmark });
     } catch (e) {
       setError(e.message);
     } finally {
@@ -166,42 +167,77 @@ export default function StrategyResult({ initialTicker = null }) {
             </span>
           </h2>
 
-          {/* Chart for best strategy */}
-          {results[0] && (
-            <LineChart
-              data={results[0].portfolioValues}
-              title={`${STRATEGY_LABELS[results[0].strategy]} 포트폴리오`}
-            />
-          )}
+          {/* Chart: best strategy + 월급날(25일) 기준선 */}
+          {results.list[0] && (() => {
+            const best = results.list[0];
+            const bm = results.benchmark;
+            const chartDatasets = [
+              {
+                label: STRATEGY_LABELS[best.strategy],
+                data: best.portfolioValues.map((d) => d.value),
+                borderColor: "#3182F6",
+                backgroundColor: "rgba(49,130,246,0.1)",
+                fill: true,
+                tension: 0.3,
+                pointRadius: 0,
+              },
+              ...(bm && bm.strategy !== best.strategy ? [{
+                label: "월급날(25일) 기준",
+                data: bm.portfolioValues.map((d) => d.value),
+                borderColor: "rgba(150,150,150,0.6)",
+                borderDash: [5, 4],
+                backgroundColor: "transparent",
+                fill: false,
+                tension: 0.3,
+                pointRadius: 0,
+              }] : []),
+            ];
+            return (
+              <LineChart
+                labels={best.portfolioValues.map((d) => d.date)}
+                datasets={chartDatasets}
+              />
+            );
+          })()}
 
           <div className="strategy-list">
-            {results.map((r, idx) => {
-              const isBlurred = !basic && idx !== 0 && idx !== results.length - 1;
+            {results.list.map((r, idx) => {
+              const isBlurred = !basic && idx !== 0 && idx !== results.list.length - 1;
               const isBest = idx === 0;
-              const isWorst = idx === results.length - 1;
+              const isWorst = idx === results.list.length - 1;
+              const isBenchmark = r.strategy === "monthly-25";
+              const delta = results.benchmark && !isBenchmark
+                ? r.totalReturn - results.benchmark.totalReturn
+                : null;
 
               return (
                 <div
                   key={r.strategy}
-                  className={`strategy-row${isBlurred ? " blurred" : ""}${isBest ? " best" : ""}${isWorst ? " worst" : ""}`}
+                  className={`strategy-row${isBlurred ? " blurred" : ""}${isBest ? " best" : ""}${isWorst ? " worst" : ""}${isBenchmark ? " benchmark" : ""}`}
                 >
                   <div className="strategy-rank">
-                    {isBest ? "🥇" : isWorst && !basic ? "🔻" : `${idx + 1}`}
+                    {isBenchmark ? "📅" : isBest ? "🥇" : isWorst && !basic ? "🔻" : `${idx + 1}`}
                   </div>
                   <div className="strategy-info">
-                    <div className="strategy-name">{STRATEGY_LABELS[r.strategy]}</div>
+                    <div className="strategy-name">
+                      {STRATEGY_LABELS[r.strategy]}
+                      {isBenchmark && <span className="benchmark-badge">월급날 기준</span>}
+                    </div>
                     <div className="strategy-meta">
                       납입 {formatKRW(r.totalInvested)} →&nbsp;
                       <strong>{formatKRW(r.finalValue)}</strong>
                     </div>
                   </div>
                   <div className="strategy-return">
-                    <div
-                      className={`return-pct ${r.totalReturn >= 0 ? "pos" : "neg"}`}
-                    >
+                    <div className={`return-pct ${r.totalReturn >= 0 ? "pos" : "neg"}`}>
                       {formatPct(r.totalReturn)}
                     </div>
-                    <div className="cagr">연 {formatPct(r.cagr)}</div>
+                    {delta !== null
+                      ? <div className={`vs-benchmark ${delta >= 0 ? "pos" : "neg"}`}>
+                          월급날 대비 {delta >= 0 ? "+" : ""}{(delta * 100).toFixed(1)}%p
+                        </div>
+                      : <div className="cagr">연 {formatPct(r.cagr)}</div>
+                    }
                   </div>
                   {isBlurred && (
                     <div className="blur-overlay">
@@ -219,11 +255,11 @@ export default function StrategyResult({ initialTicker = null }) {
           </div>
 
           {/* Share card for best strategy */}
-          {results[0] && (
+          {results.list[0] && (
             <ShareCard
               ticker={ticker}
-              strategy={results[0].strategy}
-              result={results[0]}
+              strategy={results.list[0].strategy}
+              result={results.list[0]}
               monthlyAmount={monthlyAmount}
             />
           )}

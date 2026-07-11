@@ -100,7 +100,7 @@ function _runWithPool(filtered, strategy, monthlyAmount, conditionFn) {
 }
 
 // ── Strategy runner ──────────────────────────────────────────────────────────
-// strategies: 'daily' | 'weekly-fri' | 'monthly-first' | 'monthly-15' |
+// strategies: 'daily' | 'weekly-fri' | 'monthly-first' | 'monthly-15' | 'monthly-25' |
 //             'monthly-last' | 'ma10' | 'ma50' | 'ma100' | 'ma200' |
 //             'drop3' | 'drop5' | 'rsi20' | 'rsi30'
 export function runStrategy(prices, strategy, monthlyAmount, startDate, endDate) {
@@ -180,6 +180,13 @@ export function runStrategy(prices, strategy, monthlyAmount, startDate, endDate)
         investAmt = monthlyAmount;
         break;
       }
+      case "monthly-25": {
+        const day = p.date.getDate();
+        const prevDay = prev ? prev.date.getDate() : -1;
+        buy = day >= 25 && (i === 0 || prevDay < 25 || p.date.getMonth() !== prev.date.getMonth());
+        investAmt = monthlyAmount;
+        break;
+      }
       case "monthly-last": {
         const nextP = filtered[i + 1];
         buy = !nextP || nextP.date.getMonth() !== p.date.getMonth();
@@ -213,6 +220,7 @@ export const STRATEGY_LABELS = {
   "weekly-fri":    "매주 금요일",
   "monthly-first": "매월 첫 거래일",
   "monthly-15":    "매월 15일",
+  "monthly-25":    "매월 25일",
   "monthly-last":  "매월 마지막 거래일",
   "ma10":          "MA10 아래일 때만",
   "ma50":          "MA50 아래일 때만",

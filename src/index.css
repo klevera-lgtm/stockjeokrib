@@ -395,6 +395,32 @@ input, select {
   color: var(--text-secondary);
   margin-top: 2px;
 }
+.vs-benchmark {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.strategy-row.benchmark {
+  background: #f0f4ff;
+  border: 1.5px solid #c7d9ff;
+}
+@media (prefers-color-scheme: dark) {
+  .strategy-row.benchmark {
+    background: #0d1a33;
+    border-color: #1e3a6e;
+  }
+}
+.benchmark-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #3182F6;
+  background: rgba(49,130,246,0.12);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
 
 /* ── Blur overlay ─────────────────────────────── */
 .blurred {
