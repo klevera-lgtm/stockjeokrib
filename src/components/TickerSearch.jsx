@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { TICKER_CATEGORIES, getTickerLabel } from "../utils/tickers.js";
+import { TICKER_CATEGORIES, SUPPORTED_TICKERS, getTickerLabel } from "../utils/tickers.js";
 
 const ALL_CATS = ["전체", ...Object.keys(TICKER_CATEGORIES)];
 
@@ -8,23 +8,23 @@ export default function TickerSearch({ onSelect, multi = false, selected = [] })
   const [activeCategory, setActiveCategory] = useState("전체");
 
   const candidates = useMemo(() => {
+    const q = query.trim().toUpperCase();
+
+    // 검색어가 있으면 SUPPORTED_TICKERS 전체(CSV 보유 티커)에서 검색
+    if (q) {
+      return [...SUPPORTED_TICKERS].filter(
+        (t) => t.toUpperCase().includes(q) || getTickerLabel(t).includes(query.trim())
+      ).sort();
+    }
+
+    // 검색어 없으면 카테고리 그리드
     let list;
     if (activeCategory === "전체") {
       list = Object.values(TICKER_CATEGORIES).flat();
     } else {
       list = TICKER_CATEGORIES[activeCategory] ?? [];
     }
-    // de-dup
-    list = [...new Set(list)];
-    if (query.trim()) {
-      const q = query.trim().toUpperCase();
-      list = list.filter(
-        (t) =>
-          t.toUpperCase().includes(q) ||
-          getTickerLabel(t).includes(query.trim())
-      );
-    }
-    return list;
+    return [...new Set(list)];
   }, [query, activeCategory]);
 
   function toggle(ticker) {
