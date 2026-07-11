@@ -1,0 +1,655 @@
+{
+  "updatedAt": "2026-07-11",
+  "combos": {
+    "1mo": {
+      "with": {
+        "tickers": [
+          "ARKG",
+          "XBI",
+          "PLTR",
+          "WCLD",
+          "COIN"
+        ],
+        "strategies": [
+          "ma10",
+          "monthly-15",
+          "weekly-fri",
+          "ma50",
+          "drop5"
+        ],
+        "cagrs": [
+          22.2347,
+          11.354,
+          7.9684,
+          7.512,
+          5.9111
+        ],
+        "combinedCagr": 10.996
+      },
+      "without": {
+        "tickers": [
+          "ARKG",
+          "XBI",
+          "PLTR",
+          "WCLD",
+          "COIN"
+        ],
+        "strategies": [
+          "ma10",
+          "monthly-15",
+          "weekly-fri",
+          "ma50",
+          "drop5"
+        ],
+        "cagrs": [
+          22.2347,
+          11.354,
+          7.9684,
+          7.512,
+          5.9111
+        ],
+        "combinedCagr": 10.996
+      }
+    },
+    "3mo": {
+      "with": {
+        "tickers": [
+          "SNOW",
+          "ARKG",
+          "HACK",
+          "TQQQ",
+          "IONQ"
+        ],
+        "strategies": [
+          "rsi30",
+          "ma50",
+          "ma50",
+          "ma100",
+          "ma100"
+        ],
+        "cagrs": [
+          23.2927,
+          4.4086,
+          4.3057,
+          3.8642,
+          3.0211
+        ],
+        "combinedCagr": 7.7785
+      },
+      "without": {
+        "tickers": [
+          "SNOW",
+          "ARKG",
+          "HACK",
+          "IONQ",
+          "LLY"
+        ],
+        "strategies": [
+          "rsi30",
+          "ma50",
+          "ma50",
+          "ma100",
+          "drop3"
+        ],
+        "cagrs": [
+          23.2927,
+          4.4086,
+          4.3057,
+          3.0211,
+          2.9007
+        ],
+        "combinedCagr": 7.5858
+      }
+    },
+    "6mo": {
+      "with": {
+        "tickers": [
+          "SOXL",
+          "MRVL",
+          "MU",
+          "ARM",
+          "INTC"
+        ],
+        "strategies": [
+          "ma100",
+          "ma200",
+          "ma100",
+          "rsi30",
+          "ma100"
+        ],
+        "cagrs": [
+          10.0861,
+          8.8547,
+          8.3146,
+          7.5223,
+          6.6255
+        ],
+        "combinedCagr": 8.2806
+      },
+      "without": {
+        "tickers": [
+          "MRVL",
+          "MU",
+          "ARM",
+          "INTC",
+          "AMD"
+        ],
+        "strategies": [
+          "ma200",
+          "ma100",
+          "rsi30",
+          "ma100",
+          "ma50"
+        ],
+        "cagrs": [
+          8.8547,
+          8.3146,
+          7.5223,
+          6.6255,
+          5.3912
+        ],
+        "combinedCagr": 7.3417
+      }
+    },
+    "1yr": {
+      "with": {
+        "tickers": [
+          "SOXL",
+          "INTC",
+          "000660",
+          "MU",
+          "AMAT"
+        ],
+        "strategies": [
+          "ma200",
+          "rsi30",
+          "weekly-fri",
+          "weekly-fri",
+          "rsi30"
+        ],
+        "cagrs": [
+          5.9693,
+          4.8848,
+          2.9996,
+          2.8938,
+          2.632
+        ],
+        "combinedCagr": 3.8759
+      },
+      "without": {
+        "tickers": [
+          "INTC",
+          "000660",
+          "MU",
+          "AMAT",
+          "WDC"
+        ],
+        "strategies": [
+          "rsi30",
+          "weekly-fri",
+          "weekly-fri",
+          "rsi30",
+          "weekly-fri"
+        ],
+        "cagrs": [
+          4.8848,
+          2.9996,
+          2.8938,
+          2.632,
+          2.4254
+        ],
+        "combinedCagr": 3.1671
+      }
+    },
+    "2yr": {
+      "with": {
+        "tickers": [
+          "BE",
+          "000660",
+          "WDC",
+          "MU",
+          "SOXL"
+        ],
+        "strategies": [
+          "ma200",
+          "rsi30",
+          "rsi30",
+          "rsi30",
+          "rsi30"
+        ],
+        "cagrs": [
+          3.3153,
+          2.7152,
+          2.7099,
+          2.5607,
+          2.3596
+        ],
+        "combinedCagr": 2.7321
+      },
+      "without": {
+        "tickers": [
+          "BE",
+          "000660",
+          "WDC",
+          "MU",
+          "INTC"
+        ],
+        "strategies": [
+          "ma200",
+          "rsi30",
+          "rsi30",
+          "rsi30",
+          "rsi30"
+        ],
+        "cagrs": [
+          3.3153,
+          2.7152,
+          2.7099,
+          2.5607,
+          1.4421
+        ],
+        "combinedCagr": 2.5486
+      }
+    },
+    "3yr": {
+      "with": {
+        "tickers": [
+          "BE",
+          "RKLB",
+          "000660",
+          "WDC",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "ma200",
+          "ma200",
+          "rsi30",
+          "rsi30"
+        ],
+        "cagrs": [
+          1.8819,
+          1.6749,
+          1.4106,
+          1.401,
+          1.1895
+        ],
+        "combinedCagr": 1.5116
+      },
+      "without": {
+        "tickers": [
+          "BE",
+          "RKLB",
+          "000660",
+          "WDC",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "ma200",
+          "ma200",
+          "rsi30",
+          "rsi30"
+        ],
+        "cagrs": [
+          1.8819,
+          1.6749,
+          1.4106,
+          1.401,
+          1.1895
+        ],
+        "combinedCagr": 1.5116
+      }
+    },
+    "4yr": {
+      "with": {
+        "tickers": [
+          "BE",
+          "WDC",
+          "RKLB",
+          "000660",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "ma200",
+          "ma100",
+          "ma200"
+        ],
+        "cagrs": [
+          1.2107,
+          1.1842,
+          1.0872,
+          1.0595,
+          0.8611
+        ],
+        "combinedCagr": 1.0805
+      },
+      "without": {
+        "tickers": [
+          "BE",
+          "WDC",
+          "RKLB",
+          "000660",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "ma200",
+          "ma100",
+          "ma200"
+        ],
+        "cagrs": [
+          1.2107,
+          1.1842,
+          1.0872,
+          1.0595,
+          0.8611
+        ],
+        "combinedCagr": 1.0805
+      }
+    },
+    "5yr": {
+      "with": {
+        "tickers": [
+          "WDC",
+          "BE",
+          "000660",
+          "RKLB",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "ma100",
+          "ma200",
+          "rsi30"
+        ],
+        "cagrs": [
+          0.8678,
+          0.8608,
+          0.8007,
+          0.7386,
+          0.6553
+        ],
+        "combinedCagr": 0.7846
+      },
+      "without": {
+        "tickers": [
+          "WDC",
+          "BE",
+          "000660",
+          "RKLB",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "ma100",
+          "ma200",
+          "rsi30"
+        ],
+        "cagrs": [
+          0.8678,
+          0.8608,
+          0.8007,
+          0.7386,
+          0.6553
+        ],
+        "combinedCagr": 0.7846
+      }
+    },
+    "6yr": {
+      "with": {
+        "tickers": [
+          "WDC",
+          "BE",
+          "000660",
+          "MU",
+          "SOXL"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "ma200",
+          "rsi30",
+          "rsi30"
+        ],
+        "cagrs": [
+          0.6832,
+          0.6596,
+          0.6445,
+          0.5355,
+          0.4235
+        ],
+        "combinedCagr": 0.5892
+      },
+      "without": {
+        "tickers": [
+          "WDC",
+          "BE",
+          "000660",
+          "MU",
+          "AMD"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "ma200",
+          "rsi30",
+          "rsi20"
+        ],
+        "cagrs": [
+          0.6832,
+          0.6596,
+          0.6445,
+          0.5355,
+          0.4135
+        ],
+        "combinedCagr": 0.5873
+      }
+    },
+    "7yr": {
+      "with": {
+        "tickers": [
+          "000660",
+          "WDC",
+          "AVGO",
+          "BE",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi30"
+        ],
+        "cagrs": [
+          0.6475,
+          0.5618,
+          0.548,
+          0.543,
+          0.4731
+        ],
+        "combinedCagr": 0.5547
+      },
+      "without": {
+        "tickers": [
+          "000660",
+          "WDC",
+          "AVGO",
+          "BE",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi30"
+        ],
+        "cagrs": [
+          0.6475,
+          0.5618,
+          0.548,
+          0.543,
+          0.4731
+        ],
+        "combinedCagr": 0.5547
+      }
+    },
+    "8yr": {
+      "with": {
+        "tickers": [
+          "NVDA",
+          "000660",
+          "WDC",
+          "AVGO",
+          "AMAT"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi20"
+        ],
+        "cagrs": [
+          0.6342,
+          0.5477,
+          0.4728,
+          0.4503,
+          0.4231
+        ],
+        "combinedCagr": 0.5056
+      },
+      "without": {
+        "tickers": [
+          "NVDA",
+          "000660",
+          "WDC",
+          "AVGO",
+          "AMAT"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi20"
+        ],
+        "cagrs": [
+          0.6342,
+          0.5477,
+          0.4728,
+          0.4503,
+          0.4231
+        ],
+        "combinedCagr": 0.5056
+      }
+    },
+    "9yr": {
+      "with": {
+        "tickers": [
+          "NVDA",
+          "000660",
+          "WDC",
+          "AVGO",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi30"
+        ],
+        "cagrs": [
+          0.528,
+          0.4744,
+          0.3967,
+          0.3869,
+          0.3716
+        ],
+        "combinedCagr": 0.4315
+      },
+      "without": {
+        "tickers": [
+          "NVDA",
+          "000660",
+          "WDC",
+          "AVGO",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi30"
+        ],
+        "cagrs": [
+          0.528,
+          0.4744,
+          0.3967,
+          0.3869,
+          0.3716
+        ],
+        "combinedCagr": 0.4315
+      }
+    },
+    "10yr": {
+      "with": {
+        "tickers": [
+          "NVDA",
+          "000660",
+          "WDC",
+          "AVGO",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "daily"
+        ],
+        "cagrs": [
+          0.459,
+          0.4182,
+          0.3419,
+          0.3403,
+          0.3381
+        ],
+        "combinedCagr": 0.3795
+      },
+      "without": {
+        "tickers": [
+          "NVDA",
+          "000660",
+          "WDC",
+          "AVGO",
+          "MU"
+        ],
+        "strategies": [
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "rsi20",
+          "daily"
+        ],
+        "cagrs": [
+          0.459,
+          0.4182,
+          0.3419,
+          0.3403,
+          0.3381
+        ],
+        "combinedCagr": 0.3795
+      }
+    }
+  }
+}

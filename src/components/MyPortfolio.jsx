@@ -18,8 +18,15 @@ import {
 } from "../utils/portfolioApi.js";
 import TickerSearch from "./TickerSearch.jsx";
 
-const FREE_LIMIT = 3;
+const FREE_LIMIT = 2;
 const BASIC_LIMIT = 10;
+
+const PERIODS = [
+  { label: "1년", years: 1 },
+  { label: "2년", years: 2 },
+  { label: "3년", years: 3 },
+  { label: "5년", years: 5 },
+];
 
 function enrichItem(item) {
   const meta = getTickerMeta(item.ticker);
@@ -30,16 +37,26 @@ function enrichItem(item) {
   };
 }
 
-function findBestStrategy(prices) {
+function findBestStrategyForPeriod(prices, years) {
   const end = new Date();
   const start = new Date();
-  start.setFullYear(start.getFullYear() - 5);
+  start.setFullYear(start.getFullYear() - years);
   const results = ALL_STRATEGIES
     .map((s) => runStrategy(prices, s, 300000, start, end))
     .filter(Boolean);
-  if (results.length === 0) return "monthly-first";
-  results.sort((a, b) => b.totalReturn - a.totalReturn);
-  return results[0].strategy;
+  if (results.length === 0) return { strategy: "monthly-first", cagr: 0 };
+  results.sort((a, b) => b.cagr - a.cagr);
+  return { strategy: results[0].strategy, cagr: results[0].cagr };
+}
+
+async function analyzeAllPeriods(prices) {
+  const results = await Promise.all(
+    PERIODS.map(async ({ label, years }) => {
+      const { strategy, cagr } = findBestStrategyForPeriod(prices, years);
+      return { label, years, strategy, cagr };
+    })
+  );
+  return results;
 }
 
 function checkTodayCondition(prices, strategy) {
@@ -79,7 +96,8 @@ export default function MyPortfolio() {
   const [adding, setAdding] = useState(false);
   const [selectedTicker, setSelectedTicker] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState(null);
+  const [periodResults, setPeriodResults] = useState(null); // [{ label, years, strategy, totalReturn }]
+  const [selectedPeriodIdx, setSelectedPeriodIdx] = useState(3); // 기본 5년
   const [conditions, setConditions] = useState({});
   const [checking, setChecking] = useState(false);
   const anonKeyRef = useRef(null);
@@ -127,16 +145,17 @@ export default function MyPortfolio() {
   }
 
   useEffect(() => {
-    if (!selectedTicker) { setAnalysisResult(null); return; }
+    if (!selectedTicker) { setPeriodResults(null); return; }
     (async () => {
       setAnalyzing(true);
-      setAnalysisResult(null);
+      setPeriodResults(null);
+      setSelectedPeriodIdx(3);
       try {
         const prices = await loadPrices(selectedTicker);
-        const strategy = findBestStrategy(prices);
-        setAnalysisResult({ ticker: selectedTicker, strategy });
+        const results = await analyzeAllPeriods(prices);
+        setPeriodResults(results);
       } catch {
-        setAnalysisResult(null);
+        setPeriodResults(null);
       } finally {
         setAnalyzing(false);
       }
@@ -144,8 +163,9 @@ export default function MyPortfolio() {
   }, [selectedTicker]);
 
   async function addItem() {
-    if (!analysisResult || !anonKeyRef.current) return;
-    const { ticker, strategy } = analysisResult;
+    if (!periodResults || !anonKeyRef.current) return;
+    const { strategy } = periodResults[selectedPeriodIdx];
+    const ticker = selectedTicker;
     if (items.some((i) => i.ticker === ticker)) return;
     const result = await addPortfolioItem(anonKeyRef.current, { ticker, strategy });
     if (!result) return;
@@ -157,7 +177,7 @@ export default function MyPortfolio() {
     }
     setAdding(false);
     setSelectedTicker(null);
-    setAnalysisResult(null);
+    setPeriodResults(null);
   }
 
   async function removeItem(ticker) {
@@ -219,7 +239,7 @@ export default function MyPortfolio() {
           <p className="portfolio-empty-icon">📋</p>
           <p className="portfolio-empty-title">아직 저장된 종목이 없어요</p>
           <p className="portfolio-empty-desc">
-            종목을 추가하면 지난 5년 최적 전략 조건을 알려드려요
+            종목을 추가하면 기간별 최적 적립 전략과 조건 충족 알림을 받을 수 있어요
           </p>
         </div>
       )}
@@ -250,7 +270,7 @@ export default function MyPortfolio() {
                   </button>
                 </div>
                 <div className="portfolio-card-strategy">
-                  <span className="portfolio-card-strategy-badge">5년 최적</span>
+                  <span className="portfolio-card-strategy-badge">최적 전략</span>
                   <span className="portfolio-card-strategy-name">
                     {STRATEGY_LABELS[item.strategy] ?? item.strategy}
                   </span>
@@ -294,19 +314,40 @@ export default function MyPortfolio() {
           {selectedTicker && !alreadyAdded && (
             <div className="portfolio-analysis">
               {analyzing ? (
-                <p className="loading-state">5년 최적 전략 분석 중...</p>
-              ) : analysisResult ? (
+                <p className="loading-state">기간별 최적 전략 분석 중...</p>
+              ) : periodResults ? (
                 <>
-                  <div className="portfolio-analysis-result">
-                    <p className="portfolio-analysis-label">지난 5년 최적 전략</p>
-                    <p className="portfolio-analysis-strategy">
-                      {STRATEGY_LABELS[analysisResult.strategy]}
+                  <div className="portfolio-period-header">
+                    <p className="portfolio-period-title">기간별 최적 적립 전략</p>
+                    <p className="portfolio-period-desc">
+                      각 기간 동안 이 전략으로 매달 적립했을 때 가장 높은 성과를 냈어요. 원하는 기간을 선택하면 조건이 충족되는 날 알림을 드려요.
                     </p>
-                    <p className="portfolio-analysis-desc">
-                      이 조건이 충족되는 날 앱에서 알림을 확인할 수 있어요
+                    <p className="portfolio-period-cagr-note">
+                      수익률은 <strong>연환산(CAGR)</strong> 기준이에요. 기간이 달라도 연간 성과를 동일하게 비교할 수 있어요.
                     </p>
                   </div>
-                  <button className="btn-primary" onClick={addItem}>
+                  <div className="portfolio-period-list">
+                    {periodResults.map((r, idx) => {
+                      const pct = r.cagr * 100;
+                      const returnClass = pct >= 20 ? "portfolio-period-return--high"
+                        : pct >= 10 ? "portfolio-period-return--mid"
+                        : "portfolio-period-return--low";
+                      return (
+                        <button
+                          key={r.label}
+                          className={`portfolio-period-card${selectedPeriodIdx === idx ? " portfolio-period-card--selected" : ""}`}
+                          onClick={() => setSelectedPeriodIdx(idx)}
+                        >
+                          <span className="portfolio-period-label">{r.label} 기준</span>
+                          <span className="portfolio-period-strategy">{STRATEGY_LABELS[r.strategy] ?? r.strategy}</span>
+                          <span className={`portfolio-period-return ${returnClass}`}>
+                            {pct >= 0 ? "+" : ""}{pct.toFixed(1)}%
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button className="btn-primary" style={{ marginTop: 16 }} onClick={addItem}>
                     포트폴리오에 추가
                   </button>
                 </>
@@ -320,7 +361,7 @@ export default function MyPortfolio() {
             onClick={() => {
               setAdding(false);
               setSelectedTicker(null);
-              setAnalysisResult(null);
+              setPeriodResults(null);
             }}
           >
             취소

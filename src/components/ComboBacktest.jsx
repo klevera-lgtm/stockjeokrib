@@ -13,6 +13,7 @@ import { consumeFreeQuery } from "../utils/premium.js";
 import TickerSearch from "./TickerSearch.jsx";
 import LineChart from "./LineChart.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
+import FeaturedCombos from "./FeaturedCombos.jsx";
 
 function getAllocLabel(allocs) {
   return allocs.map((a) => `${a.ticker} ${a.pct}%`).join(" / ");
@@ -167,6 +168,13 @@ export default function ComboBacktest() {
         <h1 className="page-title">조합 탐색</h1>
         <p className="page-subtitle">최대 5개 자산을 조합해 백테스트해요</p>
       </div>
+
+      <FeaturedCombos />
+
+      <div style={{ borderTop: "1px solid var(--border)", margin: "4px 16px 16px", opacity: 0.5 }} />
+      <p style={{ fontSize: 12, color: "var(--text-secondary)", padding: "0 16px 8px", fontWeight: 600 }}>
+        직접 백테스트
+      </p>
 
       <div className="form-section">
         <label className="form-label">자산 선택 (최대 5개)</label>
