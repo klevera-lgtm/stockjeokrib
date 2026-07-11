@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { loadWhatOthersBuy } from "../utils/dataLoader.js";
 import { isBasic } from "../utils/premium.js";
+import { SUPPORTED_TICKERS } from "../utils/tickers.js";
 import UpgradeModal from "./UpgradeModal.jsx";
 
 const FREE_LIMIT = 10;
@@ -90,15 +91,19 @@ export default function WhatOthersBuy({ onTickerSelect }) {
                 </div>
 
                 {ticker && (
-                  <button
-                    className="btn-secondary others-analyze"
-                    onClick={() => {
-                      if (isLocked) { setShowUpgrade(true); return; }
-                      onTickerSelect(ticker);
-                    }}
-                  >
-                    전략 분석
-                  </button>
+                  SUPPORTED_TICKERS.has(ticker)
+                    ? (
+                      <button
+                        className="btn-secondary others-analyze"
+                        onClick={() => {
+                          if (isLocked) { setShowUpgrade(true); return; }
+                          onTickerSelect(ticker);
+                        }}
+                      >
+                        전략 분석
+                      </button>
+                    )
+                    : <span className="others-no-data">데이터 없음</span>
                 )}
 
                 {isLocked && (

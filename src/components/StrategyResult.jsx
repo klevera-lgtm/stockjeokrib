@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { loadPrices } from "../utils/dataLoader.js";
 import {
   runStrategy,
@@ -50,6 +50,7 @@ export default function StrategyResult({ initialTicker = null }) {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [remaining, setRemaining] = useState(getRemainingFreeQueries());
   const basic = isBasic();
+  const autoRanRef = useRef(false);
 
   const run = useCallback(async () => {
     if (!ticker) return;
@@ -84,6 +85,13 @@ export default function StrategyResult({ initialTicker = null }) {
       setLoading(false);
     }
   }, [ticker, monthlyAmount, customStart, basic]);
+
+  useEffect(() => {
+    if (initialTicker && !autoRanRef.current) {
+      autoRanRef.current = true;
+      run();
+    }
+  }, [initialTicker, run]);
 
   return (
     <div className="page">
