@@ -401,21 +401,26 @@ input, select {
   margin-top: 2px;
 }
 .strategy-row.benchmark {
-  background: #f0f4ff;
-  border: 1.5px solid #c7d9ff;
+  background: #1B3A6B;
+  border: 1.5px solid #2d5299;
 }
-@media (prefers-color-scheme: dark) {
-  .strategy-row.benchmark {
-    background: #0d1a33;
-    border-color: #1e3a6e;
-  }
+.strategy-row.benchmark .strategy-name,
+.strategy-row.benchmark .strategy-rank {
+  color: #fff;
+}
+.strategy-row.benchmark .strategy-meta,
+.strategy-row.benchmark .cagr {
+  color: rgba(255,255,255,0.65);
+}
+.strategy-row.benchmark .return-pct {
+  color: #fff;
 }
 .benchmark-badge {
   display: inline-block;
   font-size: 10px;
   font-weight: 600;
-  color: #3182F6;
-  background: rgba(49,130,246,0.12);
+  color: #fff;
+  background: rgba(255,255,255,0.2);
   border-radius: 4px;
   padding: 1px 5px;
   margin-left: 6px;

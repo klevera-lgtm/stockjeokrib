@@ -12,7 +12,7 @@ import {
 } from "chart.js";
 import "chart.js/auto";
 
-export default function LineChart({ data, labels, datasets, title }) {
+export default function LineChart({ data, labels, datasets, title, yType = "won" }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -45,6 +45,7 @@ export default function LineChart({ data, labels, datasets, title }) {
             callbacks: {
               label: (ctx) => {
                 const v = ctx.raw;
+                if (yType === "pct") return `${ctx.dataset.label}: ${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
                 if (v >= 1e8) return `${(v / 1e8).toFixed(1)}억원`;
                 if (v >= 1e4) return `${Math.round(v / 1e4).toLocaleString()}만원`;
                 return `${Math.round(v).toLocaleString()}원`;
@@ -67,11 +68,13 @@ export default function LineChart({ data, labels, datasets, title }) {
           },
           y: {
             ticks: {
-              callback: (v) => {
-                if (v >= 1e8) return `${(v / 1e8).toFixed(0)}억`;
-                if (v >= 1e4) return `${(v / 1e4).toFixed(0)}만`;
-                return v;
-              },
+              callback: yType === "pct"
+                ? (v) => `${v >= 0 ? "+" : ""}${v.toFixed(0)}%`
+                : (v) => {
+                    if (v >= 1e8) return `${(v / 1e8).toFixed(0)}억`;
+                    if (v >= 1e4) return `${(v / 1e4).toFixed(0)}만`;
+                    return v;
+                  },
             },
           },
         },

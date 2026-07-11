@@ -171,10 +171,12 @@ export default function StrategyResult({ initialTicker = null }) {
           {results.list[0] && (() => {
             const best = results.list[0];
             const bm = results.benchmark;
+            const toReturnPct = (pv) =>
+              pv.map((d) => d.invested > 0 ? (d.value / d.invested - 1) * 100 : 0);
             const chartDatasets = [
               {
                 label: STRATEGY_LABELS[best.strategy],
-                data: best.portfolioValues.map((d) => d.value),
+                data: toReturnPct(best.portfolioValues),
                 borderColor: "#3182F6",
                 backgroundColor: "rgba(49,130,246,0.1)",
                 fill: true,
@@ -183,7 +185,7 @@ export default function StrategyResult({ initialTicker = null }) {
               },
               ...(bm && bm.strategy !== best.strategy ? [{
                 label: "월급날(25일) 기준",
-                data: bm.portfolioValues.map((d) => d.value),
+                data: toReturnPct(bm.portfolioValues),
                 borderColor: "rgba(150,150,150,0.6)",
                 borderDash: [5, 4],
                 backgroundColor: "transparent",
@@ -196,6 +198,7 @@ export default function StrategyResult({ initialTicker = null }) {
               <LineChart
                 labels={best.portfolioValues.map((d) => d.date)}
                 datasets={chartDatasets}
+                yType="pct"
               />
             );
           })()}
