@@ -109,7 +109,7 @@ export default function WhatOthersBuy({ onTickerSelect }) {
                         전략 분석
                       </button>
                     )
-                    : <span className="others-no-data">데이터 없음</span>
+                    : <span className="others-no-data">데이터 1년 미만</span>
                 )}
 
                 {isLocked && (
