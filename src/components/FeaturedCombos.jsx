@@ -16,7 +16,7 @@ const PERIOD_LABELS = {
   "9yr": "지난 9년", "10yr": "지난 10년",
 };
 
-export default function FeaturedCombos() {
+export default function FeaturedCombos({ onComboSelect }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [withLeverage, setWithLeverage] = useState(false);
@@ -68,6 +68,14 @@ export default function FeaturedCombos() {
             </div>
           )}
         </div>
+        {!locked && onComboSelect && (
+          <button
+            className="fc-chart-btn"
+            onClick={() => onComboSelect(combo.tickers, combo.strategies, periodKey)}
+          >
+            차트로 보기
+          </button>
+        )}
       </div>
     );
   }

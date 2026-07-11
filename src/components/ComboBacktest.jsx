@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { loadPrices } from "../utils/dataLoader.js";
 import {
   runStrategy,
@@ -34,13 +34,17 @@ export default function ComboBacktest() {
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
   const [customStart, setCustomStart] = useState("");
   const [useAutoStrategy, setUseAutoStrategy] = useState(false);
+  const [presetStrategyMap, setPresetStrategyMap] = useState(null);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("");
   const [error, setError] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [autoRun, setAutoRun] = useState(false);
+  const resultRef = useRef(null);
 
   function handleTickerChange(newTickers) {
+    setPresetStrategyMap(null);
     setTickers(newTickers);
     if (newTickers.length === 0) { setWeights({}); return; }
     const eq = Math.floor(100 / newTickers.length);
@@ -48,6 +52,33 @@ export default function ComboBacktest() {
     const newW = {};
     newTickers.forEach((t, i) => { newW[t] = i === 0 ? eq + remainder : eq; });
     setWeights(newW);
+  }
+
+  function periodKeyToStart(periodKey) {
+    const d = new Date();
+    const n = parseInt(periodKey, 10);
+    if (periodKey.endsWith("mo")) d.setMonth(d.getMonth() - n);
+    else d.setFullYear(d.getFullYear() - n);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  }
+
+  function handleComboSelect(comboTickers, comboStrategies, periodKey) {
+    const n = comboTickers.length;
+    const eq = Math.floor(100 / n);
+    const rem = 100 - eq * n;
+    const newW = {};
+    comboTickers.forEach((t, i) => { newW[t] = i === 0 ? eq + rem : eq; });
+    const stratMap = {};
+    comboTickers.forEach((t, i) => { stratMap[t] = comboStrategies[i]; });
+
+    setTickers([...comboTickers]);
+    setWeights(newW);
+    setCustomStart(periodKeyToStart(periodKey));
+    setPresetStrategyMap(stratMap);
+    setUseAutoStrategy(false);
+    setResults(null);
+    setError(null);
+    setAutoRun(true);
   }
 
   function updateWeight(ticker, val) {
@@ -84,7 +115,9 @@ export default function ComboBacktest() {
 
       // Find best strategy per ticker if auto-strategy is on
       const strategyMap = {};
-      if (useAutoStrategy) {
+      if (presetStrategyMap) {
+        tickers.forEach((t) => { strategyMap[t] = presetStrategyMap[t] ?? "monthly-first"; });
+      } else if (useAutoStrategy) {
         setLoadingMsg("각 자산의 최적 전략 분석 중...");
         await Promise.all(
           tickers.map(async (t) => {
@@ -146,6 +179,7 @@ export default function ComboBacktest() {
         allocs: tickers.map((t) => ({ ticker: t, pct: weights[t] })),
         strategyMap,
         useAutoStrategy,
+        fromCombo: !!presetStrategyMap,
         totalInvested,
         finalValue,
         totalReturn,
@@ -160,7 +194,20 @@ export default function ComboBacktest() {
       setLoading(false);
       setLoadingMsg("");
     }
-  }, [tickers, weights, monthlyAmount, customStart, useAutoStrategy, totalWeight]);
+  }, [tickers, weights, monthlyAmount, customStart, useAutoStrategy, presetStrategyMap, totalWeight]);
+
+  useEffect(() => {
+    if (autoRun && tickers.length > 0 && totalWeight === 100) {
+      setAutoRun(false);
+      run();
+    }
+  }, [autoRun, tickers, totalWeight, run]);
+
+  useEffect(() => {
+    if (results) {
+      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [results]);
 
   return (
     <div className="page">
@@ -169,7 +216,7 @@ export default function ComboBacktest() {
         <p className="page-subtitle">최대 5개 자산을 조합해 백테스트해요</p>
       </div>
 
-      <FeaturedCombos />
+      <FeaturedCombos onComboSelect={handleComboSelect} />
 
       <div style={{ borderTop: "1px solid var(--border)", margin: "4px 16px 16px", opacity: 0.5 }} />
       <p style={{ fontSize: 12, color: "var(--text-secondary)", padding: "0 16px 8px", fontWeight: 600 }}>
@@ -283,7 +330,7 @@ export default function ComboBacktest() {
       {error && <p className="error-msg">{error}</p>}
 
       {results && (
-        <div className="results-section">
+        <div className="results-section" ref={resultRef}>
           <h2 className="section-title">
             {getAllocLabel(results.allocs)}
             <span className="period-label">{results.period}</span>
@@ -291,10 +338,12 @@ export default function ComboBacktest() {
 
           <LineChart data={results.portfolioValues} title="포트폴리오 가치" />
 
-          {/* 전략 사용 내역 (자동 선택 시) */}
-          {results.useAutoStrategy && (
+          {/* 전략 사용 내역 */}
+          {(results.useAutoStrategy || results.fromCombo) && (
             <div className="strategy-used-box">
-              <p className="strategy-used-title">📌 적용된 전략 (기간 최적)</p>
+              <p className="strategy-used-title">
+                {results.fromCombo ? "📌 콤보 전략 그대로 적용" : "📌 적용된 전략 (기간 최적)"}
+              </p>
               {results.allocs.map((a) => (
                 <div key={a.ticker} className="strategy-used-row">
                   <span className="strategy-used-ticker">{a.ticker}</span>

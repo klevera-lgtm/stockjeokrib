@@ -1470,6 +1470,21 @@ input, select {
   padding: 6px 14px;
 }
 
+.fc-chart-btn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 8px 0;
+  background: var(--primary, #3182F6);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fc-chart-btn:active { opacity: 0.85; }
+
 .fc-updated {
   text-align: center;
   font-size: 10px;

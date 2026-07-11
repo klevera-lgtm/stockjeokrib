@@ -61,7 +61,12 @@ export default function LineChart({ data, labels, datasets, title, yType = "won"
                 const label = this.getLabelForValue(val);
                 if (!label) return "";
                 const d = new Date(label);
-                return isNaN(d) ? label : `${d.getFullYear()}.${d.getMonth() + 1}`;
+                if (isNaN(d)) return label;
+                const spanDays = data && data.length > 1
+                  ? (new Date(data.at(-1).date) - new Date(data[0].date)) / 86400000
+                  : 9999;
+                if (spanDays <= 200) return `${d.getMonth() + 1}.${d.getDate()}`;
+                return `${d.getFullYear()}.${d.getMonth() + 1}`;
               },
             },
             grid: { display: false },
