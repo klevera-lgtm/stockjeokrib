@@ -10,21 +10,21 @@ export default function TickerSearch({ onSelect, multi = false, selected = [] })
   const candidates = useMemo(() => {
     const q = query.trim().toUpperCase();
 
-    // 검색어가 있으면 SUPPORTED_TICKERS 전체(CSV 보유 티커)에서 검색
+    // 검색어가 있으면 SUPPORTED_TICKERS 전체에서 검색
     if (q) {
       return [...SUPPORTED_TICKERS].filter(
         (t) => t.toUpperCase().includes(q) || getTickerLabel(t).includes(query.trim())
       ).sort();
     }
 
-    // 검색어 없으면 카테고리 그리드
-    let list;
-    if (activeCategory === "전체") {
-      list = Object.values(TICKER_CATEGORIES).flat();
-    } else {
-      list = TICKER_CATEGORIES[activeCategory] ?? [];
+    if (activeCategory !== "전체") {
+      return [...new Set(TICKER_CATEGORIES[activeCategory] ?? [])];
     }
-    return [...new Set(list)];
+
+    // 전체: TICKER_CATEGORIES 순서 유지 후 나머지 SUPPORTED_TICKERS 알파벳 추가
+    const catTickers = [...new Set(Object.values(TICKER_CATEGORIES).flat())];
+    const extra = [...SUPPORTED_TICKERS].filter((t) => !catTickers.includes(t)).sort();
+    return [...catTickers, ...extra];
   }, [query, activeCategory]);
 
   function toggle(ticker) {
@@ -60,7 +60,7 @@ export default function TickerSearch({ onSelect, multi = false, selected = [] })
         ))}
       </div>
       <div className="ticker-grid">
-        {candidates.slice(0, 60).map((ticker) => {
+        {candidates.map((ticker) => {
           const isSelected = multi
             ? selected.includes(ticker)
             : selected === ticker;
