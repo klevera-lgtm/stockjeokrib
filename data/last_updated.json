@@ -1,9 +1,9 @@
 {
-  "last_updated": "2026-07-11",
-  "updated_at": "2026-07-11T22:37:06.908418",
+  "last_updated": "2026-07-12",
+  "updated_at": "2026-07-12T22:37:40.525402",
   "total_tickers": 95,
-  "updated": 0,
-  "skipped": 114,
+  "updated": 113,
+  "skipped": 1,
   "failed": [
     "000660",
     "005930",
