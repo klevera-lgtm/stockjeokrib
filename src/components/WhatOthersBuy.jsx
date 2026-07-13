@@ -3,9 +3,11 @@ import { loadWhatOthersBuy } from "../utils/dataLoader.js";
 import { isBasic } from "../utils/premium.js";
 import { SUPPORTED_TICKERS, SUPPORTED_TICKERS_URL } from "../utils/tickers.js";
 import UpgradeModal from "./UpgradeModal.jsx";
+import ShareButton from "./ShareButton.jsx";
+import { APP_LINK } from "../utils/share.js";
+import AdBanner from "./AdBanner.jsx";
 
-const FREE_LIMIT = 10;
-const BASIC_LIMIT = 50;
+const DISPLAY_LIMIT = 50;
 
 function formatAmount(v) {
   if (!v && v !== 0) return "-";
@@ -16,10 +18,9 @@ function formatAmount(v) {
   return v.toLocaleString();
 }
 
-// ".KS", ".T", ".HK" 등 비미국 서픽스 제거 — 미국 ticker는 보통 순수 알파벳
 function cleanTicker(raw) {
   if (!raw) return null;
-  if (raw.includes(".")) return null; // 해외 거래소 ticker는 전략 분석 불가
+  if (raw.includes(".")) return null;
   return raw;
 }
 
@@ -29,8 +30,6 @@ export default function WhatOthersBuy({ onTickerSelect }) {
   const [error, setError] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [supportedSet, setSupportedSet] = useState(SUPPORTED_TICKERS);
-  const basic = isBasic();
-  const limit = basic ? BASIC_LIMIT : FREE_LIMIT;
 
   useEffect(() => {
     loadWhatOthersBuy()
@@ -41,7 +40,7 @@ export default function WhatOthersBuy({ onTickerSelect }) {
     fetch(SUPPORTED_TICKERS_URL)
       .then((r) => r.json())
       .then((list) => setSupportedSet(new Set(list)))
-      .catch(() => {}); // keep SUPPORTED_TICKERS as fallback
+      .catch(() => {});
   }, []);
 
   return (
@@ -49,93 +48,86 @@ export default function WhatOthersBuy({ onTickerSelect }) {
       <div className="page-header">
         <h1 className="page-title">남들은 뭐 살까</h1>
         <p className="page-subtitle">이번 주 한국인이 가장 많이 순매수한 미국 주식</p>
-        {!basic && (
-          <div className="quota-badge">
-            무료: TOP10 공개&nbsp;
-            <button className="inline-link" onClick={() => setShowUpgrade(true)}>
-              TOP50 보기 →
-            </button>
-          </div>
-        )}
       </div>
 
       {loading && <div className="loading-state">데이터 불러오는 중...</div>}
       {error && <div className="error-msg">데이터를 불러올 수 없습니다. ({error})</div>}
-
       {data && data.length === 0 && (
         <div className="empty-state">현재 표시할 데이터가 없습니다.</div>
       )}
 
-      {data && data.length > 0 && (
-        <div className="others-list">
-          {data.slice(0, limit).map((item, idx) => {
-            const isLocked = !basic && idx >= FREE_LIMIT;
-            const ticker = cleanTicker(item.ticker);
+      {data && data.length > 0 && (() => {
+        const visible = data.slice(0, DISPLAY_LIMIT);
+        const maxAmount = Math.max(...visible.map((i) => i.net_buy_amount || 0));
+        const analyzable = visible.filter((item) => {
+          const t = cleanTicker(item.ticker);
+          return t && supportedSet.has(t);
+        }).length;
 
-            return (
-              <div
-                key={item.isin ?? idx}
-                className={`others-row${isLocked ? " blurred" : ""}`}
-              >
-                <div className="others-rank">
-                  {idx < 3 ? ["🥇", "🥈", "🥉"][idx] : idx + 1}
-                </div>
+        const shareText = `🏆 이번 주 한국인 미국주식 순매수 TOP5\n${data.slice(0, 5).map((item, i) => `${i + 1}. ${item.ticker || item.name} (+${formatAmount(item.net_buy_amount)}원)`).join("\n")}\n\n내 보유 종목 DCA 분석 → ${APP_LINK}`;
 
-                <div className="others-info">
-                  {ticker
-                    ? <div className="others-ticker">{ticker}</div>
-                    : <div className="others-ticker others-ticker--name">{item.name}</div>
-                  }
+        return (
+          <div className="others-list">
+            <div className="others-summary">
+              TOP {visible.length} 중 <strong>{analyzable}개</strong> 전략 분석 가능
+            </div>
+
+            {visible.map((item, idx) => {
+              const ticker = cleanTicker(item.ticker);
+              const barPct = maxAmount > 0 ? (item.net_buy_amount / maxAmount) * 100 : 0;
+
+              return (
+                <div key={item.isin ?? idx} className="others-row">
+                  <div className="others-bar" style={{ width: `${barPct.toFixed(1)}%` }} />
+
+                  <div className="others-rank">
+                    {idx < 3 ? ["🥇", "🥈", "🥉"][idx] : idx + 1}
+                  </div>
+
+                  <div className="others-info">
+                    {ticker
+                      ? <div className="others-ticker">{ticker}</div>
+                      : <div className="others-ticker others-ticker--name">{item.name}</div>
+                    }
+                    {ticker && <div className="others-name">{item.name}</div>}
+                  </div>
+
+                  <div className="others-amount">
+                    <span className="pos">+{formatAmount(item.net_buy_amount)}</span>
+                    <span className="others-unit">원</span>
+                  </div>
+
                   {ticker && (
-                    <div className="others-name">{item.name}</div>
+                    supportedSet.has(ticker)
+                      ? (
+                        <button
+                          className="btn-secondary others-analyze"
+                          onClick={() => onTickerSelect(ticker)}
+                        >
+                          전략 분석
+                        </button>
+                      )
+                      : <span className="others-no-data">분석 불가</span>
                   )}
                 </div>
+              );
+            })}
 
-                <div className="others-amount">
-                  <span className="pos">+{formatAmount(item.net_buy_amount)}</span>
-                  <span className="others-unit">원 순매수</span>
-                </div>
+            <ShareButton text={shareText} label="TOP5 공유하기" />
 
-                {ticker && (
-                  supportedSet.has(ticker)
-                    ? (
-                      <button
-                        className="btn-secondary others-analyze"
-                        onClick={() => {
-                          if (isLocked) { setShowUpgrade(true); return; }
-                          onTickerSelect(ticker);
-                        }}
-                      >
-                        전략 분석
-                      </button>
-                    )
-                    : <span className="others-no-data">데이터 1년 미만</span>
-                )}
+            <AdBanner className="ad-banner-results" />
 
-                {isLocked && (
-                  <div className="blur-overlay">
-                    <button
-                      className="btn-primary blur-cta"
-                      onClick={() => setShowUpgrade(true)}
-                    >
-                      베이직에서 TOP50 보기
-                    </button>
-                  </div>
-                )}
+            {!isBasic() && (
+              <div className="upgrade-banner">
+                <span>광고 지겨우세요? 베이직에서 광고 없이 무제한으로</span>
+                <button className="btn-primary" onClick={() => setShowUpgrade(true)}>
+                  월 1,990원
+                </button>
               </div>
-            );
-          })}
-
-          {!basic && (
-            <div className="upgrade-banner">
-              <span>베이직에서 TOP50 전체 공개</span>
-              <button className="btn-primary" onClick={() => setShowUpgrade(true)}>
-                월 990원으로 시작
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        );
+      })()}
 
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
     </div>

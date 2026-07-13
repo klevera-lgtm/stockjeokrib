@@ -7,14 +7,16 @@ import {
   formatKRW,
   formatPct,
 } from "../utils/calculator.js";
-import { isBasic, consumeFreeQuery, getRemainingFreeQueries } from "../utils/premium.js";
+import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
 import TickerSearch from "./TickerSearch.jsx";
 import LineChart from "./LineChart.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
+import QueryGateModal from "./QueryGateModal.jsx";
 import StrategyGuide from "./StrategyGuide.jsx";
 import TickerInfoCard from "./TickerInfoCard.jsx";
-
-const FREE_YEARS = 5;
+import ShareButton from "./ShareButton.jsx";
+import { APP_LINK } from "../utils/share.js";
+import AdBanner from "./AdBanner.jsx";
 
 function getPeriodDates(yearsBack) {
   const end = new Date();
@@ -23,52 +25,47 @@ function getPeriodDates(yearsBack) {
   return { start, end };
 }
 
-function ShareCard({ ticker, strategy, result, monthlyAmount }) {
-  function copyShare() {
-    const text = `👑 주식적립왕 시뮬레이션 결과\n\n${ticker} · ${STRATEGY_LABELS[strategy]} · ${Math.round(result.years)}년\n월 ${monthlyAmount.toLocaleString()}원 적립 시\n\n납입 원금: ${formatKRW(result.totalInvested)}\n현재 가치: ${formatKRW(result.finalValue)}\n수익률: ${formatPct(result.totalReturn)} (${formatKRW(result.finalValue - result.totalInvested)})\n\n나도 계산해보기 → 주식적립왕 (토스)`;
-    if (navigator.share) {
-      navigator.share({ text });
-    } else {
-      navigator.clipboard.writeText(text);
-      alert("클립보드에 복사되었습니다.");
-    }
-  }
-  return (
-    <button className="btn-secondary share-btn" onClick={copyShare}>
-      공유하기
-    </button>
-  );
+function makeSimShareText(ticker, strategy, result, monthlyAmount) {
+  return `👑 주식적립왕 시뮬 결과\n\n${ticker} · ${STRATEGY_LABELS[strategy]} · ${Math.round(result.years)}년\n월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립 →\n\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)}\n\n나도 해보기 → ${APP_LINK}`;
 }
 
 export default function StrategyResult({ initialTicker = null }) {
   const [ticker, setTicker] = useState(initialTicker);
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
   const [customStart, setCustomStart] = useState("");
-  const [results, setResults] = useState(null); // { list, benchmark }
+  const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [remaining, setRemaining] = useState(getRemainingFreeQueries());
+  const [showQueryGate, setShowQueryGate] = useState(false);
+  const [remaining, setRemaining] = useState(getQueryBalance());
+  const [revealed, setRevealed] = useState(isBasic());
   const basic = isBasic();
   const autoRanRef = useRef(false);
 
+  function handleReveal() {
+    if (basic) { setRevealed(true); return; }
+    if (consumeQuery()) {
+      setRevealed(true);
+      setRemaining(getQueryBalance());
+    } else {
+      setShowQueryGate(true);
+    }
+  }
+
   const run = useCallback(async () => {
     if (!ticker) return;
-    if (!consumeFreeQuery()) {
-      setShowUpgrade(true);
-      return;
-    }
-    setRemaining(getRemainingFreeQueries());
     setLoading(true);
     setError(null);
+    setRevealed(basic);
     try {
       const prices = await loadPrices(ticker);
       let startDate, endDate;
-      if (basic && customStart) {
+      if (customStart) {
         startDate = new Date(customStart + "-01");
         endDate = new Date();
       } else {
-        const pd = getPeriodDates(FREE_YEARS);
+        const pd = getPeriodDates(5);
         startDate = pd.start;
         endDate = pd.end;
       }
@@ -99,12 +96,12 @@ export default function StrategyResult({ initialTicker = null }) {
       <div className="page-header">
         <h1 className="page-title">적립 시뮬레이션</h1>
         <p className="page-subtitle">과거 데이터로 적립 전략별 수익률을 비교해요</p>
-        {!basic && (
-          <div className="quota-badge">오늘 남은 무료 조회 {remaining}회</div>
+        {!basic && remaining !== Infinity && (
+          <div className="quota-badge">남은 코인 {remaining}개</div>
         )}
       </div>
 
-      <TickerSearch onSelect={setTicker} selected={ticker} />
+      <TickerSearch onSelect={(t) => { setTicker(t); setResults(null); setRevealed(basic); }} selected={ticker} />
 
       {ticker && <TickerInfoCard ticker={ticker} />}
 
@@ -131,26 +128,18 @@ export default function StrategyResult({ initialTicker = null }) {
             />
           </div>
 
-          {basic ? (
-            <div className="period-row">
-              <label className="form-label">시작 연월</label>
-              <input
-                type="month"
-                className="month-input"
-                value={customStart}
-                onChange={(e) => setCustomStart(e.target.value)}
-              />
-              <span className="period-hint">~ 현재</span>
-            </div>
-          ) : (
-            <p className="period-fixed">기간: 최근 5년 (무료 고정)</p>
-          )}
+          <div className="period-row">
+            <label className="form-label">시작 연월</label>
+            <input
+              type="month"
+              className="month-input"
+              value={customStart}
+              onChange={(e) => setCustomStart(e.target.value)}
+            />
+            <span className="period-hint">~ 현재 {!customStart && "(미입력 시 최근 5년)"}</span>
+          </div>
 
-          <button
-            className="btn-primary run-btn"
-            onClick={run}
-            disabled={loading}
-          >
+          <button className="btn-primary run-btn" onClick={run} disabled={loading}>
             {loading ? "계산 중..." : `${ticker} 전략 분석하기`}
           </button>
         </div>
@@ -163,49 +152,59 @@ export default function StrategyResult({ initialTicker = null }) {
           <h2 className="section-title">
             {ticker} 전략별 수익률 순위
             <span className="period-label">
-              {basic && customStart ? customStart + " ~ 현재" : "최근 5년"}
+              {customStart ? customStart + " ~ 현재" : "최근 5년"}
             </span>
           </h2>
 
-          {/* Chart: best strategy + 월급날(25일) 기준선 */}
           {results.list[0] && (() => {
             const best = results.list[0];
             const bm = results.benchmark;
             const toReturnPct = (pv) =>
               pv.map((d) => d.invested > 0 ? (d.value / d.invested - 1) * 100 : 0);
-            const chartDatasets = [
-              {
-                label: STRATEGY_LABELS[best.strategy],
-                data: toReturnPct(best.portfolioValues),
-                borderColor: "#3182F6",
-                backgroundColor: "rgba(49,130,246,0.1)",
-                fill: true,
-                tension: 0.3,
-                pointRadius: 0,
-              },
-              ...(bm && bm.strategy !== best.strategy ? [{
-                label: "월급날(25일) 기준",
-                data: toReturnPct(bm.portfolioValues),
-                borderColor: "rgba(150,150,150,0.6)",
-                borderDash: [5, 4],
-                backgroundColor: "transparent",
-                fill: false,
-                tension: 0.3,
-                pointRadius: 0,
-              }] : []),
-            ];
             return (
               <LineChart
                 labels={best.portfolioValues.map((d) => d.date)}
-                datasets={chartDatasets}
+                datasets={[
+                  {
+                    label: revealed ? STRATEGY_LABELS[best.strategy] : "최고 수익 전략",
+                    data: toReturnPct(best.portfolioValues),
+                    borderColor: "#3182F6",
+                    backgroundColor: "rgba(49,130,246,0.1)",
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 0,
+                  },
+                  ...(bm && bm.strategy !== best.strategy ? [{
+                    label: "월급날(25일) 기준",
+                    data: toReturnPct(bm.portfolioValues),
+                    borderColor: "rgba(150,150,150,0.6)",
+                    borderDash: [5, 4],
+                    backgroundColor: "transparent",
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 0,
+                  }] : []),
+                ]}
                 yType="pct"
               />
             );
           })()}
 
+          {/* 전략 공개 CTA */}
+          {!revealed && (
+            <div className="reveal-cta">
+              <p className="reveal-hint">
+                수익률을 확인했어요! 어떤 전략인지 보려면 코인 1개가 필요해요.
+              </p>
+              <button className="btn-primary reveal-btn" onClick={handleReveal}>
+                🔓 전략 공개하기 (코인 1개)
+              </button>
+              <p className="reveal-balance">남은 코인 {remaining}개 · 광고 시청 시 +2개</p>
+            </div>
+          )}
+
           <div className="strategy-list">
             {results.list.map((r, idx) => {
-              const isBlurred = !basic && idx !== 0 && idx !== results.list.length - 1;
               const isBest = idx === 0;
               const isWorst = idx === results.list.length - 1;
               const isBenchmark = r.strategy === "monthly-25";
@@ -216,15 +215,17 @@ export default function StrategyResult({ initialTicker = null }) {
               return (
                 <div
                   key={r.strategy}
-                  className={`strategy-row${isBlurred ? " blurred" : ""}${isBest ? " best" : ""}${isWorst ? " worst" : ""}${isBenchmark ? " benchmark" : ""}`}
+                  className={`strategy-row${isBest ? " best" : ""}${isWorst ? " worst" : ""}${isBenchmark ? " benchmark" : ""}`}
                 >
                   <div className="strategy-rank">
-                    {isBenchmark ? "📅" : isBest ? "🥇" : isWorst && !basic ? "🔻" : `${idx + 1}`}
+                    {isBenchmark ? "📅" : isBest ? "🥇" : `${idx + 1}`}
                   </div>
                   <div className="strategy-info">
                     <div className="strategy-name">
-                      {STRATEGY_LABELS[r.strategy]}
-                      {isBenchmark && <span className="benchmark-badge">월급날 기준</span>}
+                      <span className={!revealed ? "name--blur" : ""}>
+                        {STRATEGY_LABELS[r.strategy]}
+                      </span>
+                      {revealed && isBenchmark && <span className="benchmark-badge">월급날 기준</span>}
                     </div>
                     <div className="strategy-meta">
                       납입 {formatKRW(r.totalInvested)} →&nbsp;
@@ -242,47 +243,40 @@ export default function StrategyResult({ initialTicker = null }) {
                       : <div className="cagr">연 {formatPct(r.cagr)}</div>
                     }
                   </div>
-                  {isBlurred && (
-                    <div className="blur-overlay">
-                      <button
-                        className="btn-primary blur-cta"
-                        onClick={() => setShowUpgrade(true)}
-                      >
-                        베이직에서 전체 보기
-                      </button>
-                    </div>
-                  )}
                 </div>
               );
             })}
           </div>
 
-          {/* Share card for best strategy */}
-          {results.list[0] && (
-            <ShareCard
-              ticker={ticker}
-              strategy={results.list[0].strategy}
-              result={results.list[0]}
-              monthlyAmount={monthlyAmount}
+          {revealed && results.list[0] && (
+            <ShareButton
+              text={makeSimShareText(ticker, results.list[0].strategy, results.list[0], monthlyAmount)}
+              label="이 결과 공유하기"
             />
           )}
+
+          <AdBanner className="ad-banner-results" />
 
           <StrategyGuide monthlyAmount={monthlyAmount} />
 
           {!basic && (
             <div className="upgrade-banner">
-              <span>베이직에서 전체 전략 순위, 최적 시작 시점 분석까지</span>
-              <button
-                className="btn-primary"
-                onClick={() => setShowUpgrade(true)}
-              >
-                월 990원으로 시작
+              <span>광고 지겨우세요? 베이직에서 광고 없이 무제한으로</span>
+              <button className="btn-primary" onClick={() => setShowUpgrade(true)}>
+                월 1,990원
               </button>
             </div>
           )}
         </div>
       )}
 
+      {showQueryGate && (
+        <QueryGateModal
+          onClose={() => setShowQueryGate(false)}
+          onEarned={() => handleReveal()}
+          onUpgrade={() => setShowUpgrade(true)}
+        />
+      )}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
     </div>
   );

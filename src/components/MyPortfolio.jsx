@@ -18,8 +18,8 @@ import {
 } from "../utils/portfolioApi.js";
 import TickerSearch from "./TickerSearch.jsx";
 
-const FREE_LIMIT = 2;
-const BASIC_LIMIT = 10;
+const FREE_LIMIT = 3;
+const BASIC_LIMIT = 20;
 
 const PERIODS = [
   { label: "1년", years: 1 },
@@ -27,6 +27,22 @@ const PERIODS = [
   { label: "3년", years: 3 },
   { label: "5년", years: 5 },
 ];
+
+const STRATEGY_COND_LABELS = {
+  "daily":         "매일 매수",
+  "weekly-fri":    "매주 금요일에 매수",
+  "monthly-first": "매달 첫 거래일에 매수",
+  "monthly-15":    "매달 15일 전후에 매수",
+  "monthly-last":  "매달 마지막 거래일에 매수",
+  "ma10":          "10일 이평선 아래일 때 매수",
+  "ma50":          "50일 이평선 아래일 때 매수",
+  "ma100":         "100일 이평선 아래일 때 매수",
+  "ma200":         "200일 이평선 아래일 때 매수",
+  "drop3":         "전일 대비 3% 이상 하락 시 매수",
+  "drop5":         "전일 대비 5% 이상 하락 시 매수",
+  "rsi20":         "RSI 20 이하 (극과매도) 시 매수",
+  "rsi30":         "RSI 30 이하 (과매도) 시 매수",
+};
 
 function enrichItem(item) {
   const meta = getTickerMeta(item.ticker);
@@ -128,15 +144,22 @@ export default function MyPortfolio() {
   async function checkAllConditions(currentItems) {
     setChecking(true);
     const results = {};
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
     await Promise.all(
       currentItems.map(async (item) => {
         try {
           const prices = await loadPrices(item.ticker);
           const triggered = checkTodayCondition(prices, item.strategy);
           const lastDate = prices[prices.length - 1]?.date;
-          results[item.ticker] = { triggered, lastDate };
+          const refEntry = prices.find((p) => p.date >= oneYearAgo);
+          const latestClose = prices[prices.length - 1]?.close;
+          const return1yr = refEntry && latestClose
+            ? (latestClose / refEntry.close - 1)
+            : null;
+          results[item.ticker] = { triggered, lastDate, return1yr };
         } catch {
-          results[item.ticker] = { triggered: false, lastDate: null };
+          results[item.ticker] = { triggered: false, lastDate: null, return1yr: null };
         }
       })
     );
@@ -262,25 +285,35 @@ export default function MyPortfolio() {
                       <span className="portfolio-card-name">{item.tickerName}</span>
                     )}
                   </div>
-                  <button
-                    className="portfolio-card-delete"
-                    onClick={() => removeItem(item.ticker)}
-                  >
-                    ✕
-                  </button>
+                  <div className="portfolio-card-header-right">
+                    {cond?.return1yr != null && (
+                      <span className={`portfolio-1yr-badge ${cond.return1yr >= 0 ? "pos" : "neg"}`}>
+                        1년 {cond.return1yr >= 0 ? "+" : ""}{(cond.return1yr * 100).toFixed(1)}%
+                      </span>
+                    )}
+                    <button
+                      className="portfolio-card-delete"
+                      onClick={() => removeItem(item.ticker)}
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
                 <div className="portfolio-card-strategy">
-                  <span className="portfolio-card-strategy-badge">최적 전략</span>
+                  <span className="portfolio-card-strategy-badge">전략</span>
                   <span className="portfolio-card-strategy-name">
                     {STRATEGY_LABELS[item.strategy] ?? item.strategy}
                   </span>
+                </div>
+                <div className="portfolio-card-cond-desc">
+                  {STRATEGY_COND_LABELS[item.strategy] ?? "조건 충족 시 알림"}
                 </div>
                 <div className="portfolio-card-status">
                   {cond == null ? (
                     <span className="portfolio-status portfolio-status--loading">확인 중...</span>
                   ) : cond.triggered ? (
                     <span className="portfolio-status portfolio-status--triggered">
-                      🔔 오늘 조건 충족!
+                      🔔 오늘 매수 조건 충족!
                     </span>
                   ) : (
                     <span className="portfolio-status portfolio-status--waiting">
@@ -327,25 +360,35 @@ export default function MyPortfolio() {
                     </p>
                   </div>
                   <div className="portfolio-period-list">
-                    {periodResults.map((r, idx) => {
-                      const pct = r.cagr * 100;
-                      const returnClass = pct >= 20 ? "portfolio-period-return--high"
-                        : pct >= 10 ? "portfolio-period-return--mid"
-                        : "portfolio-period-return--low";
-                      return (
-                        <button
-                          key={r.label}
-                          className={`portfolio-period-card${selectedPeriodIdx === idx ? " portfolio-period-card--selected" : ""}`}
-                          onClick={() => setSelectedPeriodIdx(idx)}
-                        >
-                          <span className="portfolio-period-label">{r.label} 기준</span>
-                          <span className="portfolio-period-strategy">{STRATEGY_LABELS[r.strategy] ?? r.strategy}</span>
-                          <span className={`portfolio-period-return ${returnClass}`}>
-                            {pct >= 0 ? "+" : ""}{pct.toFixed(1)}%
-                          </span>
-                        </button>
+                    {(() => {
+                      const bestIdx = periodResults.reduce(
+                        (bi, r, i) => r.cagr > periodResults[bi].cagr ? i : bi, 0
                       );
-                    })}
+                      return periodResults.map((r, idx) => {
+                        const pct = r.cagr * 100;
+                        const returnClass = pct >= 20 ? "portfolio-period-return--high"
+                          : pct >= 10 ? "portfolio-period-return--mid"
+                          : "portfolio-period-return--low";
+                        return (
+                          <button
+                            key={r.label}
+                            className={`portfolio-period-card${selectedPeriodIdx === idx ? " portfolio-period-card--selected" : ""}`}
+                            onClick={() => setSelectedPeriodIdx(idx)}
+                          >
+                            <div className="portfolio-period-top">
+                              <span className="portfolio-period-label">{r.label} 기준</span>
+                              {idx === bestIdx && (
+                                <span className="portfolio-period-best">추천</span>
+                              )}
+                            </div>
+                            <span className="portfolio-period-strategy">{STRATEGY_LABELS[r.strategy] ?? r.strategy}</span>
+                            <span className={`portfolio-period-return ${returnClass}`}>
+                              {pct >= 0 ? "+" : ""}{pct.toFixed(1)}%
+                            </span>
+                          </button>
+                        );
+                      });
+                    })()}
                   </div>
                   <button className="btn-primary" style={{ marginTop: 16 }} onClick={addItem}>
                     포트폴리오에 추가
@@ -376,8 +419,8 @@ export default function MyPortfolio() {
           ) : (
             <p className="portfolio-limit-msg">
               {basic
-                ? `베이직 플랜 최대 ${BASIC_LIMIT}개까지 저장할 수 있어요`
-                : `무료는 최대 ${FREE_LIMIT}개까지예요. 베이직에서 ${BASIC_LIMIT}개까지 가능해요.`}
+                ? `최대 ${BASIC_LIMIT}개까지 저장할 수 있어요`
+                : `무료는 최대 ${FREE_LIMIT}개까지 저장할 수 있어요. 베이직에서 ${BASIC_LIMIT}개까지 가능해요.`}
             </p>
           )}
         </div>

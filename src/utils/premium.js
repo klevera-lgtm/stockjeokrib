@@ -1,39 +1,54 @@
-const STORAGE_KEY = "stockjeokrib_usage";
-const FREE_DAILY_LIMIT = 5;
+const BALANCE_KEY = "ait_query_balance";
+const REFILL_KEY = "ait_last_refill_date";
+const WELCOME_KEY = "ait_welcome_done";
+const PLAN_KEY = "stockjeokrib_plan";
 
-// TODO: 출시 전 DEV_MODE를 false로 되돌릴 것
-const DEV_MODE = true;
+const WELCOME_QUERIES = 10;
+const DAILY_FREE_QUERIES = 3;
+export const AD_REWARD_QUERIES = 2;
 
-function getUsageData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
+const DEV_MODE = false;
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function getPlanLevel() {
-  // For now, always "free" — extend later with IAP receipt check
+function getStoredBalance() {
+  try { return parseInt(localStorage.getItem(BALANCE_KEY) ?? "0", 10); }
+  catch { return 0; }
+}
+
+function setStoredBalance(n) {
+  try { localStorage.setItem(BALANCE_KEY, String(Math.max(0, n))); }
+  catch {}
+}
+
+function ensureDailyRefill() {
   try {
-    const raw = localStorage.getItem("stockjeokrib_plan");
-    return raw ?? "free";
-  } catch {
-    return "free";
-  }
+    const today = todayStr();
+    const welcomeDone = localStorage.getItem(WELCOME_KEY);
+    if (!welcomeDone) {
+      setStoredBalance(getStoredBalance() + WELCOME_QUERIES);
+      localStorage.setItem(WELCOME_KEY, "1");
+      localStorage.setItem(REFILL_KEY, today);
+      return;
+    }
+    const lastRefill = localStorage.getItem(REFILL_KEY);
+    if (lastRefill !== today) {
+      setStoredBalance(getStoredBalance() + DAILY_FREE_QUERIES);
+      localStorage.setItem(REFILL_KEY, today);
+    }
+  } catch {}
+}
+
+export function getPlanLevel() {
+  try { return localStorage.getItem(PLAN_KEY) ?? "free"; }
+  catch { return "free"; }
 }
 
 export function setPlanLevel(level) {
-  try {
-    localStorage.setItem("stockjeokrib_plan", level);
-  } catch {
-    // ignore
-  }
+  try { localStorage.setItem(PLAN_KEY, level); }
+  catch {}
 }
 
 export function isBasic() {
@@ -41,24 +56,25 @@ export function isBasic() {
   return getPlanLevel() === "basic";
 }
 
-export function getRemainingFreeQueries() {
-  if (DEV_MODE || isBasic()) return Infinity;
-  const data = getUsageData();
-  const today = todayStr();
-  if (!data || data.date !== today) return FREE_DAILY_LIMIT;
-  return Math.max(0, FREE_DAILY_LIMIT - (data.count ?? 0));
+export function getQueryBalance() {
+  if (isBasic()) return Infinity;
+  ensureDailyRefill();
+  return getStoredBalance();
 }
 
-export function consumeFreeQuery() {
-  if (DEV_MODE || isBasic()) return true;
-  const data = getUsageData();
-  const today = todayStr();
-  if (!data || data.date !== today) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ date: today, count: 1 }));
-    return true;
-  }
-  if (data.count >= FREE_DAILY_LIMIT) return false;
-  data.count += 1;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+export function consumeQuery() {
+  if (isBasic()) return true;
+  ensureDailyRefill();
+  const bal = getStoredBalance();
+  if (bal <= 0) return false;
+  setStoredBalance(bal - 1);
   return true;
 }
+
+export function earnAdQueries() {
+  setStoredBalance(getStoredBalance() + AD_REWARD_QUERIES);
+}
+
+// backward compat
+export function consumeFreeQuery() { return consumeQuery(); }
+export function getRemainingFreeQueries() { return getQueryBalance(); }

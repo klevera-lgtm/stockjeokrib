@@ -6,7 +6,36 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const PRICES_DIR = join(ROOT, "data", "prices");
 const OUTPUT = join(ROOT, "public", "featuredCombos.json");
+const GAINERS_OUTPUT = join(ROOT, "public", "eventGainers.json");
+const GOAL_RANKING_OUTPUT = join(ROOT, "public", "goalRanking.json");
 const SUPPORTED_OUTPUT = join(ROOT, "data", "supportedTickers.json");
+
+const GOAL_AMOUNT = 100000000; // 1억
+const MAX_MONTHLY = 10000000;  // 1천만원 초과 시 제외
+const RANK_PERIODS = [
+  { key: "1yr",  months: 12  },
+  { key: "3yr",  months: 36  },
+  { key: "5yr",  months: 60  },
+  { key: "10yr", months: 120 },
+];
+
+const EVENT_DATES = [
+  { id: "dotcom",   date: new Date("2000-03-01") },
+  { id: "gfc",      date: new Date("2008-09-01") },
+  { id: "china",    date: new Date("2015-08-01") },
+  { id: "uschina",  date: new Date("2018-03-01") },
+  { id: "dec2018",  date: new Date("2018-12-01") },
+  { id: "covid",    date: new Date("2020-03-01") },
+  { id: "covidV",   date: new Date("2020-04-01") },
+  { id: "meme",     date: new Date("2021-01-01") },
+  { id: "rate",     date: new Date("2022-01-01") },
+  { id: "ruwu",     date: new Date("2022-02-01") },
+  { id: "chatgpt",  date: new Date("2022-11-01") },
+  { id: "svb",      date: new Date("2023-03-01") },
+  { id: "aiboom",   date: new Date("2023-01-01") },
+  { id: "trump24",  date: new Date("2024-11-01") },
+  { id: "tariff",   date: new Date("2025-04-01") },
+];
 
 const LEVERAGE_TICKERS = new Set(["TQQQ", "SOXL", "UPRO"]);
 
@@ -159,7 +188,7 @@ function runStrategy(allPrices, strategy, monthlyAmount, startDate, endDate) {
   const finalValue = shares * filtered[filtered.length - 1].close;
   const years = (filtered[filtered.length - 1].date - filtered[0].date) / (365.25 * 24 * 3600 * 1000);
   const cagr = calcCAGR(totalInvested, finalValue, years);
-  return isFinite(cagr) ? { strategy, cagr } : null;
+  return isFinite(cagr) ? { strategy, cagr, finalValue, totalInvested } : null;
 }
 
 function findBestForPeriod(allPrices, startDate, endDate) {
@@ -169,6 +198,27 @@ function findBestForPeriod(allPrices, startDate, endDate) {
   if (results.length === 0) return null;
   results.sort((a, b) => b.cagr - a.cagr);
   return results[0];
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function findRequiredMonthlyForGoal(prices, strategy, startDate, endDate, targetValue) {
+  const maxR = runStrategy(prices, strategy, MAX_MONTHLY, startDate, endDate);
+  if (!maxR || maxR.finalValue < targetValue) return null;
+  let lo = 1000, hi = MAX_MONTHLY;
+  for (let i = 0; i < 50; i++) {
+    const mid = (lo + hi) / 2;
+    const r = runStrategy(prices, strategy, mid, startDate, endDate);
+    if (!r) return null;
+    if (r.finalValue < targetValue) lo = mid; else hi = mid;
+  }
+  return Math.ceil((lo + hi) / 2 / 1000) * 1000;
+}
+
+function findPriceAtOrAfter(prices, targetDate) {
+  for (const p of prices) {
+    if (p.date >= targetDate) return p;
+  }
+  return null;
 }
 
 // ── Main ───────────────────────────────────────────────────────────────────
@@ -235,6 +285,54 @@ function main() {
 
   writeFileSync(OUTPUT, JSON.stringify(result, null, 2));
   console.log(`\n✅ featuredCombos.json: ${OUTPUT}`);
+
+  // ── Event gainers ──────────────────────────────────────────────────────────
+  const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 3600 * 1000);
+  const gainersResult = { updatedAt: now.toISOString().slice(0, 10), events: {} };
+
+  for (const { id, date } of EVENT_DATES) {
+    const gainers = [];
+    for (const [ticker, prices] of Object.entries(priceData)) {
+      const eventEntry = findPriceAtOrAfter(prices, date);
+      if (!eventEntry || eventEntry.close <= 0) continue;
+      const latestEntry = prices[prices.length - 1];
+      if (!latestEntry || latestEntry.date < twoWeeksAgo) continue;
+      const returnPct = (latestEntry.close / eventEntry.close - 1) * 100;
+      if (!isFinite(returnPct)) continue;
+      gainers.push({ ticker, returnPct: Math.round(returnPct * 10) / 10 });
+    }
+    gainers.sort((a, b) => b.returnPct - a.returnPct);
+    gainersResult.events[id] = { topGainers: gainers.slice(0, 10) };
+  }
+
+  writeFileSync(GAINERS_OUTPUT, JSON.stringify(gainersResult, null, 2));
+  console.log(`✅ eventGainers.json: ${GAINERS_OUTPUT}`);
+
+  // ── Goal ranking ────────────────────────────────────────────────────────────
+  const goalResult = { updatedAt: now.toISOString().slice(0, 10), goalAmount: GOAL_AMOUNT, rankings: {} };
+  for (const { key, months } of RANK_PERIODS) {
+    const startDate = new Date(now);
+    startDate.setMonth(startDate.getMonth() - months);
+    process.stdout.write(`Goal ranking ${key}...`);
+    goalResult.rankings[key] = {};
+    for (const withLeverage of [true, false]) {
+      const lKey = withLeverage ? "with" : "without";
+      const rows = [];
+      for (const [ticker, prices] of Object.entries(priceData)) {
+        if (!withLeverage && LEVERAGE_TICKERS.has(ticker)) continue;
+        if (prices[0].date > startDate) continue;
+        if (prices[prices.length - 1].date < sevenDaysAgo) continue;
+        const monthly = findRequiredMonthlyForGoal(prices, "monthly-first", startDate, now, GOAL_AMOUNT);
+        if (monthly === null) continue;
+        rows.push({ ticker, monthlyRequired: monthly, totalInvested: monthly * months });
+      }
+      rows.sort((a, b) => a.monthlyRequired - b.monthlyRequired);
+      goalResult.rankings[key][lKey] = rows.slice(0, 20);
+    }
+    console.log(" ✓");
+  }
+  writeFileSync(GOAL_RANKING_OUTPUT, JSON.stringify(goalResult, null, 2));
+  console.log(`✅ goalRanking.json: ${GOAL_RANKING_OUTPUT}`);
 
   // Write supported tickers list for frontend dynamic lookup
   const supportedList = Object.keys(priceData).sort();

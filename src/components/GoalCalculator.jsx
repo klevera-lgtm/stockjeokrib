@@ -1,14 +1,22 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { loadPrices } from "../utils/dataLoader.js";
 import { runStrategy, ALL_STRATEGIES, STRATEGY_LABELS, formatKRW, formatPct } from "../utils/calculator.js";
-import { isBasic, consumeFreeQuery } from "../utils/premium.js";
+import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
+import { getTickerLabel } from "../utils/tickers.js";
 import TickerSearch from "./TickerSearch.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
+import QueryGateModal from "./QueryGateModal.jsx";
+import ShareButton from "./ShareButton.jsx";
+import { APP_LINK } from "../utils/share.js";
+import AdBanner from "./AdBanner.jsx";
 
-const FREE_YEARS = 5;
+const RANK_PERIODS = [
+  { key: "1yr",  label: "1년",  years: 1  },
+  { key: "3yr",  label: "3년",  years: 3  },
+  { key: "5yr",  label: "5년",  years: 5  },
+  { key: "10yr", label: "10년", years: 10 },
+];
 
-// Given a target final value, find required monthly investment
-// using binary search on runStrategy
 function findRequiredMonthly(prices, strategy, startDate, endDate, targetValue) {
   let lo = 1000, hi = 100000000;
   for (let i = 0; i < 50; i++) {
@@ -23,29 +31,67 @@ function findRequiredMonthly(prices, strategy, startDate, endDate, targetValue) 
 
 export default function GoalCalculator() {
   const [ticker, setTicker] = useState(null);
-  const [goalAmount, setGoalAmount] = useState(100000000); // 1억
+  const [goalAmount, setGoalAmount] = useState(100000000);
   const [years, setYears] = useState(10);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showQueryGate, setShowQueryGate] = useState(false);
+  const [revealed, setRevealed] = useState(isBasic());
+  const [remaining, setRemaining] = useState(getQueryBalance());
+  const [goalRanking, setGoalRanking] = useState(null);
+  const [rankPeriod, setRankPeriod] = useState("5yr");
+  const [rankWithLeverage, setRankWithLeverage] = useState(false);
+  const [autoRun, setAutoRun] = useState(false);
+  const [revealedRankPeriods, setRevealedRankPeriods] = useState(() =>
+    isBasic() ? new Set(["1yr", "3yr", "5yr", "10yr"]) : new Set(["5yr"])
+  );
+  const [showRankQueryGate, setShowRankQueryGate] = useState(false);
+  const [pendingRankPeriod, setPendingRankPeriod] = useState(null);
+  const resultRef = useRef(null);
   const basic = isBasic();
+
+  function handleReveal() {
+    if (basic) { setRevealed(true); return; }
+    if (consumeQuery()) {
+      setRevealed(true);
+      setRemaining(getQueryBalance());
+    } else {
+      setShowQueryGate(true);
+    }
+  }
+
+  function handleRankReveal(periodKey) {
+    if (basic) { setRevealedRankPeriods((prev) => new Set([...prev, periodKey])); return; }
+    if (consumeQuery()) {
+      setRevealedRankPeriods((prev) => new Set([...prev, periodKey]));
+      setRemaining(getQueryBalance());
+    } else {
+      setPendingRankPeriod(periodKey);
+      setShowRankQueryGate(true);
+    }
+  }
+
+  useEffect(() => {
+    fetch("/goalRanking.json")
+      .then((r) => r.json())
+      .then(setGoalRanking)
+      .catch(() => {});
+  }, []);
 
   const run = useCallback(async () => {
     if (!ticker) return;
-    if (!consumeFreeQuery()) { setShowUpgrade(true); return; }
     setLoading(true);
     setError(null);
+    setRevealed(basic);
     try {
       const prices = await loadPrices(ticker);
       const endDate = new Date();
       const startDate = new Date();
-      const useYears = basic ? years : Math.min(years, FREE_YEARS);
-      startDate.setFullYear(startDate.getFullYear() - useYears);
+      startDate.setFullYear(startDate.getFullYear() - years);
 
-      // For each strategy, find required monthly amount
-      const strategies = basic ? ALL_STRATEGIES : ["monthly-first"];
-      const allResults = strategies.map((s) => {
+      const allResults = ALL_STRATEGIES.map((s) => {
         const required = findRequiredMonthly(prices, s, startDate, endDate, goalAmount);
         if (!required) return null;
         const r = runStrategy(prices, s, required, startDate, endDate);
@@ -55,18 +101,118 @@ export default function GoalCalculator() {
 
       allResults.sort((a, b) => a.requiredMonthly - b.requiredMonthly);
       setResults(allResults);
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
-  }, [ticker, goalAmount, years, basic]);
+  }, [ticker, goalAmount, years]);
+
+  useEffect(() => {
+    if (autoRun && ticker) {
+      setAutoRun(false);
+      run();
+    }
+  }, [autoRun, run, ticker]);
+
+  const handleRankSelect = (t, periodYears) => {
+    setTicker(t);
+    setGoalAmount(100000000);
+    setYears(periodYears);
+    setAutoRun(true);
+  };
+
+  const rankRows = goalRanking
+    ? (goalRanking.rankings[rankPeriod]?.[rankWithLeverage ? "with" : "without"] ?? [])
+    : [];
+
+  const selectedPeriodYears = RANK_PERIODS.find((p) => p.key === rankPeriod)?.years ?? 5;
 
   return (
     <div className="page">
       <div className="page-header">
         <h1 className="page-title">목표 계산기</h1>
         <p className="page-subtitle">목표 금액 달성에 필요한 월 납입금을 역산해요</p>
+        {!basic && remaining !== Infinity && (
+          <div className="quota-badge">남은 코인 {remaining}개</div>
+        )}
+      </div>
+
+      <div className="goal-ranking-section">
+        <div className="goal-ranking-header">
+          <div>
+            <h2 className="goal-ranking-title">1억 달성 최소 월 납입금 랭킹</h2>
+            <p className="goal-ranking-desc">과거 데이터 기준 · 매달 첫 거래일 적립</p>
+          </div>
+          <label className="leverage-toggle">
+            <input
+              type="checkbox"
+              checked={rankWithLeverage}
+              onChange={(e) => setRankWithLeverage(e.target.checked)}
+            />
+            <span>레버리지 포함</span>
+          </label>
+        </div>
+
+        <div className="goal-period-tabs">
+          {RANK_PERIODS.map(({ key, label }) => (
+            <button
+              key={key}
+              className={`goal-period-tab${rankPeriod === key ? " active" : ""}`}
+              onClick={() => setRankPeriod(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="goal-rank-list">
+          {rankRows.slice(0, 10).map((row, i) => {
+            const locked = !revealedRankPeriods.has(rankPeriod) && !basic;
+            return (
+              <div key={row.ticker} className="goal-rank-row">
+                <span className="goal-rank-num">{i + 1}</span>
+                <div className="goal-rank-ticker">
+                  <span className={`goal-rank-name${locked ? " name--blur" : ""}`}>
+                    {getTickerLabel(row.ticker)}
+                  </span>
+                </div>
+                <div className="goal-rank-amount">
+                  <span className="goal-rank-monthly">월 {formatKRW(row.monthlyRequired)}</span>
+                  <span className="goal-rank-total">총 {formatKRW(row.totalInvested)}</span>
+                </div>
+                {!locked && (
+                  <button
+                    className="goal-rank-sim-btn"
+                    onClick={() => handleRankSelect(row.ticker, selectedPeriodYears)}
+                  >
+                    시뮬
+                  </button>
+                )}
+              </div>
+            );
+          })}
+          {rankRows.length === 0 && (
+            <p className="goal-rank-empty">데이터 로딩 중...</p>
+          )}
+        </div>
+        {!revealedRankPeriods.has(rankPeriod) && !basic && (
+          <div className="reveal-cta">
+            <p className="reveal-hint">어떤 자산인지 보려면 코인 1개가 필요해요.</p>
+            <button className="btn-primary reveal-btn" onClick={() => handleRankReveal(rankPeriod)}>
+              🔓 코인 1개로 확인
+            </button>
+            <p className="reveal-balance">남은 코인 {remaining}개 · 광고 시청 시 +2개</p>
+          </div>
+        )}
+
+        {rankWithLeverage && (
+          <p className="leverage-warning">⚠️ 레버리지 ETF는 변동성이 크며 원금 손실 위험이 있습니다</p>
+        )}
+        {goalRanking?.updatedAt && (
+          <p className="goal-rank-updated">기준일: {goalRanking.updatedAt} · 매주 업데이트</p>
+        )}
       </div>
 
       <div className="form-section">
@@ -102,7 +248,6 @@ export default function GoalCalculator() {
               {y}년
             </button>
           ))}
-          {!basic && <span className="period-hint">(무료: 최대 5년)</span>}
         </div>
 
         <label className="form-label">자산 선택</label>
@@ -118,49 +263,80 @@ export default function GoalCalculator() {
       {error && <p className="error-msg">{error}</p>}
 
       {results && (
-        <div className="results-section">
+        <div className="results-section" ref={resultRef}>
           <h2 className="section-title">
-            {ticker}로 {formatKRW(goalAmount)} 만들기
-            ({basic ? years : Math.min(years, FREE_YEARS)}년)
+            {ticker}로 {formatKRW(goalAmount)} 만들기 ({years}년)
           </h2>
 
-          {results.map((r, idx) => {
-            const isBlurred = !basic && idx > 0;
-            return (
-              <div key={r.strategy} className={`strategy-row${isBlurred ? " blurred" : ""}${idx === 0 ? " best" : ""}`}>
-                <div className="strategy-rank">{idx === 0 ? "🥇" : idx + 1}</div>
-                <div className="strategy-info">
-                  <div className="strategy-name">{STRATEGY_LABELS[r.strategy]}</div>
-                  <div className="strategy-meta">
-                    수익률 {formatPct(r.totalReturn)}
-                  </div>
-                </div>
-                <div className="strategy-return">
-                  <div className="stat-label">월 납입금</div>
-                  <div className="return-pct pos">{formatKRW(r.requiredMonthly)}</div>
-                </div>
-                {isBlurred && (
-                  <div className="blur-overlay">
-                    <button className="btn-primary blur-cta" onClick={() => setShowUpgrade(true)}>
-                      베이직에서 전체 보기
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {/* 전략 공개 CTA */}
+          {!revealed && (
+            <div className="reveal-cta">
+              <p className="reveal-hint">
+                필요 납입금을 확인했어요! 어떤 전략인지 보려면 코인 1개가 필요해요.
+              </p>
+              <button className="btn-primary reveal-btn" onClick={handleReveal}>
+                🔓 전략 공개하기 (코인 1개)
+              </button>
+              <p className="reveal-balance">남은 코인 {remaining}개 · 광고 시청 시 +2개</p>
+            </div>
+          )}
 
-          {!basic && (
+          {results.map((r, idx) => (
+            <div key={r.strategy} className={`strategy-row${idx === 0 ? " best" : ""}`}>
+              <div className="strategy-rank">{idx === 0 ? "🥇" : idx + 1}</div>
+              <div className="strategy-info">
+                <div className={`strategy-name${!revealed ? " strategy-name--hidden" : ""}`}>
+                  {revealed ? STRATEGY_LABELS[r.strategy] : "●●●●●●●●"}
+                </div>
+                <div className="strategy-meta">수익률 {formatPct(r.totalReturn)}</div>
+              </div>
+              <div className="strategy-return">
+                <div className="stat-label">월 납입금</div>
+                <div className="return-pct pos">{formatKRW(r.requiredMonthly)}</div>
+              </div>
+            </div>
+          ))}
+
+          {revealed && results[0] && (
+            <ShareButton
+              text={`💡 ${ticker}로 ${formatKRW(goalAmount)} 모으기 = 월 ${formatKRW(results[0].requiredMonthly)}?!\n${years}년 적립 기준 · 수익률 ${formatPct(results[0].totalReturn)}\n\n나도 해보기 → ${APP_LINK}`}
+              label="이 결과 공유하기"
+            />
+          )}
+
+          <AdBanner className="ad-banner-results" />
+
+          {!isBasic() && (
             <div className="upgrade-banner">
-              <span>베이직에서 기간 30년까지, 여러 자산 비교 가능</span>
+              <span>광고 지겨우세요? 베이직에서 광고 없이 무제한으로</span>
               <button className="btn-primary" onClick={() => setShowUpgrade(true)}>
-                월 990원으로 시작
+                월 1,990원
               </button>
             </div>
           )}
         </div>
       )}
 
+      {showQueryGate && (
+        <QueryGateModal
+          onClose={() => setShowQueryGate(false)}
+          onEarned={() => handleReveal()}
+          onUpgrade={() => setShowUpgrade(true)}
+        />
+      )}
+      {showRankQueryGate && (
+        <QueryGateModal
+          onClose={() => { setShowRankQueryGate(false); setPendingRankPeriod(null); }}
+          onEarned={() => {
+            if (pendingRankPeriod) {
+              setRevealedRankPeriods((prev) => new Set([...prev, pendingRankPeriod]));
+              setPendingRankPeriod(null);
+            }
+            setShowRankQueryGate(false);
+          }}
+          onUpgrade={() => setShowUpgrade(true)}
+        />
+      )}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
     </div>
   );
