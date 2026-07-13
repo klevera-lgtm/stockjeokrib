@@ -50,14 +50,15 @@ def fetch_new_data(ticker: str, start: date) -> pd.DataFrame | None:
 
 def append_to_csv(ticker: str, new_df: pd.DataFrame):
     path = os.path.join(DATA_DIR, f"{ticker}.csv")
+    new_slim = new_df[["close"]]  # date+close only
     if os.path.exists(path):
         existing = pd.read_csv(path, index_col="date", parse_dates=True)
-        combined = pd.concat([existing, new_df])
+        combined = pd.concat([existing[["close"]], new_slim])
         combined = combined[~combined.index.duplicated(keep="last")]
         combined.sort_index(inplace=True)
         combined.to_csv(path)
     else:
-        new_df.to_csv(path)
+        new_slim.to_csv(path)
 
 
 def main():

@@ -35,7 +35,7 @@ def fetch_ticker(ticker: str, period: str = "20y") -> pd.DataFrame | None:
 
 def save_ticker(ticker: str, df: pd.DataFrame):
     path = os.path.join(DATA_DIR, f"{ticker}.csv")
-    df.to_csv(path)
+    df[["close"]].to_csv(path)  # date+close only (67% smaller)
     print(f"  ✅ {ticker}: {len(df)}행 저장 → {path}")
 
 
