@@ -2,10 +2,12 @@
 export function calcSMA(prices, period) {
   const closes = prices.map((p) => p.close);
   const sma = [];
+  let sum = 0;
   for (let i = 0; i < closes.length; i++) {
+    sum += closes[i];
+    if (i >= period) sum -= closes[i - period];
     if (i < period - 1) { sma.push(null); continue; }
-    const slice = closes.slice(i - period + 1, i + 1);
-    sma.push(slice.reduce((a, b) => a + b, 0) / period);
+    sma.push(sum / period);
   }
   return sma;
 }
@@ -116,9 +118,9 @@ export function runStrategy(prices, strategy, monthlyAmount, startDate, endDate)
     const period = parseInt(strategy.replace("ma", ""), 10);
     const allSMA = calcSMA(prices, period);
     const smaMap = new Map();
-    prices.forEach((p, i) => smaMap.set(p.date.toISOString().slice(0, 10), allSMA[i]));
+    prices.forEach((p, i) => smaMap.set(p.date.getTime(), allSMA[i]));
     return _runWithPool(filtered, strategy, monthlyAmount, (p) => {
-      const smaVal = smaMap.get(p.date.toISOString().slice(0, 10));
+      const smaVal = smaMap.get(p.date.getTime());
       return smaVal != null && p.close < smaVal;
     });
   }
@@ -128,9 +130,9 @@ export function runStrategy(prices, strategy, monthlyAmount, startDate, endDate)
     const threshold = parseInt(strategy.replace("rsi", ""), 10);
     const allRSI = calcRSI(prices, 14);
     const rsiMap = new Map();
-    prices.forEach((p, i) => rsiMap.set(p.date.toISOString().slice(0, 10), allRSI[i]));
+    prices.forEach((p, i) => rsiMap.set(p.date.getTime(), allRSI[i]));
     return _runWithPool(filtered, strategy, monthlyAmount, (p) => {
-      const rsiVal = rsiMap.get(p.date.toISOString().slice(0, 10));
+      const rsiVal = rsiMap.get(p.date.getTime());
       return rsiVal != null && rsiVal < threshold;
     });
   }

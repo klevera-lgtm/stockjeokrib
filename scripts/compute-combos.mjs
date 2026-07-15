@@ -9,6 +9,10 @@ const OUTPUT = join(ROOT, "public", "featuredCombos.json");
 const GAINERS_OUTPUT = join(ROOT, "public", "eventGainers.json");
 const GOAL_RANKING_OUTPUT = join(ROOT, "public", "goalRanking.json");
 const SUPPORTED_OUTPUT = join(ROOT, "data", "supportedTickers.json");
+const DIST_OUTPUT = join(ROOT, "public", "cagrDistribution.json");
+
+// --dist-only: cagrDistribution.json만 생성 (다른 출력물 미변경)
+const DIST_ONLY = process.argv.includes("--dist-only");
 
 const GOAL_AMOUNT = 100000000; // 1억
 const MAX_MONTHLY = 10000000;  // 1천만원 초과 시 제외
@@ -82,10 +86,14 @@ const PERIODS = [
 function loadPricesSync(ticker) {
   try {
     const text = readFileSync(join(PRICES_DIR, `${ticker}.csv`), "utf8");
-    return text.trim().split("\n").slice(1).map(row => {
+    const lines = text.trim().split("\n");
+    // 헤더에서 close 컬럼 위치 탐색 (슬림 CSV는 date,close 2컬럼)
+    const header = lines[0].toLowerCase().split(",").map(h => h.trim());
+    const closeIdx = header.indexOf("close") >= 0 ? header.indexOf("close") : 4;
+    return lines.slice(1).map(row => {
       const parts = row.split(",");
       const date = new Date(parts[0]?.trim());
-      const close = parseFloat(parts[4]);
+      const close = parseFloat(parts[closeIdx]);
       return { date, close };
     }).filter(p => !isNaN(p.date.getTime()) && !isNaN(p.close) && p.close > 0)
       .sort((a, b) => a.date - b.date);
@@ -243,6 +251,29 @@ function main() {
 
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
+
+  // ── CAGR distribution (백분위 비교용) ─────────────────────────────────────
+  // 기간별 전체 자산의 monthly-first CAGR 정렬 배열
+  const distResult = { updatedAt: now.toISOString().slice(0, 10), periods: {} };
+  for (const { key, months } of PERIODS) {
+    const startDate = new Date(now);
+    startDate.setMonth(startDate.getMonth() - months);
+    const cagrs = [];
+    for (const [, prices] of Object.entries(priceData)) {
+      if (prices[0].date > startDate) continue;
+      if (prices[prices.length - 1].date < sevenDaysAgo) continue;
+      const r = runStrategy(prices, "monthly-first", 300000, startDate, now);
+      if (r && isFinite(r.cagr) && r.cagr > -0.99) {
+        cagrs.push(Math.round(r.cagr * 10000) / 10000);
+      }
+    }
+    cagrs.sort((a, b) => a - b);
+    distResult.periods[key] = { months, cagrs };
+  }
+  writeFileSync(DIST_OUTPUT, JSON.stringify(distResult));
+  console.log(`✅ cagrDistribution.json: ${DIST_OUTPUT}`);
+  if (DIST_ONLY) return;
+
   const result = { updatedAt: now.toISOString().slice(0, 10), combos: {} };
 
   for (const { key, months } of PERIODS) {

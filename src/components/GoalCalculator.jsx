@@ -6,7 +6,7 @@ import { getTickerLabel } from "../utils/tickers.js";
 import TickerSearch from "./TickerSearch.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
-import ShareButton from "./ShareButton.jsx";
+import ShareSheet from "./ShareSheet.jsx";
 import { APP_LINK } from "../utils/share.js";
 import AdBanner from "./AdBanner.jsx";
 
@@ -49,8 +49,32 @@ export default function GoalCalculator() {
   );
   const [showRankQueryGate, setShowRankQueryGate] = useState(false);
   const [pendingRankPeriod, setPendingRankPeriod] = useState(null);
+  const [showShare, setShowShare] = useState(false);
+  const [remindStatus, setRemindStatus] = useState(null);
   const resultRef = useRef(null);
   const basic = isBasic();
+
+  useEffect(() => { setRemindStatus(null); }, [results]);
+
+  // 계획 저장 + 토스 알림 수신 동의 요청
+  async function handleRemind() {
+    try {
+      localStorage.setItem("stockjeokrib_goal_plan", JSON.stringify({
+        ticker,
+        goalAmount,
+        years,
+        requiredMonthly: Math.round(results[0].requiredMonthly),
+        savedAt: new Date().toISOString(),
+      }));
+    } catch {}
+    try {
+      const { requestNotificationAgreement } = await import("@apps-in-toss/web-framework");
+      await requestNotificationAgreement();
+      setRemindStatus("✓ 알림 신청 완료");
+    } catch {
+      setRemindStatus("✓ 계획 저장 완료 · 알림은 토스 앱에서 지원돼요");
+    }
+  }
 
   function handleReveal() {
     if (basic) { setRevealed(true); return; }
@@ -102,6 +126,7 @@ export default function GoalCalculator() {
       allResults.sort((a, b) => a.requiredMonthly - b.requiredMonthly);
       setResults(allResults);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+      setTimeout(() => setShowShare(true), 1000);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -297,11 +322,26 @@ export default function GoalCalculator() {
             </div>
           ))}
 
-          {revealed && results[0] && (
-            <ShareButton
-              text={`💡 ${ticker}로 ${formatKRW(goalAmount)} 모으기 = 월 ${formatKRW(results[0].requiredMonthly)}?!\n${years}년 적립 기준 · 수익률 ${formatPct(results[0].totalReturn)}\n\n나도 해보기 → ${APP_LINK}`}
-              label="이 결과 공유하기"
-            />
+          {results[0] && (
+            <div className="goal-remind">
+              <p className="goal-remind-text">
+                월 {formatKRW(Math.round(results[0].requiredMonthly))}씩 {years}년 —
+                이 계획, 잊지 않게 알려드릴까요?
+              </p>
+              <button
+                className="btn-primary goal-remind-btn"
+                onClick={handleRemind}
+                disabled={!!remindStatus}
+              >
+                {remindStatus ?? "📅 이 계획 매월 알림 받기"}
+              </button>
+            </div>
+          )}
+
+          {results[0] && (
+            <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
+              📤 결과 공유하기
+            </button>
           )}
 
           <AdBanner className="ad-banner-results" />
@@ -338,6 +378,21 @@ export default function GoalCalculator() {
         />
       )}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+      {showShare && results?.[0] && (
+        <ShareSheet
+          text={`💡 ${ticker}로 ${formatKRW(goalAmount)} 만들기 (${years}년)\n월 최소 ${formatKRW(Math.round(results[0].requiredMonthly))} 필요\n수익률 ${formatPct(results[0].totalReturn)}`}
+          card={{
+            title: `${ticker}로 ${formatKRW(goalAmount)} 만들기`,
+            period: `월 ${formatKRW(Math.round(results[0].requiredMonthly))} × ${years}년`,
+            invested: results[0].totalInvested,
+            finalValue: results[0].finalValue,
+            returnPct: results[0].totalReturn,
+            mdd: results[0].mdd,
+            series: results[0].portfolioValues.map((v) => v.value),
+          }}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </div>
   );
 }

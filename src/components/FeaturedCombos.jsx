@@ -3,6 +3,7 @@ import { STRATEGY_LABELS } from "../utils/calculator.js";
 import { getTickerLabel } from "../utils/tickers.js";
 import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
 import QueryGateModal from "./QueryGateModal.jsx";
+import { loadPrices } from "../utils/dataLoader.js";
 
 const COIN_SHORT = ["1mo", "3mo", "6mo"];
 const COIN_MID = ["1yr", "2yr", "3yr", "4yr", "5yr"];
@@ -25,12 +26,23 @@ export default function FeaturedCombos({ onComboSelect }) {
   const [revealedPeriods, setRevealedPeriods] = useState(new Set());
   const [showQueryGate, setShowQueryGate] = useState(false);
   const [pendingPeriod, setPendingPeriod] = useState(null);
+  const [pendingChart, setPendingChart] = useState(null);
   const basic = isBasic();
 
   useEffect(() => {
     fetch("/featuredCombos.json")
       .then((r) => r.json())
-      .then((d) => { setData(d); setLoading(false); })
+      .then((d) => {
+        setData(d);
+        setLoading(false);
+        // 모든 콤보 티커 백그라운드 프리페치
+        const allTickers = new Set(
+          Object.values(d.combos).flatMap((byLeverage) =>
+            Object.values(byLeverage).flatMap((combo) => combo?.tickers ?? [])
+          )
+        );
+        allTickers.forEach((t) => loadPrices(t).catch(() => {}));
+      })
       .catch(() => setLoading(false));
   }, []);
 
@@ -48,6 +60,18 @@ export default function FeaturedCombos({ onComboSelect }) {
     if (basic) return false;
     if (!COIN_PERIODS.has(periodKey)) return false;
     return !revealedPeriods.has(periodKey);
+  }
+
+  // 코인 기간의 차트 보기는 코인 1개 소모
+  function handleChartClick(combo, periodKey) {
+    const select = () => onComboSelect(combo.tickers, combo.strategies, periodKey, true, lKey);
+    if (basic || !COIN_PERIODS.has(periodKey)) { select(); return; }
+    if (consumeQuery()) {
+      select();
+    } else {
+      setPendingChart({ combo, periodKey });
+      setShowQueryGate(true);
+    }
   }
 
   if (loading) return <p className="loading-state" style={{ padding: "24px 0" }}>추천 조합 불러오는 중...</p>;
@@ -93,9 +117,9 @@ export default function FeaturedCombos({ onComboSelect }) {
         {!locked && onComboSelect && (
           <button
             className="fc-chart-btn"
-            onClick={() => onComboSelect(combo.tickers, combo.strategies, periodKey, !COIN_PERIODS.has(periodKey))}
+            onClick={() => handleChartClick(combo, periodKey)}
           >
-            차트로 보기
+            차트로 보기{!basic && COIN_PERIODS.has(periodKey) ? " (코인 1개)" : ""}
           </button>
         )}
       </div>
@@ -134,11 +158,18 @@ export default function FeaturedCombos({ onComboSelect }) {
 
       {showQueryGate && (
         <QueryGateModal
-          onClose={() => { setShowQueryGate(false); setPendingPeriod(null); }}
+          onClose={() => { setShowQueryGate(false); setPendingPeriod(null); setPendingChart(null); }}
           onEarned={() => {
             if (pendingPeriod) {
               setRevealedPeriods((prev) => new Set([...prev, pendingPeriod]));
               setPendingPeriod(null);
+            }
+            if (pendingChart) {
+              const { combo, periodKey } = pendingChart;
+              setPendingChart(null);
+              if (consumeQuery()) {
+                onComboSelect(combo.tickers, combo.strategies, periodKey, true, lKey);
+              }
             }
             setShowQueryGate(false);
           }}

@@ -14,7 +14,7 @@ import UpgradeModal from "./UpgradeModal.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
 import StrategyGuide from "./StrategyGuide.jsx";
 import TickerInfoCard from "./TickerInfoCard.jsx";
-import ShareButton from "./ShareButton.jsx";
+import ShareSheet from "./ShareSheet.jsx";
 import { APP_LINK } from "../utils/share.js";
 import AdBanner from "./AdBanner.jsx";
 
@@ -25,8 +25,8 @@ function getPeriodDates(yearsBack) {
   return { start, end };
 }
 
-function makeSimShareText(ticker, strategy, result, monthlyAmount) {
-  return `👑 주식적립왕 시뮬 결과\n\n${ticker} · ${STRATEGY_LABELS[strategy]} · ${Math.round(result.years)}년\n월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립 →\n\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)}\n\n나도 해보기 → ${APP_LINK}`;
+function makeSimShareText(ticker, result, monthlyAmount) {
+  return `👑 주식적립왕 시뮬 결과\n\n${ticker} · ${Math.round(result.years)}년\n월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립 →\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)}`;
 }
 
 export default function StrategyResult({ initialTicker = null }) {
@@ -40,6 +40,7 @@ export default function StrategyResult({ initialTicker = null }) {
   const [showQueryGate, setShowQueryGate] = useState(false);
   const [remaining, setRemaining] = useState(getQueryBalance());
   const [revealed, setRevealed] = useState(isBasic());
+  const [showShare, setShowShare] = useState(false);
   const basic = isBasic();
   const autoRanRef = useRef(false);
 
@@ -91,6 +92,15 @@ export default function StrategyResult({ initialTicker = null }) {
     }
   }, [initialTicker, run]);
 
+  useEffect(() => {
+    if (results) {
+      const t = setTimeout(() => setShowShare(true), 900);
+      return () => clearTimeout(t);
+    } else {
+      setShowShare(false);
+    }
+  }, [results]);
+
   return (
     <div className="page">
       <div className="page-header">
@@ -118,14 +128,20 @@ export default function StrategyResult({ initialTicker = null }) {
                 {(v / 10000).toFixed(0)}만원
               </button>
             ))}
-            <input
-              type="number"
-              className="amount-input"
-              value={monthlyAmount}
-              min={10000}
-              step={10000}
-              onChange={(e) => setMonthlyAmount(Number(e.target.value))}
-            />
+            {basic ? (
+              <input
+                type="number"
+                className="amount-input"
+                value={monthlyAmount}
+                min={10000}
+                step={10000}
+                onChange={(e) => setMonthlyAmount(Number(e.target.value))}
+              />
+            ) : (
+              <button className="chip chip--locked" onClick={() => setShowUpgrade(true)}>
+                직접 입력 🔒
+              </button>
+            )}
           </div>
 
           <div className="period-row">
@@ -248,11 +264,10 @@ export default function StrategyResult({ initialTicker = null }) {
             })}
           </div>
 
-          {revealed && results.list[0] && (
-            <ShareButton
-              text={makeSimShareText(ticker, results.list[0].strategy, results.list[0], monthlyAmount)}
-              label="이 결과 공유하기"
-            />
+          {results.list[0] && (
+            <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
+              📤 결과 공유하기
+            </button>
           )}
 
           <AdBanner className="ad-banner-results" />
@@ -278,6 +293,21 @@ export default function StrategyResult({ initialTicker = null }) {
         />
       )}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+      {showShare && results?.list?.[0] && (
+        <ShareSheet
+          text={makeSimShareText(ticker, results.list[0], monthlyAmount)}
+          card={{
+            title: `${ticker} · 월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립`,
+            period: `${Math.round(results.list[0].years)}년`,
+            invested: results.list[0].totalInvested,
+            finalValue: results.list[0].finalValue,
+            returnPct: results.list[0].totalReturn,
+            mdd: results.list[0].mdd,
+            series: results.list[0].portfolioValues.map((v) => v.value),
+          }}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { loadPrices } from "../utils/dataLoader.js";
+import { loadPrices, prefetchTickers } from "../utils/dataLoader.js";
 import { runStrategy, formatKRW, formatPct } from "../utils/calculator.js";
 import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
 import { getTickerLabel } from "../utils/tickers.js";
@@ -7,7 +7,7 @@ import TickerSearch from "./TickerSearch.jsx";
 import LineChart from "./LineChart.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
-import ShareButton from "./ShareButton.jsx";
+import ShareSheet from "./ShareSheet.jsx";
 import { APP_LINK } from "../utils/share.js";
 import AdBanner from "./AdBanner.jsx";
 
@@ -29,6 +29,15 @@ const EVENTS = [
   { id: "tariff",   label: "관세 쇼크",        date: "2025-04-01", desc: "미국 상호관세 발표" },
 ];
 
+// 후회 시뮬레이터 — 원탭 프리셋 (이벤트 + 티커)
+const REGRET_PRESETS = [
+  { emoji: "😷", headline: "코로나 폭락 때\nQQQ 샀더라면", eventId: "covid",   ticker: "QQQ" },
+  { emoji: "🤖", headline: "ChatGPT 나왔을 때\n엔비디아 샀더라면", eventId: "chatgpt", ticker: "NVDA" },
+  { emoji: "🚀", headline: "밈주식 열풍 때\n테슬라 샀더라면", eventId: "meme",    ticker: "TSLA" },
+  { emoji: "🔥", headline: "AI 붐 시작할 때\nSOXL 샀더라면", eventId: "aiboom",  ticker: "SOXL" },
+  { emoji: "🇺🇸", headline: "트럼프 재당선 때\n팔란티어 샀더라면", eventId: "trump24", ticker: "PLTR" },
+];
+
 function formatReturn(pct) {
   if (pct >= 1000) return `+${Math.round(pct).toLocaleString()}%`;
   return `+${pct.toFixed(1)}%`;
@@ -47,13 +56,27 @@ export default function EventExplorer() {
   const [gainersRevealed, setGainersRevealed] = useState(isBasic());
   const [showGainersQueryGate, setShowGainersQueryGate] = useState(false);
   const [gainersRemaining, setGainersRemaining] = useState(getQueryBalance());
+  const [showShare, setShowShare] = useState(false);
+  const [autoRun, setAutoRun] = useState(false);
 
   useEffect(() => {
     fetch("/eventGainers.json")
       .then((r) => r.json())
       .then(setGainersData)
       .catch(() => {});
+    // 프리셋 티커 미리 다운로드 → 원탭 시 즉시 결과
+    prefetchTickers(REGRET_PRESETS.map((p) => p.ticker));
   }, []);
+
+  function handlePreset(preset) {
+    const ev = EVENTS.find((e) => e.id === preset.eventId);
+    if (!ev) return;
+    setSelectedEvent(ev);
+    setTicker(preset.ticker);
+    setResult(null);
+    setError(null);
+    setAutoRun(true);
+  }
 
   useEffect(() => {
     setGainersRevealed(isBasic());
@@ -82,12 +105,20 @@ export default function EventExplorer() {
       const r = runStrategy(prices, "monthly-first", monthlyAmount, startDate, endDate);
       if (!r) throw new Error("해당 기간 데이터가 없습니다.");
       setResult({ ...r, event: selectedEvent });
+      setTimeout(() => setShowShare(true), 900);
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
   }, [selectedEvent, ticker, monthlyAmount]);
+
+  useEffect(() => {
+    if (autoRun && selectedEvent && ticker) {
+      setAutoRun(false);
+      run();
+    }
+  }, [autoRun, selectedEvent, ticker, run]);
 
   const topGainers = selectedEvent
     ? (gainersData?.events[selectedEvent.id]?.topGainers ?? [])
@@ -98,6 +129,27 @@ export default function EventExplorer() {
       <div className="page-header">
         <h1 className="page-title">이벤트 탐색</h1>
         <p className="page-subtitle">역사적 이벤트 직후 적립식 투자 결과를 시뮬레이션해요</p>
+      </div>
+
+      <div className="regret-section">
+        <p className="regret-title">💭 만약 그때 샀더라면...</p>
+        <div className="regret-strip">
+          {REGRET_PRESETS.map((p) => {
+            const ev = EVENTS.find((e) => e.id === p.eventId);
+            return (
+              <button key={p.eventId + p.ticker} className="regret-card" onClick={() => handlePreset(p)}>
+                <span className="regret-emoji">{p.emoji}</span>
+                <span className="regret-headline">
+                  {p.headline.split("\n").map((line, i) => (
+                    <span key={i}>{line}<br /></span>
+                  ))}
+                </span>
+                <span className="regret-date">{ev?.date.slice(0, 7)} ~ 현재</span>
+                <span className="regret-cta">결과 보기 →</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="form-section">
@@ -167,12 +219,6 @@ export default function EventExplorer() {
           {gainersRevealed && gainersData?.updatedAt && (
             <p className="gainers-updated">기준일: {gainersData.updatedAt} · 매주 업데이트</p>
           )}
-          {gainersRevealed && (
-            <ShareButton
-              text={`📈 ${selectedEvent.label} 이후 TOP 3 상승 자산\n${topGainers.slice(0, 3).map((g, i) => `${i + 1}. ${getTickerLabel(g.ticker)} ${g.returnPct >= 0 ? "+" : ""}${g.returnPct.toFixed(1)}%`).join("\n")}\n\n나도 확인하기 → ${APP_LINK}`}
-              label="랭킹 공유하기"
-            />
-          )}
         </div>
       )}
 
@@ -194,6 +240,20 @@ export default function EventExplorer() {
                     {(v / 10000).toFixed(0)}만원
                   </button>
                 ))}
+                {isBasic() ? (
+                  <input
+                    type="number"
+                    className="amount-input"
+                    value={monthlyAmount}
+                    min={10000}
+                    step={10000}
+                    onChange={(e) => setMonthlyAmount(Number(e.target.value))}
+                  />
+                ) : (
+                  <button className="chip chip--locked" onClick={() => setShowUpgrade(true)}>
+                    직접 입력 🔒
+                  </button>
+                )}
               </div>
               <button className="btn-primary run-btn" onClick={run} disabled={loading}>
                 {loading ? "계산 중..." : `${selectedEvent.label}부터 시뮬레이션`}
@@ -240,10 +300,9 @@ export default function EventExplorer() {
             </div>
           </div>
 
-          <ShareButton
-            text={`📊 ${result.event.label} 직후 ${ticker} 적립 결과\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)} (${result.event.date.slice(0,7)}~현재)\n\n나도 해보기 → ${APP_LINK}`}
-            label="이 결과 공유하기"
-          />
+          <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
+            📤 결과 공유하기
+          </button>
 
           <AdBanner className="ad-banner-results" />
 
@@ -273,6 +332,21 @@ export default function EventExplorer() {
         />
       )}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+      {showShare && result && (
+        <ShareSheet
+          text={`📅 ${result.event.label} 직후 ${ticker} 적립 결과\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)} (${result.event.date.slice(0, 7)}~현재)`}
+          card={{
+            title: `${result.event.label} 직후 ${ticker} 적립`,
+            period: `${result.event.date.slice(0, 7)} ~ 현재`,
+            invested: result.totalInvested,
+            finalValue: result.finalValue,
+            returnPct: result.totalReturn,
+            mdd: result.mdd,
+            series: result.portfolioValues.map((v) => v.value),
+          }}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { loadPrices } from "../utils/dataLoader.js";
+import { loadPrices, prefetchTickers } from "../utils/dataLoader.js";
+import { getCachedComboResult } from "../utils/comboResultCache.js";
 import {
   runStrategy,
   ALL_STRATEGIES,
@@ -10,15 +11,22 @@ import {
   calcSharpe,
 } from "../utils/calculator.js";
 import { consumeQuery, isBasic, getQueryBalance } from "../utils/premium.js";
+import { calcPercentile } from "../utils/percentile.js";
 import TickerSearch from "./TickerSearch.jsx";
 import LineChart from "./LineChart.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
 import FeaturedCombos from "./FeaturedCombos.jsx";
-import ShareButton from "./ShareButton.jsx";
+import ShareSheet from "./ShareSheet.jsx";
 import AdBanner from "./AdBanner.jsx";
 import { getTickerLabel } from "../utils/tickers.js";
 import { APP_LINK } from "../utils/share.js";
+
+function hasPoolStrategy(strategyMap) {
+  return Object.values(strategyMap ?? {}).some(
+    (s) => s.startsWith("ma") || s.startsWith("rsi") || s === "drop3" || s === "drop5"
+  );
+}
 
 function getAllocLabel(allocs) {
   return allocs.map((a) => `${getTickerLabel(a.ticker)} ${a.pct}%`).join(" / ");
@@ -50,8 +58,23 @@ export default function ComboBacktest() {
   const [freeCombo, setFreeCombo] = useState(false);
   const [revealed, setRevealed] = useState(isBasic());
   const [remaining, setRemaining] = useState(getQueryBalance());
+  const [showShare, setShowShare] = useState(false);
+  const [percentile, setPercentile] = useState(null);
+  const [gateReason, setGateReason] = useState("reveal");
   const resultRef = useRef(null);
   const basic = isBasic();
+
+  // 결과가 나오면 같은 기간 전체 자산 대비 백분위 계산
+  useEffect(() => {
+    setPercentile(null);
+    if (!results?.portfolioValues?.length || results.totalInvested <= 0) return;
+    const pv = results.portfolioValues;
+    const years = (pv.at(-1).date - pv[0].date) / (365.25 * 24 * 3600 * 1000);
+    const cagr = Math.pow(results.finalValue / results.totalInvested, 1 / years) - 1;
+    let cancelled = false;
+    calcPercentile(years, cagr).then((p) => { if (!cancelled) setPercentile(p); });
+    return () => { cancelled = true; };
+  }, [results]);
 
   function handleReveal() {
     if (basic) { setRevealed(true); return; }
@@ -59,6 +82,7 @@ export default function ComboBacktest() {
       setRevealed(true);
       setRemaining(getQueryBalance());
     } else {
+      setGateReason("reveal");
       setShowQueryGate(true);
     }
   }
@@ -72,6 +96,7 @@ export default function ComboBacktest() {
     const newW = {};
     newTickers.forEach((t, i) => { newW[t] = i === 0 ? eq + remainder : eq; });
     setWeights(newW);
+    prefetchTickers(newTickers);
   }
 
   function periodKeyToStart(periodKey) {
@@ -82,7 +107,7 @@ export default function ComboBacktest() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
   }
 
-  function handleComboSelect(comboTickers, comboStrategies, periodKey, isFree = false) {
+  function handleComboSelect(comboTickers, comboStrategies, periodKey, isFree = false, lKey = null) {
     const n = comboTickers.length;
     const eq = Math.floor(100 / n);
     const rem = 100 - eq * n;
@@ -97,8 +122,22 @@ export default function ComboBacktest() {
     setPresetStrategyMap(stratMap);
     setUseAutoStrategy(false);
     setFreeCombo(isFree);
-    setResults(null);
+    setRevealed(basic || isFree);
     setError(null);
+
+    // 캐시 hit → 즉시 표시 (기본 납입금 30만원 기준으로 미리 계산된 결과)
+    if (lKey && monthlyAmount === 300000) {
+      const cached = getCachedComboResult(`${periodKey}-${lKey}`);
+      if (cached) {
+        setResults(cached);
+        setLoading(false);
+        return;
+      }
+    }
+
+    setResults(null);
+    setLoading(true);
+    setLoadingMsg("차트 준비 중...");
     setAutoRun(true);
   }
 
@@ -112,10 +151,20 @@ export default function ComboBacktest() {
     if (tickers.length < 1) return;
     if (totalWeight !== 100) { setError("비중 합계가 100%여야 합니다."); return; }
 
-    setLoading(true);
+    // 자동 전략 선택은 코인 1개 소모 (콤보 프리셋 제외)
+    if (useAutoStrategy && !presetStrategyMap && !basic) {
+      if (!consumeQuery()) {
+        setGateReason("run");
+        setShowQueryGate(true);
+        return;
+      }
+      setRemaining(getQueryBalance());
+    }
+
     setError(null);
     setResults(null);
     setRevealed(basic || freeCombo);
+    const runStart = Date.now();
 
     try {
       const endDate = new Date();
@@ -208,6 +257,8 @@ export default function ComboBacktest() {
     } catch (e) {
       setError(e.message);
     } finally {
+      const elapsed = Date.now() - runStart;
+      if (elapsed < 1200) await new Promise(r => setTimeout(r, 1200 - elapsed));
       setLoading(false);
       setLoadingMsg("");
     }
@@ -221,10 +272,17 @@ export default function ComboBacktest() {
   }, [autoRun, tickers, totalWeight, run]);
 
   useEffect(() => {
-    if (results) {
-      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    if (results) resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [results]);
+
+  useEffect(() => {
+    if (results && !loading) {
+      const t = setTimeout(() => setShowShare(true), 900);
+      return () => clearTimeout(t);
+    } else {
+      setShowShare(false);
+    }
+  }, [results, loading]);
 
   const hasStrategyBox = results && (results.useAutoStrategy || results.fromCombo);
 
@@ -268,20 +326,14 @@ export default function ComboBacktest() {
           </div>
           {tickers.map((t) => (
             <div key={t} className="weight-row">
-              <span className="weight-ticker">{t}</span>
-              <input
-                type="range" min={0} max={100}
-                value={weights[t] ?? 0}
-                onChange={(e) => updateWeight(t, e.target.value)}
-                className="weight-slider"
-              />
+              <span className="weight-ticker">{getTickerLabel(t)}</span>
               <input
                 type="number" min={0} max={100}
                 value={weights[t] ?? 0}
                 onChange={(e) => updateWeight(t, e.target.value)}
                 className="weight-number"
               />
-              <span>%</span>
+              <span className="weight-pct">%</span>
             </div>
           ))}
           {totalWeight !== 100 && (
@@ -303,6 +355,20 @@ export default function ComboBacktest() {
                 {(v / 10000).toFixed(0)}만원
               </button>
             ))}
+            {basic ? (
+              <input
+                type="number"
+                className="amount-input"
+                value={monthlyAmount}
+                min={10000}
+                step={10000}
+                onChange={(e) => setMonthlyAmount(Number(e.target.value))}
+              />
+            ) : (
+              <button className="chip chip--locked" onClick={() => setShowUpgrade(true)}>
+                직접 입력 🔒
+              </button>
+            )}
           </div>
 
           <div className="period-row">
@@ -322,7 +388,7 @@ export default function ComboBacktest() {
           >
             <span className="auto-strategy-icon">{useAutoStrategy ? "✓" : "○"}</span>
             <span>
-              <strong>기간 최적 전략 자동 선택</strong>
+              <strong>기간 최적 전략 자동 선택{!basic ? " (코인 1개)" : ""}</strong>
               <span className="auto-strategy-desc">
                 선택한 기간에서 각 자산별 가장 높은 수익 전략을 자동으로 사용해요
               </span>
@@ -337,7 +403,9 @@ export default function ComboBacktest() {
             onClick={run}
             disabled={loading || totalWeight !== 100}
           >
-            {loading ? loadingMsg || "계산 중..." : "조합 백테스트 실행"}
+            {loading
+              ? loadingMsg || "계산 중..."
+              : `조합 백테스트 실행${useAutoStrategy && !basic ? " (코인 1개)" : ""}`}
           </button>
         </div>
       )}
@@ -398,6 +466,20 @@ export default function ComboBacktest() {
             </>
           )}
 
+          {percentile && (
+            <div className="pct-banner">
+              <span className="pct-emoji">🏆</span>
+              <div className="pct-text">
+                <p className="pct-main">
+                  같은 기간 {percentile.total}개 자산 중 <strong>상위 {percentile.topPct}%</strong>
+                </p>
+                <p className="pct-sub">
+                  전체 자산에 매월 적립했을 때와 비교한 연 수익률 기준이에요
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-label">납입 원금</div>
@@ -423,6 +505,23 @@ export default function ComboBacktest() {
             </div>
           </div>
 
+          {hasPoolStrategy(results.strategyMap) && (
+            <div className="pool-note">
+              <p className="pool-note-title">ℹ️ 적립 풀 방식이란?</p>
+              <p className="pool-note-body">
+                이 조합에는 <strong>MA / RSI / 하락 매수</strong> 전략이 포함돼 있어요.
+                이 전략들은 조건이 충족될 때만 투자하는 대신, 매일{" "}
+                <strong>약 {Math.round(monthlyAmount / 21).toLocaleString()}원</strong>씩
+                (월 {formatKRW(monthlyAmount)} ÷ 21거래일) 가상의 '적립 풀'에 쌓아둬요.
+              </p>
+              <p className="pool-note-body">
+                MA 아래 / RSI 이하 / 전일 대비 하락 조건이 생기는 날, 쌓인 금액을 한꺼번에 투자하고
+                풀을 초기화해요. 조건이 드물게 발생하면 풀에 현금이 남아,
+                위 <strong>납입 원금이 월 {formatKRW(monthlyAmount)} × 개월 수보다 적을 수 있어요.</strong>
+              </p>
+            </div>
+          )}
+
           <div className="metric-guide">
             <p className="metric-guide-title">📌 지표 안내</p>
             <p className="metric-guide-item">
@@ -433,12 +532,9 @@ export default function ComboBacktest() {
             </p>
           </div>
 
-          {revealed && (
-            <ShareButton
-              text={`📊 조합 백테스트 결과\n${getAllocLabel(results.allocs)} (${results.period})\n\n원금 ${formatKRW(results.totalInvested)} → ${formatKRW(results.finalValue)}\n수익률 ${formatPct(results.totalReturn)} | MDD ${formatPct(results.mdd)}\n\n나도 해보기 → ${APP_LINK}`}
-              label="이 결과 공유하기"
-            />
-          )}
+          <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
+            📤 결과 공유하기
+          </button>
 
           <AdBanner className="ad-banner-results" />
 
@@ -456,11 +552,26 @@ export default function ComboBacktest() {
       {showQueryGate && (
         <QueryGateModal
           onClose={() => setShowQueryGate(false)}
-          onEarned={() => handleReveal()}
+          onEarned={() => (gateReason === "run" ? run() : handleReveal())}
           onUpgrade={() => setShowUpgrade(true)}
         />
       )}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+      {showShare && results && (
+        <ShareSheet
+          text={`📊 조합 백테스트 결과\n${getAllocLabel(results.allocs)} (${results.period})\n원금 ${formatKRW(results.totalInvested)} → ${formatKRW(results.finalValue)}\n수익률 ${formatPct(results.totalReturn)} | MDD ${formatPct(results.mdd)}${percentile ? `\n🏆 같은 기간 ${percentile.total}개 자산 중 상위 ${percentile.topPct}%` : ""}`}
+          card={{
+            title: getAllocLabel(results.allocs),
+            period: results.period,
+            invested: results.totalInvested,
+            finalValue: results.finalValue,
+            returnPct: results.totalReturn,
+            mdd: results.mdd,
+            series: results.portfolioValues.map((v) => v.value),
+          }}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </div>
   );
 }
