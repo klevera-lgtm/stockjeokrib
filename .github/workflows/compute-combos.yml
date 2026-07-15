@@ -27,7 +27,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/featuredCombos.json data/supportedTickers.json
+          git add public/featuredCombos.json public/cagrDistribution.json public/eventGainers.json public/goalRanking.json data/supportedTickers.json
           git diff --cached --quiet || git commit -m "chore: update featured combos [$(date '+%Y-%m-%d')]"
           git pull --rebase origin main
           git push
