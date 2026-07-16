@@ -8,6 +8,7 @@ import EventExplorer from "./components/EventExplorer.jsx";
 import WhatOthersBuy from "./components/WhatOthersBuy.jsx";
 import MyPortfolio from "./components/MyPortfolio.jsx";
 import OnboardingModal, { isOnboardDone } from "./components/OnboardingModal.jsx";
+import InvestTypeTest from "./components/InvestTypeTest.jsx";
 import { loadPrices, prefetchTickers } from "./utils/dataLoader.js";
 import { precomputeFeaturedCombos } from "./utils/comboResultCache.js";
 import { logScreen } from "./utils/analytics.js";
@@ -21,10 +22,20 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("strategy");
   const [jumpTicker, setJumpTicker] = useState(null);
   const [showOnboard, setShowOnboard] = useState(() => !isOnboardDone());
+  const [showTest, setShowTest] = useState(false);
+  const [comboFocus, setComboFocus] = useState(null);
 
   useEffect(() => {
     logScreen(`tab_${activeTab}`);
   }, [activeTab]);
+
+  // 성향 테스트 결과 → 해당 기능으로 라우팅
+  function handleTestRoute(route) {
+    if (route.tab === "combo") {
+      setComboFocus({ leverage: !!route.leverage, section: route.section, ts: Date.now() });
+    }
+    setActiveTab(route.tab);
+  }
 
   useEffect(() => {
     // 구매 코인 서버 잔액 복원 (기기 변경 대응)
@@ -63,9 +74,9 @@ export default function App() {
   function renderContent() {
     switch (activeTab) {
       case "strategy":
-        return <StrategyResult key={jumpTicker} initialTicker={jumpTicker} />;
+        return <StrategyResult key={jumpTicker} initialTicker={jumpTicker} onOpenTest={() => setShowTest(true)} />;
       case "combo":
-        return <ComboBacktest />;
+        return <ComboBacktest focus={comboFocus} />;
       case "portfolio":
         return <MyPortfolio />;
       case "goal":
@@ -86,7 +97,13 @@ export default function App() {
         <Disclaimer />
       </div>
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
-      {showOnboard && <OnboardingModal onClose={() => setShowOnboard(false)} />}
+      {showOnboard && (
+        <OnboardingModal
+          onClose={() => setShowOnboard(false)}
+          onStartTest={() => { setShowOnboard(false); setShowTest(true); }}
+        />
+      )}
+      {showTest && <InvestTypeTest onClose={() => setShowTest(false)} onRoute={handleTestRoute} />}
     </div>
   );
 }

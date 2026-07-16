@@ -26,7 +26,7 @@ export function isOnboardDone() {
   catch { return true; }
 }
 
-export default function OnboardingModal({ onClose }) {
+export default function OnboardingModal({ onClose, onStartTest }) {
   const [idx, setIdx] = useState(0);
   const slide = SLIDES[idx];
   const isLast = idx === SLIDES.length - 1;
@@ -54,14 +54,27 @@ export default function OnboardingModal({ onClose }) {
           ))}
         </div>
 
-        <button
-          className="btn-primary modal-cta"
-          onClick={() => (isLast ? finish() : setIdx(idx + 1))}
-        >
-          {isLast ? "시작하기" : "다음"}
-        </button>
-        {!isLast && (
-          <button className="modal-cancel" onClick={finish}>건너뛰기</button>
+        {isLast ? (
+          <>
+            <button
+              className="btn-primary modal-cta"
+              onClick={() => {
+                logClick("onboard_to_test");
+                try { localStorage.setItem(ONBOARD_KEY, "1"); } catch {}
+                onStartTest?.();
+              }}
+            >
+              🧭 내 투자성향 알아보고 시작하기
+            </button>
+            <button className="modal-cancel" onClick={finish}>그냥 시작하기</button>
+          </>
+        ) : (
+          <>
+            <button className="btn-primary modal-cta" onClick={() => setIdx(idx + 1)}>
+              다음
+            </button>
+            <button className="modal-cancel" onClick={finish}>건너뛰기</button>
+          </>
         )}
       </div>
     </div>

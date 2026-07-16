@@ -42,7 +42,7 @@ function findBestStrategy(prices, monthlyAmount, startDate, endDate) {
   return results[0].strategy;
 }
 
-export default function ComboBacktest() {
+export default function ComboBacktest({ focus = null }) {
   const [tickers, setTickers] = useState([]);
   const [weights, setWeights] = useState({});
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
@@ -292,7 +292,7 @@ export default function ComboBacktest() {
         <p className="page-subtitle">최대 5개 자산을 조합해 백테스트해요</p>
       </div>
 
-      <FeaturedCombos onComboSelect={handleComboSelect} />
+      <FeaturedCombos onComboSelect={handleComboSelect} focus={focus} />
 
       <div style={{ borderTop: "1px solid var(--border)", margin: "4px 16px 16px", opacity: 0.5 }} />
       <p style={{ fontSize: 12, color: "var(--text-secondary)", padding: "0 16px 8px", fontWeight: 600 }}>

@@ -19,10 +19,10 @@ const PERIOD_LABELS = {
   "9yr": "지난 9년", "10yr": "지난 10년",
 };
 
-export default function FeaturedCombos({ onComboSelect }) {
+export default function FeaturedCombos({ onComboSelect, focus = null }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [withLeverage, setWithLeverage] = useState(false);
+  const [withLeverage, setWithLeverage] = useState(!!focus?.leverage);
   const [revealedPeriods, setRevealedPeriods] = useState(new Set());
   const [showQueryGate, setShowQueryGate] = useState(false);
   const [pendingPeriod, setPendingPeriod] = useState(null);
@@ -45,6 +45,19 @@ export default function FeaturedCombos({ onComboSelect }) {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  // 성향 테스트 라우팅: 레버리지 토글 + 해당 섹션으로 스크롤
+  useEffect(() => {
+    if (!focus || !data) return;
+    setWithLeverage(!!focus.leverage);
+    if (focus.section) {
+      const t = setTimeout(() => {
+        document.getElementById(`fc-section-${focus.section}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 150);
+      return () => clearTimeout(t);
+    }
+  }, [focus, data]);
 
   function handleReveal(periodKey) {
     if (basic) { setRevealedPeriods((prev) => new Set([...prev, periodKey])); return; }
@@ -139,17 +152,17 @@ export default function FeaturedCombos({ onComboSelect }) {
         >레버리지 포함</button>
       </div>
 
-      <div className="fc-section">
+      <div className="fc-section" id="fc-section-short">
         <p className="fc-section-title">단기 랭킹</p>
         {COIN_SHORT.map((k) => <ComboCard key={k} periodKey={k} />)}
       </div>
 
-      <div className="fc-section">
+      <div className="fc-section" id="fc-section-mid">
         <p className="fc-section-title">중기 랭킹</p>
         {COIN_MID.map((k) => <ComboCard key={k} periodKey={k} />)}
       </div>
 
-      <div className="fc-section">
+      <div className="fc-section" id="fc-section-long">
         <p className="fc-section-title fc-section-title--main">기간별 최고 조합</p>
         {FREE_LONG.map((k) => <ComboCard key={k} periodKey={k} />)}
       </div>

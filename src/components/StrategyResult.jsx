@@ -30,7 +30,7 @@ function makeSimShareText(ticker, result, monthlyAmount) {
   return `👑 주식적립왕 시뮬 결과\n\n${ticker} · ${Math.round(result.years)}년\n월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립 →\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)}`;
 }
 
-export default function StrategyResult({ initialTicker = null }) {
+export default function StrategyResult({ initialTicker = null, onOpenTest = null }) {
   const [ticker, setTicker] = useState(initialTicker);
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
   const [customStart, setCustomStart] = useState("");
@@ -118,6 +118,17 @@ export default function StrategyResult({ initialTicker = null }) {
           </div>
         )}
       </div>
+
+      {onOpenTest && (
+        <button className="itt-entry" onClick={() => { logClick("invtest_start", { from: "strategy_tab" }); onOpenTest(); }}>
+          <span className="itt-entry-icon">🧭</span>
+          <span className="itt-entry-text">
+            <strong>나는 어떤 투자자일까?</strong>
+            <span>8문항 투자성향 테스트 · 30초</span>
+          </span>
+          <span className="itt-entry-arrow">→</span>
+        </button>
+      )}
 
       <TickerSearch onSelect={(t) => { setTicker(t); setResults(null); setRevealed(basic); }} selected={ticker} />
 

@@ -1213,6 +1213,178 @@ input, select {
   font-weight: 600;
 }
 
+/* ── Invest type test ────────────────────────── */
+.itt-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 29, 48, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.itt-card {
+  width: 100%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+.itt-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.itt-progress-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+.itt-close {
+  font-size: 16px;
+  color: var(--text-tertiary);
+  background: none;
+  padding: 4px 8px;
+}
+.itt-bar {
+  height: 4px;
+  background: var(--bg);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.itt-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 99px;
+  transition: width 0.25s ease;
+}
+.itt-question {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.45;
+  margin-bottom: 18px;
+}
+.itt-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.itt-option {
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.12s, transform 0.12s;
+}
+.itt-option:active {
+  border-color: var(--primary);
+  transform: scale(0.98);
+}
+.itt-result-emoji {
+  font-size: 56px;
+  text-align: center;
+  margin: 8px 0 10px;
+}
+.itt-result-name {
+  font-size: 24px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+.itt-result-desc {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.65;
+  margin-bottom: 16px;
+}
+.itt-traits {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.itt-trait {
+  flex: 1;
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 10px 8px;
+  text-align: center;
+}
+.itt-trait-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.itt-trait-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--primary);
+}
+.itt-cta { width: 100%; margin-bottom: 8px; }
+.itt-share, .itt-waitlist {
+  width: 100%;
+  margin-bottom: 8px;
+  font-size: 13.5px;
+}
+.itt-disclaimer {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-align: center;
+  margin-top: 6px;
+}
+
+/* 시뮬레이션 탭 진입 카드 */
+.itt-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: calc(100% - 32px);
+  margin: 0 16px 12px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #1b2a4a, #24365c);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+.itt-entry-icon { font-size: 26px; }
+.itt-entry-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.itt-entry-text strong {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #fff;
+}
+.itt-entry-text span {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.itt-entry-arrow {
+  font-size: 16px;
+  color: #4e9bff;
+  font-weight: 700;
+}
+
 /* ── Onboarding ──────────────────────────────── */
 .onboard-card { text-align: center; }
 .onboard-emoji {
