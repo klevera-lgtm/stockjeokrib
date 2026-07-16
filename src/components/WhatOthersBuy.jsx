@@ -3,7 +3,7 @@ import { loadWhatOthersBuy } from "../utils/dataLoader.js";
 import { isBasic } from "../utils/premium.js";
 import { SUPPORTED_TICKERS, SUPPORTED_TICKERS_URL } from "../utils/tickers.js";
 import UpgradeModal from "./UpgradeModal.jsx";
-import ShareButton from "./ShareButton.jsx";
+import ShareSheet from "./ShareSheet.jsx";
 import { APP_LINK } from "../utils/share.js";
 import AdBanner from "./AdBanner.jsx";
 
@@ -29,6 +29,7 @@ export default function WhatOthersBuy({ onTickerSelect }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const [supportedSet, setSupportedSet] = useState(SUPPORTED_TICKERS);
 
   useEffect(() => {
@@ -63,8 +64,6 @@ export default function WhatOthersBuy({ onTickerSelect }) {
           const t = cleanTicker(item.ticker);
           return t && supportedSet.has(t);
         }).length;
-
-        const shareText = `🏆 이번 주 한국인 미국주식 순매수 TOP5\n${data.slice(0, 5).map((item, i) => `${i + 1}. ${item.ticker || item.name} (+${formatAmount(item.net_buy_amount)}원)`).join("\n")}\n\n내 보유 종목 DCA 분석 → ${APP_LINK}`;
 
         return (
           <div className="others-list">
@@ -113,7 +112,9 @@ export default function WhatOthersBuy({ onTickerSelect }) {
               );
             })}
 
-            <ShareButton text={shareText} label="TOP5 공유하기" />
+            <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
+              📤 TOP5 공유하기
+            </button>
 
             <AdBanner className="ad-banner-results" />
 
@@ -130,6 +131,20 @@ export default function WhatOthersBuy({ onTickerSelect }) {
       })()}
 
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+      {showShare && data?.length > 0 && (
+        <ShareSheet
+          text={`🏆 이번 주 한국인 미국주식 순매수 TOP5\n${data.slice(0, 5).map((item, i) => `${i + 1}. ${item.ticker || item.name} (+${formatAmount(item.net_buy_amount)}원)`).join("\n")}\n\n내 보유 종목 DCA 분석 → ${APP_LINK}`}
+          card={{
+            title: "이번 주 한국인 순매수 TOP 5",
+            period: "미국주식 순매수 금액 · 매주 업데이트",
+            rows: data.slice(0, 5).map((item) => ({
+              label: item.ticker || item.name,
+              value: `+${formatAmount(item.net_buy_amount)}원`,
+            })),
+          }}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </div>
   );
 }

@@ -186,28 +186,43 @@ export default function MyPortfolio() {
   }, [selectedTicker]);
 
   async function addItem() {
-    if (!periodResults || !anonKeyRef.current) return;
+    if (!periodResults) return;
     const { strategy } = periodResults[selectedPeriodIdx];
     const ticker = selectedTicker;
     if (items.some((i) => i.ticker === ticker)) return;
-    const result = await addPortfolioItem(anonKeyRef.current, { ticker, strategy });
-    if (!result) return;
-    const cloudItems = await fetchPortfolio(anonKeyRef.current);
-    if (cloudItems) {
-      const enriched = cloudItems.map(enrichItem);
-      setItems(enriched);
-      checkAllConditions(enriched);
-    }
+
+    // 화면 먼저 반영 — 서버 동기화는 뒤에서 시도
+    const optimistic = enrichItem({ ticker, strategy });
+    const nextItems = [...items, optimistic];
+    setItems(nextItems);
+    checkAllConditions(nextItems);
     setAdding(false);
     setSelectedTicker(null);
     setPeriodResults(null);
+
+    try {
+      if (!anonKeyRef.current) return;
+      await addPortfolioItem(anonKeyRef.current, { ticker, strategy });
+      const cloudItems = await fetchPortfolio(anonKeyRef.current);
+      if (cloudItems) {
+        const enriched = cloudItems.map(enrichItem);
+        setItems(enriched);
+        checkAllConditions(enriched);
+      }
+    } catch {
+      // 서버 동기화 실패 — 로컬 상태 유지
+    }
   }
 
   async function removeItem(ticker) {
-    if (!anonKeyRef.current) return;
-    await removePortfolioItem(anonKeyRef.current, ticker);
+    // 화면 먼저 반영 (낙관적 업데이트) — 서버 실패해도 UI는 유지
     setItems((prev) => prev.filter((i) => i.ticker !== ticker));
     setConditions((c) => { const n = { ...c }; delete n[ticker]; return n; });
+    try {
+      if (anonKeyRef.current) await removePortfolioItem(anonKeyRef.current, ticker);
+    } catch {
+      // 서버 동기화 실패 — 다음 로드 시 재조정됨
+    }
   }
 
   const triggeredItems = items.filter((i) => conditions[i.ticker]?.triggered);

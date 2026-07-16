@@ -30,7 +30,7 @@ function wrapTitle(ctx, text, maxWidth) {
   return lines;
 }
 
-export function renderShareCard({ title, period, invested, finalValue, returnPct, mdd, series }) {
+export function renderShareCard({ title, period, invested, finalValue, returnPct, mdd, series, rows }) {
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
@@ -75,6 +75,61 @@ export function renderShareCard({ title, period, invested, finalValue, returnPct
   ctx.font = "500 34px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
   ctx.fillStyle = "rgba(255,255,255,0.55)";
   ctx.fillText(period, PAD, y + 4);
+
+  // ── 순위표 카드 (rows 지정 시 차트·스탯 대신 리스트) ──
+  if (rows?.length) {
+    const listTop = 400;
+    const rowH = 108;
+    const medals = ["🥇", "🥈", "🥉"];
+    rows.slice(0, 5).forEach((row, i) => {
+      const ry = listTop + i * rowH;
+
+      // 행 구분선
+      if (i > 0) {
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(PAD, ry - 18);
+        ctx.lineTo(W - PAD, ry - 18);
+        ctx.stroke();
+      }
+
+      // 순위
+      ctx.font = "700 44px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+      ctx.fillStyle = i < 3 ? "#ffd54a" : "rgba(255,255,255,0.45)";
+      ctx.fillText(medals[i] ?? String(i + 1), PAD, ry + 14);
+
+      // 종목명 (길면 자르기)
+      ctx.font = "700 42px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+      ctx.fillStyle = "#ffffff";
+      let label = row.label ?? "";
+      const maxLabelW = W - PAD * 2 - 100 - 300;
+      while (ctx.measureText(label).width > maxLabelW && label.length > 1) {
+        label = label.slice(0, -1);
+      }
+      if (label !== (row.label ?? "")) label += "…";
+      ctx.fillText(label, PAD + 100, ry + 16);
+
+      // 금액 (우측 정렬)
+      ctx.font = "700 40px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+      ctx.fillStyle = "#4ade80";
+      const vw = ctx.measureText(row.value ?? "").width;
+      ctx.fillText(row.value ?? "", W - PAD - vw, ry + 18);
+    });
+
+    // 하단 CTA
+    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(PAD, H - 120);
+    ctx.lineTo(W - PAD, H - 120);
+    ctx.stroke();
+    ctx.font = "500 32px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.fillText("토스 앱에서 '주식적립왕' 검색 🔍", PAD, H - 88);
+
+    return canvas;
+  }
 
   // ── 차트 ──
   const chartTop = 390;
