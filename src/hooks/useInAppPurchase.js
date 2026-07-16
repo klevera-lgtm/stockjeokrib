@@ -1,58 +1,52 @@
 import { IAP } from "@apps-in-toss/web-framework";
 import { useCallback, useEffect, useState } from "react";
+import { earnCoins } from "../utils/premium.js";
+import { coinsFromSku } from "../utils/tossConfig.js";
 
 // 참고문서: https://developers-apps-in-toss.toss.im/iap/intro.html
+// 코인 상품 SKU 규칙: "coin_<개수>" — 결제 성공 시 해당 개수만큼 코인 지급
 export function useInAppPurchase() {
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [purchasingSku, setPurchasingSku] = useState(null);
+  const [unavailable, setUnavailable] = useState(false);
+  const [lastGranted, setLastGranted] = useState(null); // { sku, coins }
 
   useEffect(() => {
     async function fetchProducts() {
       setProductsLoading(true);
-
       try {
         const response = await IAP.getProductItemList();
-        const fetchedProducts = response?.products ?? [];
-
-        setProducts(fetchedProducts);
-      } catch (error) {
-        alert(
-          "상품 목록 조회 실패: \n\n-앱인토스 콘솔에서 미니앱을 생성후 인앱상품을 등록해주세요\n- 인앱결제 기능은 브라우저가 아닌 샌드박스앱/토스앱에서 실행해주세요\n\n" +
-            error,
-        );
+        setProducts(response?.products ?? []);
+      } catch {
+        // 브라우저 등 미지원 환경 — 조용히 비활성화
+        setUnavailable(true);
       } finally {
         setProductsLoading(false);
       }
     }
-
     fetchProducts();
   }, []);
 
-  const grantProduct = useCallback((orderId) => {
-    // TODO: 여기에 상품 지급 로직을 작성해주세요.
-    console.info(`상품 지급 처리: ${orderId}`);
+  const grantProduct = useCallback((orderId, sku) => {
+    const coins = coinsFromSku(sku);
+    if (coins > 0) {
+      earnCoins(coins);
+      setLastGranted({ sku, coins, orderId });
+    }
+    return true;
   }, []);
 
   const purchaseProduct = useCallback(
     (sku) => {
       setPurchasingSku(sku);
-
       try {
         const cleanup = IAP.createOneTimePurchaseOrder({
           options: {
             sku,
-            processProductGrant: ({ orderId }) => {
-              grantProduct(orderId);
-              console.info(`상품 지급 처리: ${orderId}`);
-              return true;
-            },
+            processProductGrant: ({ orderId }) => grantProduct(orderId, sku),
           },
-          onEvent: (event) => {
-            if (event.type === "success") {
-              alert(`${event.data.displayName}이 결제되었어요.`);
-            }
-
+          onEvent: () => {
             setPurchasingSku(null);
             cleanup();
           },
@@ -74,11 +68,9 @@ export function useInAppPurchase() {
     try {
       const pending = await IAP.getPendingOrders();
       const orders = pending?.orders ?? [];
-
       for (const order of orders) {
-        grantProduct(order.orderId);
+        grantProduct(order.orderId, order.sku ?? order.productId);
         await IAP.completeProductGrant({ params: { orderId: order.orderId } });
-        console.info("미결 주문 복원 완료:", order.orderId);
       }
     } catch (error) {
       console.error("주문 복원 실패:", error);
@@ -91,5 +83,7 @@ export function useInAppPurchase() {
     restorePendingOrders,
     productsLoading,
     purchasingSku,
+    unavailable,
+    lastGranted,
   };
 }

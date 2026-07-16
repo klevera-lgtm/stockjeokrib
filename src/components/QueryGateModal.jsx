@@ -1,29 +1,57 @@
 import { useState } from "react";
 import { useInAppAds } from "../hooks/useInAppAds.js";
-import { earnAdQueries, AD_REWARD_QUERIES } from "../utils/premium.js";
-
-const REWARDED_AD_ID = "ait-ad-test-rewarded-id";
+import { earnAdQueries, earnCoins, AD_REWARD_QUERIES } from "../utils/premium.js";
+import { openContactsViral } from "../utils/viral.js";
+import { VIRAL_ENABLED, REWARDED_AD_GROUP_ID } from "../utils/tossConfig.js";
+import CoinShopModal from "./CoinShopModal.jsx";
 
 export default function QueryGateModal({ onClose, onEarned, onUpgrade }) {
   const [rewarding, setRewarding] = useState(false);
   const [earned, setEarned] = useState(false);
-  const { isAdLoaded, isSupported, showAd, lastReward } = useInAppAds(REWARDED_AD_ID);
+  const [earnedMsg, setEarnedMsg] = useState("");
+  const [showShop, setShowShop] = useState(false);
+  const { isAdLoaded, isSupported, showAd, lastReward } = useInAppAds(REWARDED_AD_GROUP_ID);
+
+  function finish(msg) {
+    setEarnedMsg(msg);
+    setEarned(true);
+    setTimeout(() => { onEarned?.(); onClose(); }, 1200);
+  }
 
   function handleWatchAd() {
     if (!isAdLoaded && !isSupported) {
       earnAdQueries();
-      setEarned(true);
-      setTimeout(() => { onEarned?.(); onClose(); }, 1200);
+      finish(`✓ 코인 +${AD_REWARD_QUERIES}개 충전 완료!`);
       return;
     }
     setRewarding(true);
     showAd();
   }
 
+  function handleInvite() {
+    openContactsViral({
+      onReward: (data) => {
+        const granted = earnCoins(data?.rewardAmount ?? 0);
+        if (granted > 0) finish(`✓ 초대 완료! 코인 +${granted}개`);
+      },
+      onError: () => {
+        // 토스 앱 밖이거나 모듈 미설정 — 조용히 무시
+      },
+    });
+  }
+
   if (lastReward && !earned) {
     earnAdQueries();
-    setEarned(true);
-    setTimeout(() => { onEarned?.(); onClose(); }, 1200);
+    finish(`✓ 코인 +${AD_REWARD_QUERIES}개 충전 완료!`);
+  }
+
+  if (showShop) {
+    return (
+      <CoinShopModal
+        onClose={() => setShowShop(false)}
+        onPurchased={() => { onEarned?.(); onClose(); }}
+      />
+    );
   }
 
   return (
@@ -37,9 +65,7 @@ export default function QueryGateModal({ onClose, onEarned, onUpgrade }) {
         </p>
 
         {earned ? (
-          <div className="query-earned-msg">
-            ✓ 코인 +{AD_REWARD_QUERIES}개 충전 완료!
-          </div>
+          <div className="query-earned-msg">{earnedMsg}</div>
         ) : (
           <>
             <button
@@ -48,6 +74,14 @@ export default function QueryGateModal({ onClose, onEarned, onUpgrade }) {
               disabled={rewarding && !isAdLoaded && isSupported}
             >
               {rewarding && !isAdLoaded && isSupported ? "광고 로딩 중..." : `📺 광고 보고 +${AD_REWARD_QUERIES}개 받기`}
+            </button>
+            {VIRAL_ENABLED && (
+              <button className="btn-secondary modal-cta-secondary" onClick={handleInvite}>
+                👥 친구 초대하고 코인 받기
+              </button>
+            )}
+            <button className="btn-secondary modal-cta-secondary" onClick={() => setShowShop(true)}>
+              🪙 코인 구매하기
             </button>
             <button className="btn-secondary modal-cta-secondary" onClick={() => { onClose(); onUpgrade?.(); }}>
               광고 없이 무제한 쓰기 →

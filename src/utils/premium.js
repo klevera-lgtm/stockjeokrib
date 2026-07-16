@@ -75,6 +75,13 @@ export function earnAdQueries() {
   setStoredBalance(getStoredBalance() + AD_REWARD_QUERIES);
 }
 
+// 범용 코인 지급 (공유 리워드, IAP 등)
+export function earnCoins(n) {
+  const amount = Math.max(0, Math.floor(Number(n) || 0));
+  if (amount > 0) setStoredBalance(getStoredBalance() + amount);
+  return amount;
+}
+
 // backward compat
 export function consumeFreeQuery() { return consumeQuery(); }
 export function getRemainingFreeQueries() { return getQueryBalance(); }
