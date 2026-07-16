@@ -12,6 +12,7 @@ import {
 } from "../utils/calculator.js";
 import { consumeQuery, isBasic, getQueryBalance } from "../utils/premium.js";
 import { calcPercentile } from "../utils/percentile.js";
+import { logClick } from "../utils/analytics.js";
 import TickerSearch from "./TickerSearch.jsx";
 import LineChart from "./LineChart.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
@@ -108,6 +109,7 @@ export default function ComboBacktest() {
   }
 
   function handleComboSelect(comboTickers, comboStrategies, periodKey, isFree = false, lKey = null) {
+    logClick("featured_chart", { period: periodKey, leverage: lKey ?? "unknown" });
     const n = comboTickers.length;
     const eq = Math.floor(100 / n);
     const rem = 100 - eq * n;
@@ -150,6 +152,7 @@ export default function ComboBacktest() {
   const run = useCallback(async () => {
     if (tickers.length < 1) return;
     if (totalWeight !== 100) { setError("비중 합계가 100%여야 합니다."); return; }
+    logClick("combo_run", { assets: tickers.length, auto: useAutoStrategy, preset: !!presetStrategyMap });
 
     // 자동 전략 선택은 코인 1개 소모 (콤보 프리셋 제외)
     if (useAutoStrategy && !presetStrategyMap && !basic) {

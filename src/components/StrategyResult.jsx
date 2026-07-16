@@ -8,6 +8,7 @@ import {
   formatPct,
 } from "../utils/calculator.js";
 import { isBasic, consumeQuery, getQueryBalance, getStreakInfo, STREAK_BONUS } from "../utils/premium.js";
+import { logClick } from "../utils/analytics.js";
 import TickerSearch from "./TickerSearch.jsx";
 import LineChart from "./LineChart.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
@@ -57,6 +58,7 @@ export default function StrategyResult({ initialTicker = null }) {
 
   const run = useCallback(async () => {
     if (!ticker) return;
+    logClick("sim_run", { ticker, amount: monthlyAmount });
     setLoading(true);
     setError(null);
     setRevealed(basic);

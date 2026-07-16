@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { loadPrices, prefetchTickers } from "../utils/dataLoader.js";
 import { runStrategy, formatKRW, formatPct } from "../utils/calculator.js";
 import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
+import { logClick } from "../utils/analytics.js";
 import { getTickerLabel } from "../utils/tickers.js";
 import TickerSearch from "./TickerSearch.jsx";
 import LineChart from "./LineChart.jsx";
@@ -71,6 +72,7 @@ export default function EventExplorer() {
   function handlePreset(preset) {
     const ev = EVENTS.find((e) => e.id === preset.eventId);
     if (!ev) return;
+    logClick("regret_preset", { event: preset.eventId, ticker: preset.ticker });
     setSelectedEvent(ev);
     setTicker(preset.ticker);
     setResult(null);
@@ -96,6 +98,7 @@ export default function EventExplorer() {
   const run = useCallback(async () => {
     if (!selectedEvent || !ticker) return;
     if (!consumeQuery()) { setShowQueryGate(true); return; }
+    logClick("event_run", { event: selectedEvent.id, ticker });
     setLoading(true);
     setError(null);
     try {

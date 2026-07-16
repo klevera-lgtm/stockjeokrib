@@ -4,6 +4,7 @@ import { earnAdQueries, earnCoins, AD_REWARD_QUERIES } from "../utils/premium.js
 import { openContactsViral } from "../utils/viral.js";
 import { VIRAL_ENABLED, REWARDED_AD_GROUP_ID } from "../utils/tossConfig.js";
 import CoinShopModal from "./CoinShopModal.jsx";
+import { logClick } from "../utils/analytics.js";
 
 export default function QueryGateModal({ onClose, onEarned, onUpgrade }) {
   const [rewarding, setRewarding] = useState(false);
@@ -19,6 +20,7 @@ export default function QueryGateModal({ onClose, onEarned, onUpgrade }) {
   }
 
   function handleWatchAd() {
+    logClick("gate_ad_watch");
     if (!isAdLoaded && !isSupported) {
       earnAdQueries();
       finish(`✓ 코인 +${AD_REWARD_QUERIES}개 충전 완료!`);
@@ -29,6 +31,7 @@ export default function QueryGateModal({ onClose, onEarned, onUpgrade }) {
   }
 
   function handleInvite() {
+    logClick("gate_viral_open");
     openContactsViral({
       onReward: (data) => {
         const granted = earnCoins(data?.rewardAmount ?? 0);
@@ -80,7 +83,10 @@ export default function QueryGateModal({ onClose, onEarned, onUpgrade }) {
                 👥 친구 초대하고 코인 받기
               </button>
             )}
-            <button className="btn-secondary modal-cta-secondary" onClick={() => setShowShop(true)}>
+            <button
+              className="btn-secondary modal-cta-secondary"
+              onClick={() => { logClick("gate_coinshop_open"); setShowShop(true); }}
+            >
               🪙 코인 구매하기
             </button>
             <button className="btn-secondary modal-cta-secondary" onClick={() => { onClose(); onUpgrade?.(); }}>

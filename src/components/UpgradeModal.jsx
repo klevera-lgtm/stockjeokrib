@@ -1,4 +1,8 @@
+import { useEffect } from "react";
+import { logScreen, logClick } from "../utils/analytics.js";
+
 export default function UpgradeModal({ onClose }) {
+  useEffect(() => { logScreen("upgrade_modal"); }, []);
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
@@ -16,7 +20,7 @@ export default function UpgradeModal({ onClose }) {
         </ul>
         <div className="modal-price">월 1,990원</div>
         <div className="modal-price-sub">커피 한 잔 값</div>
-        <button className="btn-primary modal-cta">베이직 시작하기</button>
+        <button className="btn-primary modal-cta" onClick={() => logClick("upgrade_start")}>베이직 시작하기</button>
         <button className="modal-cancel" onClick={onClose}>나중에</button>
       </div>
     </div>

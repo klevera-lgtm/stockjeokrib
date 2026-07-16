@@ -3,6 +3,7 @@ import { APP_LINK } from "../utils/share.js";
 import { shareKakao } from "../utils/kakao.js";
 import { renderShareCard, shareCardImage } from "../utils/shareCard.js";
 import { maybeRequestReview } from "../utils/review.js";
+import { logClick } from "../utils/analytics.js";
 
 function XIcon() {
   return (
@@ -53,6 +54,11 @@ export default function ShareSheet({ text, card, onClose }) {
   const imgStatusTimer = useRef(null);
   const didShare = useRef(false);
 
+  function markShare(channel) {
+    didShare.current = true;
+    logClick("share", { channel, has_card: !!card });
+  }
+
   // 공유 행동이 있었으면 시트 닫을 때 리뷰 요청 (1회 한정)
   function handleClose() {
     if (didShare.current) maybeRequestReview();
@@ -67,7 +73,7 @@ export default function ShareSheet({ text, card, onClose }) {
   }, [card]);
 
   async function handleImageShare() {
-    didShare.current = true;
+    markShare("image");
     const result = await shareCardImage(card);
     const msg = {
       shared: null,
@@ -89,24 +95,24 @@ export default function ShareSheet({ text, card, onClose }) {
   const encodedText = encodeURIComponent(text);
 
   async function handleKakao() {
-    didShare.current = true;
+    markShare("kakao");
     await shareKakao(text, APP_LINK);
     setKakaoCopied(true);
     setTimeout(() => setKakaoCopied(false), 3000);
   }
 
   function handleX() {
-    didShare.current = true;
+    markShare("x");
     window.open(`https://x.com/intent/post?text=${encodedFull}`, "_blank", "noopener,noreferrer");
   }
 
   function handleTelegram() {
-    didShare.current = true;
+    markShare("telegram");
     window.open(`https://t.me/share/url?url=${encodedLink}&text=${encodedText}`, "_blank", "noopener,noreferrer");
   }
 
   async function handleInsta() {
-    didShare.current = true;
+    markShare("insta");
     if (navigator.share) {
       try { await navigator.share({ text: fullText }); } catch {}
     } else {
@@ -115,7 +121,7 @@ export default function ShareSheet({ text, card, onClose }) {
   }
 
   async function handleCopyLink() {
-    didShare.current = true;
+    markShare("copylink");
     try {
       await navigator.clipboard.writeText(APP_LINK);
       setCopied(true);

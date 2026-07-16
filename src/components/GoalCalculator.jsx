@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { loadPrices } from "../utils/dataLoader.js";
 import { runStrategy, ALL_STRATEGIES, STRATEGY_LABELS, formatKRW, formatPct } from "../utils/calculator.js";
 import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
+import { logClick } from "../utils/analytics.js";
 import { getTickerLabel } from "../utils/tickers.js";
 import TickerSearch from "./TickerSearch.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
@@ -58,6 +59,7 @@ export default function GoalCalculator() {
 
   // 계획 저장 + 토스 알림 수신 동의 요청
   async function handleRemind() {
+    logClick("goal_remind", { ticker, years });
     try {
       localStorage.setItem("stockjeokrib_goal_plan", JSON.stringify({
         ticker,
@@ -106,6 +108,7 @@ export default function GoalCalculator() {
 
   const run = useCallback(async () => {
     if (!ticker) return;
+    logClick("goal_run", { ticker, goal: goalAmount, years });
     setLoading(true);
     setError(null);
     setRevealed(basic);

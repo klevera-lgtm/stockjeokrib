@@ -1,6 +1,7 @@
 import { useInAppPurchase } from "../hooks/useInAppPurchase.js";
 import { coinsFromSku } from "../utils/tossConfig.js";
 import { getQueryBalance } from "../utils/premium.js";
+import { logClick } from "../utils/analytics.js";
 
 // 코인 상품 목록 — 콘솔 등록 SKU와 매칭 (표시 순서/라벨 지정용)
 const SKU_META = {
@@ -63,7 +64,7 @@ export default function CoinShopModal({ onClose, onPurchased }) {
             <button
               key={p.sku}
               className="coinshop-item"
-              onClick={() => purchaseProduct(p.sku)}
+              onClick={() => { logClick("coin_purchase", { sku: p.sku }); purchaseProduct(p.sku); }}
               disabled={!!purchasingSku}
             >
               <span className="coinshop-coins">

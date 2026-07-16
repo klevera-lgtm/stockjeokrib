@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { logClick } from "../utils/analytics.js";
 
 const ONBOARD_KEY = "ait_onboard_done";
 
@@ -31,6 +32,7 @@ export default function OnboardingModal({ onClose }) {
   const isLast = idx === SLIDES.length - 1;
 
   function finish() {
+    logClick("onboard_done", { last_slide: idx, skipped: !isLast });
     try { localStorage.setItem(ONBOARD_KEY, "1"); } catch {}
     onClose();
   }
