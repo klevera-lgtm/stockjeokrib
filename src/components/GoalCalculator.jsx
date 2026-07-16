@@ -129,7 +129,6 @@ export default function GoalCalculator() {
       allResults.sort((a, b) => a.requiredMonthly - b.requiredMonthly);
       setResults(allResults);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-      setTimeout(() => setShowShare(true), 1000);
     } catch (e) {
       setError(e.message);
     } finally {

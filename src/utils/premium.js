@@ -1,4 +1,5 @@
 const BALANCE_KEY = "ait_query_balance";
+const PAID_KEY = "ait_paid_balance";
 const REFILL_KEY = "ait_last_refill_date";
 const WELCOME_KEY = "ait_welcome_done";
 const PLAN_KEY = "stockjeokrib_plan";
@@ -25,6 +26,27 @@ function getStoredBalance() {
 function setStoredBalance(n) {
   try { localStorage.setItem(BALANCE_KEY, String(Math.max(0, n))); }
   catch {}
+}
+
+// ── 구매 코인 (서버 동기화 대상 — 기기 변경 시에도 유지) ──
+let paidSyncFn = null;
+export function onPaidChange(fn) { paidSyncFn = fn; }
+function notifyPaidChanged() { try { paidSyncFn?.(getPaidBalance()); } catch {} }
+
+export function getPaidBalance() {
+  try { return parseInt(localStorage.getItem(PAID_KEY) ?? "0", 10); }
+  catch { return 0; }
+}
+
+export function setPaidBalance(n, { silent = false } = {}) {
+  try { localStorage.setItem(PAID_KEY, String(Math.max(0, n))); } catch {}
+  if (!silent) notifyPaidChanged();
+}
+
+export function earnPaidCoins(n) {
+  const amount = Math.max(0, Math.floor(Number(n) || 0));
+  if (amount > 0) setPaidBalance(getPaidBalance() + amount);
+  return amount;
 }
 
 function yesterdayStr() {
@@ -93,16 +115,24 @@ export function isBasic() {
 export function getQueryBalance() {
   if (isBasic()) return Infinity;
   ensureDailyRefill();
-  return getStoredBalance();
+  return getStoredBalance() + getPaidBalance();
 }
 
 export function consumeQuery() {
   if (isBasic()) return true;
   ensureDailyRefill();
-  const bal = getStoredBalance();
-  if (bal <= 0) return false;
-  setStoredBalance(bal - 1);
-  return true;
+  // 무료 코인 먼저 소비, 그다음 구매 코인
+  const free = getStoredBalance();
+  if (free > 0) {
+    setStoredBalance(free - 1);
+    return true;
+  }
+  const paid = getPaidBalance();
+  if (paid > 0) {
+    setPaidBalance(paid - 1);
+    return true;
+  }
+  return false;
 }
 
 export function earnAdQueries() {

@@ -95,13 +95,9 @@ export default function StrategyResult({ initialTicker = null }) {
     }
   }, [initialTicker, run]);
 
+  // 공유 시트는 버튼 클릭으로만 열림 (검수 가이드: 바텀시트 자동 노출 금지)
   useEffect(() => {
-    if (results) {
-      const t = setTimeout(() => setShowShare(true), 900);
-      return () => clearTimeout(t);
-    } else {
-      setShowShare(false);
-    }
+    if (!results) setShowShare(false);
   }, [results]);
 
   return (

@@ -11,6 +11,7 @@ import OnboardingModal, { isOnboardDone } from "./components/OnboardingModal.jsx
 import { loadPrices, prefetchTickers } from "./utils/dataLoader.js";
 import { precomputeFeaturedCombos } from "./utils/comboResultCache.js";
 import { logScreen } from "./utils/analytics.js";
+import { initPaidCoins } from "./utils/coinsApi.js";
 import "./App.css";
 
 // 앱 시작 시 자주 쓰이는 티커 백그라운드 프리페치
@@ -26,6 +27,9 @@ export default function App() {
   }, [activeTab]);
 
   useEffect(() => {
+    // 구매 코인 서버 잔액 복원 (기기 변경 대응)
+    initPaidCoins();
+
     // 인기 티커 프리페치 (2초 지연으로 초기 렌더 방해 안 함)
     const timer = setTimeout(() => prefetchTickers(PREFETCH_SEEDS), 2000);
 

@@ -108,7 +108,6 @@ export default function EventExplorer() {
       const r = runStrategy(prices, "monthly-first", monthlyAmount, startDate, endDate);
       if (!r) throw new Error("해당 기간 데이터가 없습니다.");
       setResult({ ...r, event: selectedEvent });
-      setTimeout(() => setShowShare(true), 900);
     } catch (e) {
       setError(e.message);
     } finally {

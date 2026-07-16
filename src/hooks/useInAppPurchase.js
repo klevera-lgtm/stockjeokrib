@@ -1,6 +1,6 @@
 import { IAP } from "@apps-in-toss/web-framework";
 import { useCallback, useEffect, useState } from "react";
-import { earnCoins } from "../utils/premium.js";
+import { earnPaidCoins } from "../utils/premium.js";
 import { coinsFromSku } from "../utils/tossConfig.js";
 
 // 참고문서: https://developers-apps-in-toss.toss.im/iap/intro.html
@@ -31,7 +31,7 @@ export function useInAppPurchase() {
   const grantProduct = useCallback((orderId, sku) => {
     const coins = coinsFromSku(sku);
     if (coins > 0) {
-      earnCoins(coins);
+      earnPaidCoins(coins);
       setLastGranted({ sku, coins, orderId });
     }
     return true;

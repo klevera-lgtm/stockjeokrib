@@ -278,13 +278,9 @@ export default function ComboBacktest() {
     if (results) resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [results]);
 
+  // 공유 시트는 버튼 클릭으로만 열림 (검수 가이드: 바텀시트 자동 노출 금지)
   useEffect(() => {
-    if (results && !loading) {
-      const t = setTimeout(() => setShowShare(true), 900);
-      return () => clearTimeout(t);
-    } else {
-      setShowShare(false);
-    }
+    if (!results || loading) setShowShare(false);
   }, [results, loading]);
 
   const hasStrategyBox = results && (results.useAutoStrategy || results.fromCombo);
