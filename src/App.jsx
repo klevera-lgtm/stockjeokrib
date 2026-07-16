@@ -7,6 +7,7 @@ import GoalCalculator from "./components/GoalCalculator.jsx";
 import EventExplorer from "./components/EventExplorer.jsx";
 import WhatOthersBuy from "./components/WhatOthersBuy.jsx";
 import MyPortfolio from "./components/MyPortfolio.jsx";
+import OnboardingModal, { isOnboardDone } from "./components/OnboardingModal.jsx";
 import { loadPrices, prefetchTickers } from "./utils/dataLoader.js";
 import { precomputeFeaturedCombos } from "./utils/comboResultCache.js";
 import "./App.css";
@@ -17,6 +18,7 @@ const PREFETCH_SEEDS = ["SPY", "QQQ", "NVDA", "AAPL", "TSLA", "VOO", "IVV", "TQQ
 export default function App() {
   const [activeTab, setActiveTab] = useState("strategy");
   const [jumpTicker, setJumpTicker] = useState(null);
+  const [showOnboard, setShowOnboard] = useState(() => !isOnboardDone());
 
   useEffect(() => {
     // 인기 티커 프리페치 (2초 지연으로 초기 렌더 방해 안 함)
@@ -75,6 +77,7 @@ export default function App() {
         <Disclaimer />
       </div>
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+      {showOnboard && <OnboardingModal onClose={() => setShowOnboard(false)} />}
     </div>
   );
 }

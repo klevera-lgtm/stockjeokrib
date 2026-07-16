@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { APP_LINK } from "../utils/share.js";
 import { shareKakao } from "../utils/kakao.js";
 import { renderShareCard, shareCardImage } from "../utils/shareCard.js";
+import { maybeRequestReview } from "../utils/review.js";
 
 function XIcon() {
   return (
@@ -50,6 +51,13 @@ export default function ShareSheet({ text, card, onClose }) {
   const [imgStatus, setImgStatus] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const imgStatusTimer = useRef(null);
+  const didShare = useRef(false);
+
+  // 공유 행동이 있었으면 시트 닫을 때 리뷰 요청 (1회 한정)
+  function handleClose() {
+    if (didShare.current) maybeRequestReview();
+    onClose();
+  }
 
   useEffect(() => {
     if (!card) return;
@@ -59,6 +67,7 @@ export default function ShareSheet({ text, card, onClose }) {
   }, [card]);
 
   async function handleImageShare() {
+    didShare.current = true;
     const result = await shareCardImage(card);
     const msg = {
       shared: null,
@@ -80,20 +89,24 @@ export default function ShareSheet({ text, card, onClose }) {
   const encodedText = encodeURIComponent(text);
 
   async function handleKakao() {
+    didShare.current = true;
     await shareKakao(text, APP_LINK);
     setKakaoCopied(true);
     setTimeout(() => setKakaoCopied(false), 3000);
   }
 
   function handleX() {
+    didShare.current = true;
     window.open(`https://x.com/intent/post?text=${encodedFull}`, "_blank", "noopener,noreferrer");
   }
 
   function handleTelegram() {
+    didShare.current = true;
     window.open(`https://t.me/share/url?url=${encodedLink}&text=${encodedText}`, "_blank", "noopener,noreferrer");
   }
 
   async function handleInsta() {
+    didShare.current = true;
     if (navigator.share) {
       try { await navigator.share({ text: fullText }); } catch {}
     } else {
@@ -102,6 +115,7 @@ export default function ShareSheet({ text, card, onClose }) {
   }
 
   async function handleCopyLink() {
+    didShare.current = true;
     try {
       await navigator.clipboard.writeText(APP_LINK);
       setCopied(true);
@@ -111,7 +125,7 @@ export default function ShareSheet({ text, card, onClose }) {
 
   return (
     <>
-      <div className="ssheet-backdrop" onClick={onClose} />
+      <div className="ssheet-backdrop" onClick={handleClose} />
       <div className="ssheet">
         <div className="ssheet-handle" />
         <p className="ssheet-title">결과 공유하기</p>
@@ -145,7 +159,7 @@ export default function ShareSheet({ text, card, onClose }) {
             <span>{copied ? "복사됨 ✓" : "링크 복사"}</span>
           </button>
         </div>
-        <button className="ssheet-close" onClick={onClose}>닫기</button>
+        <button className="ssheet-close" onClick={handleClose}>닫기</button>
       </div>
     </>
   );

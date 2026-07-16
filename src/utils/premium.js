@@ -2,10 +2,14 @@ const BALANCE_KEY = "ait_query_balance";
 const REFILL_KEY = "ait_last_refill_date";
 const WELCOME_KEY = "ait_welcome_done";
 const PLAN_KEY = "stockjeokrib_plan";
+const STREAK_KEY = "ait_streak_count";
+const STREAK_BONUS_DATE_KEY = "ait_streak_bonus_date";
 
 const WELCOME_QUERIES = 10;
 const DAILY_FREE_QUERIES = 3;
 export const AD_REWARD_QUERIES = 2;
+export const STREAK_INTERVAL = 3;   // N일 연속마다 보너스
+export const STREAK_BONUS = 3;      // 보너스 코인 수
 
 const DEV_MODE = false;
 
@@ -23,6 +27,12 @@ function setStoredBalance(n) {
   catch {}
 }
 
+function yesterdayStr() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
 function ensureDailyRefill() {
   try {
     const today = todayStr();
@@ -31,14 +41,38 @@ function ensureDailyRefill() {
       setStoredBalance(getStoredBalance() + WELCOME_QUERIES);
       localStorage.setItem(WELCOME_KEY, "1");
       localStorage.setItem(REFILL_KEY, today);
+      localStorage.setItem(STREAK_KEY, "1");
       return;
     }
     const lastRefill = localStorage.getItem(REFILL_KEY);
     if (lastRefill !== today) {
-      setStoredBalance(getStoredBalance() + DAILY_FREE_QUERIES);
+      // 연속 출석: 어제 방문했으면 +1, 아니면 리셋
+      const prevStreak = parseInt(localStorage.getItem(STREAK_KEY) ?? "0", 10);
+      const streak = lastRefill === yesterdayStr() ? prevStreak + 1 : 1;
+      localStorage.setItem(STREAK_KEY, String(streak));
+
+      let refill = DAILY_FREE_QUERIES;
+      if (streak > 0 && streak % STREAK_INTERVAL === 0) {
+        refill += STREAK_BONUS;
+        localStorage.setItem(STREAK_BONUS_DATE_KEY, today);
+      }
+      setStoredBalance(getStoredBalance() + refill);
       localStorage.setItem(REFILL_KEY, today);
     }
   } catch {}
+}
+
+// 연속 출석 정보: { count, bonusToday, daysToBonus }
+export function getStreakInfo() {
+  try {
+    ensureDailyRefill();
+    const count = parseInt(localStorage.getItem(STREAK_KEY) ?? "0", 10);
+    const bonusToday = localStorage.getItem(STREAK_BONUS_DATE_KEY) === todayStr();
+    const daysToBonus = STREAK_INTERVAL - (count % STREAK_INTERVAL || STREAK_INTERVAL);
+    return { count, bonusToday, daysToBonus };
+  } catch {
+    return { count: 0, bonusToday: false, daysToBonus: STREAK_INTERVAL };
+  }
 }
 
 export function getPlanLevel() {

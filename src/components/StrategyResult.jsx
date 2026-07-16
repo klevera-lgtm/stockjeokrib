@@ -7,7 +7,7 @@ import {
   formatKRW,
   formatPct,
 } from "../utils/calculator.js";
-import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
+import { isBasic, consumeQuery, getQueryBalance, getStreakInfo, STREAK_BONUS } from "../utils/premium.js";
 import TickerSearch from "./TickerSearch.jsx";
 import LineChart from "./LineChart.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
@@ -43,6 +43,7 @@ export default function StrategyResult({ initialTicker = null }) {
   const [showShare, setShowShare] = useState(false);
   const basic = isBasic();
   const autoRanRef = useRef(false);
+  const streak = getStreakInfo();
 
   function handleReveal() {
     if (basic) { setRevealed(true); return; }
@@ -107,7 +108,16 @@ export default function StrategyResult({ initialTicker = null }) {
         <h1 className="page-title">적립 시뮬레이션</h1>
         <p className="page-subtitle">과거 데이터로 적립 전략별 수익률을 비교해요</p>
         {!basic && remaining !== Infinity && (
-          <div className="quota-badge">남은 코인 {remaining}개</div>
+          <div className="quota-badge">
+            남은 코인 {remaining}개
+            <span className="streak-chip">
+              {streak.bonusToday
+                ? `🔥 ${streak.count}일 연속 · 보너스 +${STREAK_BONUS} 받음!`
+                : streak.count >= 2
+                  ? `🔥 ${streak.count}일 연속 · ${streak.daysToBonus}일 후 +${STREAK_BONUS}`
+                  : `🔥 매일 오면 3일마다 +${STREAK_BONUS}`}
+            </span>
+          </div>
         )}
       </div>
 
