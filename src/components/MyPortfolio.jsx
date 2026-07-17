@@ -17,6 +17,8 @@ import {
   removePortfolioItem,
 } from "../utils/portfolioApi.js";
 import TickerSearch from "./TickerSearch.jsx";
+import UpgradeModal from "./UpgradeModal.jsx";
+import { logClick } from "../utils/analytics.js";
 
 const FREE_LIMIT = 3;
 const BASIC_LIMIT = 20;
@@ -116,6 +118,7 @@ export default function MyPortfolio() {
   const [selectedPeriodIdx, setSelectedPeriodIdx] = useState(3); // 기본 5년
   const [conditions, setConditions] = useState({});
   const [checking, setChecking] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const anonKeyRef = useRef(null);
   const basic = isBasic();
   const limit = basic ? BASIC_LIMIT : FREE_LIMIT;
@@ -277,7 +280,7 @@ export default function MyPortfolio() {
           <p className="portfolio-empty-icon">📋</p>
           <p className="portfolio-empty-title">아직 저장된 종목이 없어요</p>
           <p className="portfolio-empty-desc">
-            종목을 추가하면 기간별 최적 적립 전략과 조건 충족 알림을 받을 수 있어요
+            종목을 추가하면 기간별 최적 적립 전략과 조건 충족 여부를 매일 확인할 수 있어요
           </p>
         </div>
       )}
@@ -321,7 +324,7 @@ export default function MyPortfolio() {
                   </span>
                 </div>
                 <div className="portfolio-card-cond-desc">
-                  {STRATEGY_COND_LABELS[item.strategy] ?? "조건 충족 시 알림"}
+                  {STRATEGY_COND_LABELS[item.strategy] ?? "조건 충족 시 표시"}
                 </div>
                 <div className="portfolio-card-status">
                   {cond == null ? (
@@ -349,6 +352,20 @@ export default function MyPortfolio() {
         </div>
       )}
 
+      {/* 푸시 알림 안내 (베이직 전용 준비 중) */}
+      {items.length > 0 && !basic && (
+        <button
+          className="portfolio-push-teaser"
+          onClick={() => { logClick("portfolio_push_teaser"); setShowUpgrade(true); }}
+        >
+          <span className="portfolio-push-teaser-icon">🔔</span>
+          <span className="portfolio-push-teaser-text">
+            <strong>조건 충족 푸시 알림 — 베이직 전용으로 준비 중이에요</strong>
+            <span>지금은 앱을 열면 조건 충족 여부를 바로 확인할 수 있어요</span>
+          </span>
+        </button>
+      )}
+
       {/* 추가하기 */}
       {adding ? (
         <div className="form-section">
@@ -368,7 +385,7 @@ export default function MyPortfolio() {
                   <div className="portfolio-period-header">
                     <p className="portfolio-period-title">기간별 최적 적립 전략</p>
                     <p className="portfolio-period-desc">
-                      각 기간 동안 이 전략으로 매달 적립했을 때 가장 높은 성과를 냈어요. 원하는 기간을 선택하면 조건이 충족되는 날 알림을 드려요.
+                      각 기간 동안 이 전략으로 매달 적립했을 때 가장 높은 성과를 냈어요. 저장하면 조건 충족 여부를 앱에서 매일 확인할 수 있어요.
                     </p>
                     <p className="portfolio-period-cagr-note">
                       수익률은 <strong>연환산(CAGR)</strong> 기준이에요. 기간이 달라도 연간 성과를 동일하게 비교할 수 있어요.
@@ -440,6 +457,8 @@ export default function MyPortfolio() {
           )}
         </div>
       )}
+
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
     </div>
   );
 }

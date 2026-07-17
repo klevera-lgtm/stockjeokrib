@@ -1213,6 +1213,36 @@ input, select {
   font-weight: 600;
 }
 
+/* ── Portfolio push teaser ───────────────────── */
+.portfolio-push-teaser {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: calc(100% - 32px);
+  margin: 4px 16px 0;
+  padding: 13px 16px;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+}
+.portfolio-push-teaser-icon { font-size: 22px; }
+.portfolio-push-teaser-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.portfolio-push-teaser-text strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.portfolio-push-teaser-text span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
 /* ── Invest type test ────────────────────────── */
 .itt-overlay {
   position: fixed;
