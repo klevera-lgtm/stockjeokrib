@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react";
 import { TossAds } from "@apps-in-toss/web-framework";
 import { isBasic } from "../utils/premium.js";
-
-const TEST_BANNER_ID = "ait-ad-test-banner-id";
+import { BANNER_AD_GROUP_ID } from "../utils/tossConfig.js";
 
 export default function AdBanner({ className = "" }) {
   const containerRef = useRef(null);
@@ -11,7 +10,7 @@ export default function AdBanner({ className = "" }) {
   useEffect(() => {
     if (isBasic() || !containerRef.current) return;
     try {
-      const result = TossAds.attachBanner(TEST_BANNER_ID, containerRef.current, {
+      const result = TossAds.attachBanner(BANNER_AD_GROUP_ID, containerRef.current, {
         callbacks: {
           onAdFailedToRender: () => {
             if (containerRef.current) containerRef.current.style.display = "none";

@@ -14,6 +14,10 @@ export const REWARDED_AD_GROUP_ID =
 export const INTERSTITIAL_AD_GROUP_ID =
   import.meta.env.VITE_INTERSTITIAL_AD_GROUP_ID || "ait-ad-test-interstitial-id";
 
+// 배너 광고 그룹 ID (결과 화면 하단)
+export const BANNER_AD_GROUP_ID =
+  import.meta.env.VITE_BANNER_AD_GROUP_ID || "ait-ad-test-banner-id";
+
 // IAP 코인 상품 SKU 규칙: "coin_<개수>" (예: coin_10, coin_35, coin_100)
 // 콘솔에 이 규칙대로 상품을 등록하면 별도 코드 수정 없이 지급돼요.
 export function coinsFromSku(sku) {
