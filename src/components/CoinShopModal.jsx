@@ -1,23 +1,22 @@
 import { useInAppPurchase } from "../hooks/useInAppPurchase.js";
-import { coinsFromSku } from "../utils/tossConfig.js";
+import { coinsFromProduct } from "../utils/tossConfig.js";
 import { getQueryBalance } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 
-// 코인 상품 목록 — 콘솔 등록 SKU와 매칭 (표시 순서/라벨 지정용)
-const SKU_META = {
-  coin_10:  { badge: null },
-  coin_35:  { badge: "인기" },
-  coin_100: { badge: "최고 가성비" },
+// 코인 개수별 뱃지 (SKU와 무관하게 동작)
+const BADGE_BY_COINS = {
+  35: "인기",
+  100: "최고 가성비",
 };
 
 export default function CoinShopModal({ onClose, onPurchased }) {
   const { products, purchaseProduct, productsLoading, purchasingSku, unavailable, lastGranted } =
     useInAppPurchase();
 
-  // 코인 SKU만 필터 후 개수 순 정렬
+  // 코인 상품만 필터 후 개수 순 정렬
   const coinProducts = products
-    .filter((p) => coinsFromSku(p.sku) > 0)
-    .sort((a, b) => coinsFromSku(a.sku) - coinsFromSku(b.sku));
+    .filter((p) => coinsFromProduct(p) > 0)
+    .sort((a, b) => coinsFromProduct(a) - coinsFromProduct(b));
 
   if (lastGranted) {
     return (
@@ -58,18 +57,18 @@ export default function CoinShopModal({ onClose, onPurchased }) {
         )}
 
         {coinProducts.map((p) => {
-          const coins = coinsFromSku(p.sku);
-          const meta = SKU_META[p.sku];
+          const coins = coinsFromProduct(p);
+          const badge = BADGE_BY_COINS[coins];
           return (
             <button
               key={p.sku}
               className="coinshop-item"
-              onClick={() => { logClick("coin_purchase", { sku: p.sku }); purchaseProduct(p.sku); }}
+              onClick={() => { logClick("coin_purchase", { sku: p.sku, coins }); purchaseProduct(p.sku, coins); }}
               disabled={!!purchasingSku}
             >
               <span className="coinshop-coins">
                 🪙 코인 {coins}개
-                {meta?.badge && <span className="coinshop-badge">{meta.badge}</span>}
+                {badge && <span className="coinshop-badge">{badge}</span>}
               </span>
               <span className="coinshop-price">
                 {purchasingSku === p.sku ? "결제 중..." : p.displayPrice ?? p.price ?? ""}

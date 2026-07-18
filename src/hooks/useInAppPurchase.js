@@ -1,16 +1,16 @@
 import { IAP } from "@apps-in-toss/web-framework";
 import { useCallback, useEffect, useState } from "react";
 import { earnPaidCoins } from "../utils/premium.js";
-import { coinsFromSku } from "../utils/tossConfig.js";
+import { coinsFromSku, coinsFromProduct } from "../utils/tossConfig.js";
 
 // 참고문서: https://developers-apps-in-toss.toss.im/iap/intro.html
-// 코인 상품 SKU 규칙: "coin_<개수>" — 결제 성공 시 해당 개수만큼 코인 지급
+// 코인 개수 인식: ① SKU "coin_<개수>" ② 상품명 "코인 N개" ③ 구매 시 전달된 힌트
 export function useInAppPurchase() {
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [purchasingSku, setPurchasingSku] = useState(null);
   const [unavailable, setUnavailable] = useState(false);
-  const [lastGranted, setLastGranted] = useState(null); // { sku, coins }
+  const [lastGranted, setLastGranted] = useState(null); // { sku, coins, orderId }
 
   useEffect(() => {
     async function fetchProducts() {
@@ -28,23 +28,31 @@ export function useInAppPurchase() {
     fetchProducts();
   }, []);
 
-  const grantProduct = useCallback((orderId, sku) => {
-    const coins = coinsFromSku(sku);
+  const resolveCoins = useCallback((sku, hint) => {
+    if (hint > 0) return hint;
+    const bySku = coinsFromSku(sku);
+    if (bySku > 0) return bySku;
+    const product = products.find((p) => p.sku === sku);
+    return product ? coinsFromProduct(product) : 0;
+  }, [products]);
+
+  const grantProduct = useCallback((orderId, sku, coinsHint = 0) => {
+    const coins = resolveCoins(sku, coinsHint);
     if (coins > 0) {
       earnPaidCoins(coins);
       setLastGranted({ sku, coins, orderId });
     }
     return true;
-  }, []);
+  }, [resolveCoins]);
 
   const purchaseProduct = useCallback(
-    (sku) => {
+    (sku, coinsHint = 0) => {
       setPurchasingSku(sku);
       try {
         const cleanup = IAP.createOneTimePurchaseOrder({
           options: {
             sku,
-            processProductGrant: ({ orderId }) => grantProduct(orderId, sku),
+            processProductGrant: ({ orderId }) => grantProduct(orderId, sku, coinsHint),
           },
           onEvent: () => {
             setPurchasingSku(null);
