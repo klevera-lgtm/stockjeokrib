@@ -9,7 +9,8 @@ export const TICKER_CATEGORIES = {
   "반도체 ETF": ["SMH","SOXX"],
   "테크 섹터 ETF": ["XLK","VGT","IGV","HACK","WCLD","BOTZ"],
   "레버리지 ETF": ["TQQQ","SOXL","UPRO"],
-  "배당·인컴 ETF": ["SCHD","JEPI","JEPQ","SPYD","DGRO","QYLD","RYLD"],
+  "배당·인컴 ETF": ["SCHD","JEPI","JEPQ","SPYD","DGRO","QYLD","RYLD","VYM","DVY","VIG","HDV","SPHD","DIVO","PFF","XYLD","SDIV"],
+  "배당주·리츠": ["O","MAIN","STAG","AGNC","JNJ","PG","PEP","MCD","ABBV","XOM","CVX","T","VZ","MO","MMM","IBM"],
   "GICS 11섹터 ETF": ["XLK","XLC","XLY","XLP","XLV","XLF","XLI","XLE","XLB","XLU","XLRE"],
   "테마 섹터 ETF": ["ITA","XBI","ICLN","LIT","ARKK","ARKF","ARKX","QTUM","VNQ","ARKG"],
   "안전자산": ["GLD","SLV","TLT","SHY","USO","BND","AGG","HYG"],
@@ -136,6 +137,30 @@ export const TICKER_LABELS = {
   "DVY": "배당주 ETF",
   "QYLD": "나스닥 커버드콜 ETF",
   "RYLD": "러셀2000 커버드콜 ETF",
+  "HDV": "iShares 고배당 ETF",
+  "SPHD": "고배당 저변동 ETF",
+  "DIVO": "배당 커버드콜 ETF",
+  "PFF": "우선주 ETF",
+  "XYLD": "S&P500 커버드콜 ETF",
+  "SDIV": "글로벌 고배당 ETF",
+
+  // 배당주·리츠
+  "O": "리얼티인컴",
+  "MAIN": "메인스트리트 캐피털",
+  "STAG": "스태그 인더스트리얼",
+  "AGNC": "AGNC 인베스트먼트",
+  "JNJ": "존슨앤드존슨",
+  "PG": "P&G",
+  "PEP": "펩시코",
+  "MCD": "맥도날드",
+  "ABBV": "애브비",
+  "XOM": "엑슨모빌",
+  "CVX": "셰브론",
+  "T": "AT&T",
+  "VZ": "버라이즌",
+  "MO": "알트리아",
+  "MMM": "3M",
+  "IBM": "IBM",
 
   // GICS 섹터 ETF
   "XLC": "커뮤니케이션 ETF",
@@ -226,6 +251,9 @@ export const SUPPORTED_TICKERS = new Set([
   "TLT","TMF","TQQQ","TSLA","TSLL","TSM","UBER","UBT","UCTT","UGL","UPRO","USD","USO",
   "V","VB","VGK","VGT","VIG","VNM","VNQ","VOO","VT","VTI","VUG","VWO","VXUS","VYM",
   "WCLD","WDC","XBI","XLB","XLC","XLE","XLF","XLI","XLK","XLP","XLRE","XLU","XLV","XLY",
+  // 배당 유니버스 (배당왕 준비로 추가)
+  "HDV","SPHD","DIVO","PFF","XYLD","SDIV","O","MAIN","STAG","AGNC",
+  "JNJ","PG","PEP","MCD","ABBV","XOM","CVX","T","VZ","MO","MMM","IBM",
 ]);
 
 export function getTickerLabel(ticker) {
