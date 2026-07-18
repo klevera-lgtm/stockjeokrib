@@ -27,13 +27,24 @@ DIVIDEND_TICKERS = [
     # 배당귀족 개별주
     "JNJ", "PG", "PEP", "MCD", "ABBV", "XOM",
     "CVX", "T", "VZ", "MO", "MMM", "IBM", "KO",
+    # 한국인 수요 실측 기반 추가 (2026-07: QQQI 순매수 18위)
+    "QQQI", "SPYI", "ARCC",
+    # YieldMax 계열 — 초고분배·NAV 잠식 주의, 노출 시 위험 맥락 필수
+    "MSTY", "NVDY", "TSLY", "YMAX",
 ]
+
+# 국내 상장 배당 자산: yfinance 심볼 → 저장 파일명 (앱 관례: 접미사 없는 종목코드)
+KOREAN_DIVIDEND_TICKERS = {
+    "088980.KS": "088980",  # 맥쿼리인프라
+    "458730.KS": "458730",  # TIGER 미국배당다우존스
+}
 
 os.makedirs(DIV_DIR, exist_ok=True)
 os.makedirs(RAW_DIR, exist_ok=True)
 
 
-def fetch_one(ticker: str) -> bool:
+def fetch_one(ticker: str, save_name: str | None = None) -> bool:
+    save_name = save_name or ticker
     try:
         tk = yf.Ticker(ticker)
         h = tk.history(period="20y", auto_adjust=False)
@@ -45,14 +56,14 @@ def fetch_one(ticker: str) -> bool:
         raw = h[["Close"]].dropna().reset_index()
         raw.columns = ["date", "close"]
         raw["date"] = raw["date"].dt.strftime("%Y-%m-%d")
-        raw.to_csv(os.path.join(RAW_DIR, f"{ticker}.csv"), index=False)
+        raw.to_csv(os.path.join(RAW_DIR, f"{save_name}.csv"), index=False)
 
         # 배당 이력
         div = h["Dividends"]
         div = div[div > 0].reset_index()
         div.columns = ["date", "amount"]
         div["date"] = div["date"].dt.strftime("%Y-%m-%d")
-        div.to_csv(os.path.join(DIV_DIR, f"{ticker}.csv"), index=False)
+        div.to_csv(os.path.join(DIV_DIR, f"{save_name}.csv"), index=False)
 
         print(f"  ✅ {ticker}: 종가 {len(raw)}건, 배당 {len(div)}건")
         return True
