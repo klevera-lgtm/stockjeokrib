@@ -1441,6 +1441,13 @@ input, select {
 }
 .onboard-dot--on { background: var(--primary); }
 
+.upgrade-unavailable {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 8px;
+}
+
 /* ── Coin shop ───────────────────────────────── */
 .coinshop-state {
   font-size: 13px;

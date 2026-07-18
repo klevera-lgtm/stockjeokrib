@@ -297,7 +297,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             <div className="upgrade-banner">
               <span>광고 지겨우세요? 베이직에서 광고 없이 무제한으로</span>
               <button className="btn-primary" onClick={() => setShowUpgrade(true)}>
-                월 1,990원
+                월 1,980원
               </button>
             </div>
           )}
