@@ -1,9 +1,9 @@
 {
-  "last_updated": "2026-07-17",
-  "updated_at": "2026-07-17T22:39:45.529303",
-  "total_tickers": 95,
-  "updated": 169,
-  "skipped": 17,
+  "last_updated": "2026-07-18",
+  "updated_at": "2026-07-18T22:38:05.458288",
+  "total_tickers": 117,
+  "updated": 6,
+  "skipped": 202,
   "failed": [],
   "categories": {
     "미국 대형주 ETF": [
@@ -60,6 +60,34 @@
       "JEPQ",
       "DVY",
       "VIG"
+    ],
+    "고배당 ETF": [
+      "HDV",
+      "SPHD",
+      "DIVO",
+      "PFF",
+      "XYLD",
+      "SDIV"
+    ],
+    "월배당 리츠/BDC": [
+      "O",
+      "MAIN",
+      "STAG",
+      "AGNC"
+    ],
+    "배당귀족 개별주": [
+      "JNJ",
+      "PG",
+      "PEP",
+      "MCD",
+      "ABBV",
+      "XOM",
+      "CVX",
+      "T",
+      "VZ",
+      "MO",
+      "MMM",
+      "IBM"
     ],
     "섹터 ETF": [
       "XLK",
