@@ -18,8 +18,16 @@ export const INTERSTITIAL_AD_GROUP_ID =
 export const BANNER_AD_GROUP_ID =
   import.meta.env.VITE_BANNER_AD_GROUP_ID || "ait-ad-test-banner-id";
 
-// IAP 코인 상품 SKU 규칙: "coin_<개수>" (예: coin_10, coin_35, coin_100)
+// 콘솔에서 자동 생성된 SKU → 코인 개수 (2026-07-19 등록분, 최우선 적용)
+const SKU_COIN_MAP = {
+  "ait.0000050305.2ce3d748.fe08ca7798.4413625643": 10,
+  "ait.0000050305.3f46ca3d.687ae4c6b5.4413690162": 35,
+  "ait.0000050305.78b5cc64.359985ed11.4413827277": 100,
+};
+
+// 코인 개수 인식: ① 명시 매핑 ② "coin_<개수>" 패턴
 export function coinsFromSku(sku) {
+  if (SKU_COIN_MAP[sku]) return SKU_COIN_MAP[sku];
   const m = /^coin_(\d+)$/.exec(sku ?? "");
   return m ? parseInt(m[1], 10) : 0;
 }
