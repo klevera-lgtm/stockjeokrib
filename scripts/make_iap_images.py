@@ -53,10 +53,10 @@ def make(count, stack):
     for i in range(stack):
         draw_coin(d, cx, base_y - i * step, r)
 
-    # 맨 위 코인에 '왕' 각인
+    # 맨 위 코인에 '코인' 각인
     top_y = base_y - (stack - 1) * step
-    f_stamp = ImageFont.truetype(FONT, int(r * 0.62))
-    d.text((cx, top_y - r * 0.62 * 0.08), "왕", font=f_stamp, fill=GOLD_EDGE, anchor="mm")
+    f_stamp = ImageFont.truetype(FONT, int(r * 0.40))
+    d.text((cx, top_y - r * 0.40 * 0.10), "코인", font=f_stamp, fill=GOLD_EDGE, anchor="mm")
 
     # 개수 텍스트
     f_num = ImageFont.truetype(FONT, int(W * 0.17))
