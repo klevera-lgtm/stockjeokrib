@@ -1,354 +1,354 @@
 {
-  "updatedAt": "2026-07-13",
+  "updatedAt": "2026-07-19",
   "combos": {
     "1mo": {
       "with": {
         "tickers": [
-          "NTRA",
-          "OKTA",
-          "MSTU",
-          "GH",
-          "XBI"
+          "SOXS",
+          "JEM",
+          "BATL",
+          "NET",
+          "PLTR"
         ],
         "strategies": [
-          "monthly-15",
+          "rsi30",
+          "weekly-fri",
+          "monthly-first",
           "ma10",
-          "monthly-last",
-          "monthly-15",
-          "monthly-15"
+          "drop3"
         ],
         "cagrs": [
-          56.1446,
-          49.3067,
-          33.9391,
-          16.1669,
-          16.1482
+          807922392017384800,
+          26090565865.1821,
+          82.9535,
+          23.0943,
+          20.6042
         ],
-        "combinedCagr": 34.3411
+        "combinedCagr": 161584483621590180
       },
       "without": {
         "tickers": [
-          "NTRA",
-          "OKTA",
-          "MSTU",
-          "GH",
-          "XBI"
+          "SOXS",
+          "JEM",
+          "BATL",
+          "NET",
+          "PLTR"
         ],
         "strategies": [
-          "monthly-15",
+          "rsi30",
+          "weekly-fri",
+          "monthly-first",
           "ma10",
-          "monthly-last",
-          "monthly-15",
-          "monthly-15"
+          "drop3"
         ],
         "cagrs": [
-          56.1446,
-          49.3067,
-          33.9391,
-          16.1669,
-          16.1482
+          807922392017384800,
+          26090565865.1821,
+          82.9535,
+          23.0943,
+          20.6042
         ],
-        "combinedCagr": 34.3411
+        "combinedCagr": 161584483621590180
       }
     },
     "3mo": {
       "with": {
         "tickers": [
+          "SOXS",
+          "JEM",
+          "PANW",
           "DDOG",
-          "OKTA",
-          "GH",
-          "SNOW",
-          "HACK"
+          "OKTA"
         ],
         "strategies": [
+          "monthly-last",
           "ma50",
-          "ma50",
-          "ma200",
-          "ma50",
+          "ma100",
+          "ma100",
           "ma50"
         ],
         "cagrs": [
-          39.3382,
-          19.4529,
-          16.4641,
-          12.7488,
-          4.5881
+          16654.2778,
+          278.9875,
+          21.4144,
+          17.632,
+          16.2511
         ],
-        "combinedCagr": 18.5184
+        "combinedCagr": 3397.7126
       },
       "without": {
         "tickers": [
+          "SOXS",
+          "JEM",
+          "PANW",
           "DDOG",
-          "OKTA",
-          "GH",
-          "SNOW",
-          "HACK"
+          "OKTA"
         ],
         "strategies": [
+          "monthly-last",
           "ma50",
-          "ma50",
-          "ma200",
-          "ma50",
+          "ma100",
+          "ma100",
           "ma50"
         ],
         "cagrs": [
-          39.3382,
-          19.4529,
-          16.4641,
-          12.7488,
-          4.5881
+          16654.2778,
+          278.9875,
+          21.4144,
+          17.632,
+          16.2511
         ],
-        "combinedCagr": 18.5184
+        "combinedCagr": 3397.7126
       }
     },
     "6mo": {
       "with": {
         "tickers": [
+          "SOXS",
           "SOXL",
-          "MRVL",
-          "MU",
-          "ARM",
-          "INTC"
+          "PENG",
+          "JEM",
+          "SYRE"
         ],
         "strategies": [
-          "ma100",
+          "monthly-first",
           "ma200",
           "ma100",
-          "rsi30",
-          "ma100"
-        ],
-        "cagrs": [
-          13.6874,
-          9.1005,
-          8.5552,
-          7.9084,
-          6.8046
-        ],
-        "combinedCagr": 9.2112
-      },
-      "without": {
-        "tickers": [
-          "MRVL",
-          "MU",
-          "ARM",
-          "INTC",
-          "AMD"
-        ],
-        "strategies": [
-          "ma200",
-          "ma100",
-          "rsi30",
-          "ma100",
+          "monthly-last",
           "ma50"
         ],
         "cagrs": [
-          9.1005,
-          8.5552,
-          7.9084,
-          6.8046,
-          6.4642
+          35.1015,
+          10.841,
+          10.057,
+          9.7446,
+          9.3637
         ],
-        "combinedCagr": 7.7666
+        "combinedCagr": 15.0216
+      },
+      "without": {
+        "tickers": [
+          "SOXS",
+          "PENG",
+          "JEM",
+          "SYRE",
+          "MU"
+        ],
+        "strategies": [
+          "monthly-first",
+          "ma100",
+          "monthly-last",
+          "ma50",
+          "ma100"
+        ],
+        "cagrs": [
+          35.1015,
+          10.057,
+          9.7446,
+          9.3637,
+          6.3219
+        ],
+        "combinedCagr": 14.1177
       }
     },
     "1yr": {
       "with": {
         "tickers": [
-          "SOXL",
+          "SYRE",
           "INTC",
           "AAOI",
-          "UCTT",
-          "GH"
+          "DOCN",
+          "UCTT"
         ],
         "strategies": [
-          "ma200",
+          "ma100",
           "rsi30",
           "ma200",
           "ma200",
-          "rsi30"
+          "ma100"
         ],
         "cagrs": [
-          6.9117,
-          4.8848,
-          4.8327,
-          3.3896,
-          3.0911
+          5.6082,
+          4.015,
+          3.8143,
+          2.95,
+          2.8889
         ],
-        "combinedCagr": 4.622
+        "combinedCagr": 3.8553
       },
       "without": {
         "tickers": [
+          "SYRE",
           "INTC",
           "AAOI",
-          "UCTT",
-          "GH",
-          "000660"
+          "DOCN",
+          "UCTT"
         ],
         "strategies": [
+          "ma100",
           "rsi30",
           "ma200",
           "ma200",
-          "rsi30",
-          "weekly-fri"
+          "ma100"
         ],
         "cagrs": [
-          4.8848,
-          4.8327,
-          3.3896,
-          3.0911,
-          2.9996
+          5.6082,
+          4.015,
+          3.8143,
+          2.95,
+          2.8889
         ],
-        "combinedCagr": 3.8396
+        "combinedCagr": 3.8553
       }
     },
     "2yr": {
       "with": {
         "tickers": [
           "BE",
-          "KORU",
-          "000660",
+          "SOXL",
           "WDC",
-          "SOXL"
+          "MU",
+          "HUT"
         ],
         "strategies": [
           "ma200",
           "rsi30",
           "rsi30",
           "rsi30",
-          "rsi30"
+          "ma200"
         ],
         "cagrs": [
-          3.3398,
-          2.8402,
-          2.7368,
-          2.7316,
-          2.609
+          2.9631,
+          2.4934,
+          2.4676,
+          2.3889,
+          1.6211
         ],
-        "combinedCagr": 2.8515
+        "combinedCagr": 2.3868
       },
       "without": {
         "tickers": [
           "BE",
-          "KORU",
-          "000660",
           "WDC",
-          "MU"
+          "MU",
+          "HUT",
+          "AAOI"
         ],
         "strategies": [
           "ma200",
           "rsi30",
           "rsi30",
-          "rsi30",
+          "ma200",
           "rsi30"
         ],
         "cagrs": [
-          3.3398,
-          2.8402,
-          2.7368,
-          2.7316,
-          2.5823
+          2.9631,
+          2.4676,
+          2.3889,
+          1.6211,
+          1.5854
         ],
-        "combinedCagr": 2.8461
+        "combinedCagr": 2.2052
       }
     },
     "3yr": {
       "with": {
         "tickers": [
           "BE",
-          "RKLB",
-          "000660",
+          "SOXL",
           "WDC",
-          "KORU"
+          "MU",
+          "AAOI"
         ],
         "strategies": [
           "rsi20",
-          "ma200",
-          "ma200",
+          "rsi30",
+          "rsi30",
           "rsi30",
           "rsi30"
         ],
         "cagrs": [
-          1.8875,
-          1.6801,
-          1.4143,
-          1.4034,
-          1.2601
+          1.7219,
+          1.2903,
+          1.2833,
+          1.1096,
+          1.088
         ],
-        "combinedCagr": 1.5291
+        "combinedCagr": 1.2986
       },
       "without": {
         "tickers": [
           "BE",
-          "RKLB",
-          "000660",
           "WDC",
-          "KORU"
+          "MU",
+          "AAOI",
+          "HUT"
         ],
         "strategies": [
           "rsi20",
-          "ma200",
-          "ma200",
           "rsi30",
-          "rsi30"
+          "rsi30",
+          "rsi30",
+          "ma200"
         ],
         "cagrs": [
-          1.8875,
-          1.6801,
-          1.4143,
-          1.4034,
-          1.2601
+          1.7219,
+          1.2833,
+          1.1096,
+          1.088,
+          1.031
         ],
-        "combinedCagr": 1.5291
+        "combinedCagr": 1.2468
       }
     },
     "4yr": {
       "with": {
         "tickers": [
+          "SYRE",
           "AAOI",
           "BE",
           "WDC",
-          "RKLB",
-          "000660"
+          "SOXL"
         ],
         "strategies": [
+          "rsi20",
           "rsi30",
           "rsi20",
           "rsi20",
-          "ma200",
-          "ma100"
+          "rsi30"
         ],
         "cagrs": [
-          1.3193,
-          1.2131,
-          1.1866,
-          1.0891,
-          1.0609
+          1.1489,
+          1.1484,
+          1.1184,
+          1.1065,
+          0.8689
         ],
-        "combinedCagr": 1.1738
+        "combinedCagr": 1.0782
       },
       "without": {
         "tickers": [
+          "SYRE",
           "AAOI",
           "BE",
           "WDC",
-          "RKLB",
-          "000660"
+          "MU"
         ],
         "strategies": [
+          "rsi20",
           "rsi30",
           "rsi20",
           "rsi20",
-          "ma200",
-          "ma100"
+          "ma200"
         ],
         "cagrs": [
-          1.3193,
-          1.2131,
-          1.1866,
-          1.0891,
-          1.0609
+          1.1489,
+          1.1484,
+          1.1184,
+          1.1065,
+          0.8079
         ],
-        "combinedCagr": 1.1738
+        "combinedCagr": 1.066
       }
     },
     "5yr": {
@@ -357,48 +357,48 @@
           "AAOI",
           "WDC",
           "BE",
-          "000660",
-          "RKLB"
+          "SYRE",
+          "SOXL"
         ],
         "strategies": [
           "rsi30",
           "rsi20",
           "rsi20",
-          "ma100",
-          "ma200"
+          "rsi20",
+          "rsi30"
         ],
         "cagrs": [
-          0.9981,
-          0.8691,
-          0.8624,
-          0.8019,
-          0.7402
+          0.9014,
+          0.8146,
+          0.7994,
+          0.7544,
+          0.6241
         ],
-        "combinedCagr": 0.8543
+        "combinedCagr": 0.7788
       },
       "without": {
         "tickers": [
           "AAOI",
           "WDC",
           "BE",
-          "000660",
-          "RKLB"
+          "SYRE",
+          "MU"
         ],
         "strategies": [
           "rsi30",
           "rsi20",
           "rsi20",
-          "ma100",
-          "ma200"
+          "rsi20",
+          "rsi30"
         ],
         "cagrs": [
-          0.9981,
-          0.8691,
-          0.8624,
-          0.8019,
-          0.7402
+          0.9014,
+          0.8146,
+          0.7994,
+          0.7544,
+          0.618
         ],
-        "combinedCagr": 0.8543
+        "combinedCagr": 0.7776
       }
     },
     "6yr": {
@@ -407,248 +407,248 @@
           "AAOI",
           "WDC",
           "BE",
-          "000660",
-          "USD"
+          "MU",
+          "SYRE"
         ],
         "strategies": [
           "rsi30",
           "rsi20",
           "rsi20",
-          "ma200",
-          "rsi30"
+          "rsi30",
+          "rsi20"
         ],
         "cagrs": [
-          0.7504,
-          0.6837,
-          0.66,
-          0.6447,
-          0.5479
+          0.6812,
+          0.6429,
+          0.6132,
+          0.5059,
+          0.4899
         ],
-        "combinedCagr": 0.6573
+        "combinedCagr": 0.5866
       },
       "without": {
         "tickers": [
           "AAOI",
           "WDC",
           "BE",
-          "000660",
+          "MU",
+          "SYRE"
+        ],
+        "strategies": [
+          "rsi30",
+          "rsi20",
+          "rsi20",
+          "rsi30",
+          "rsi20"
+        ],
+        "cagrs": [
+          0.6812,
+          0.6429,
+          0.6132,
+          0.5059,
+          0.4899
+        ],
+        "combinedCagr": 0.5866
+      }
+    },
+    "7yr": {
+      "with": {
+        "tickers": [
+          "AAOI",
+          "WDC",
+          "BE",
+          "MU",
           "USD"
         ],
         "strategies": [
           "rsi30",
           "rsi20",
           "rsi20",
-          "ma200",
+          "rsi30",
           "rsi30"
         ],
         "cagrs": [
-          0.7504,
-          0.6837,
-          0.66,
-          0.6447,
-          0.5479
+          0.5408,
+          0.5306,
+          0.5059,
+          0.4495,
+          0.4323
         ],
-        "combinedCagr": 0.6573
-      }
-    },
-    "7yr": {
-      "with": {
-        "tickers": [
-          "000660",
-          "AAOI",
-          "WDC",
-          "AVGO",
-          "BE"
-        ],
-        "strategies": [
-          "rsi20",
-          "rsi30",
-          "rsi20",
-          "rsi20",
-          "rsi20"
-        ],
-        "cagrs": [
-          0.6485,
-          0.5933,
-          0.5627,
-          0.5604,
-          0.5437
-        ],
-        "combinedCagr": 0.5817
+        "combinedCagr": 0.4918
       },
       "without": {
         "tickers": [
-          "000660",
           "AAOI",
           "WDC",
-          "AVGO",
-          "BE"
+          "BE",
+          "MU",
+          "USD"
         ],
         "strategies": [
-          "rsi20",
           "rsi30",
           "rsi20",
           "rsi20",
-          "rsi20"
+          "rsi30",
+          "rsi30"
         ],
         "cagrs": [
-          0.6485,
-          0.5933,
-          0.5627,
-          0.5604,
-          0.5437
+          0.5408,
+          0.5306,
+          0.5059,
+          0.4495,
+          0.4323
         ],
-        "combinedCagr": 0.5817
+        "combinedCagr": 0.4918
       }
     },
     "8yr": {
       "with": {
         "tickers": [
           "NVDA",
-          "000660",
-          "AAOI",
+          "HUT",
           "WDC",
-          "AVGO"
+          "AAOI",
+          "USD"
         ],
         "strategies": [
           "rsi20",
           "rsi20",
-          "rsi30",
           "rsi20",
-          "rsi20"
+          "rsi30",
+          "rsi30"
         ],
         "cagrs": [
-          0.6421,
-          0.5487,
-          0.4839,
-          0.4738,
-          0.4607
+          0.6703,
+          0.4643,
+          0.4471,
+          0.4418,
+          0.4133
         ],
-        "combinedCagr": 0.5218
+        "combinedCagr": 0.4873
       },
       "without": {
         "tickers": [
           "NVDA",
-          "000660",
-          "AAOI",
+          "HUT",
           "WDC",
-          "AVGO"
+          "AAOI",
+          "USD"
         ],
         "strategies": [
           "rsi20",
           "rsi20",
-          "rsi30",
           "rsi20",
-          "rsi20"
+          "rsi30",
+          "rsi30"
         ],
         "cagrs": [
-          0.6421,
-          0.5487,
-          0.4839,
-          0.4738,
-          0.4607
+          0.6703,
+          0.4643,
+          0.4471,
+          0.4418,
+          0.4133
         ],
-        "combinedCagr": 0.5218
+        "combinedCagr": 0.4873
       }
     },
     "9yr": {
       "with": {
         "tickers": [
           "NVDA",
-          "000660",
           "USD",
+          "WDC",
           "AAOI",
-          "WDC"
+          "MU"
         ],
         "strategies": [
           "rsi20",
+          "rsi30",
           "rsi20",
           "rsi30",
-          "rsi30",
-          "rsi20"
+          "rsi30"
         ],
         "cagrs": [
-          0.5339,
-          0.4747,
-          0.4152,
-          0.4014,
-          0.3971
+          0.5777,
+          0.3791,
+          0.3749,
+          0.3662,
+          0.3545
         ],
-        "combinedCagr": 0.4445
+        "combinedCagr": 0.4105
       },
       "without": {
         "tickers": [
           "NVDA",
-          "000660",
           "USD",
+          "WDC",
           "AAOI",
-          "WDC"
+          "MU"
         ],
         "strategies": [
           "rsi20",
+          "rsi30",
           "rsi20",
           "rsi30",
-          "rsi30",
-          "rsi20"
+          "rsi30"
         ],
         "cagrs": [
-          0.5339,
-          0.4747,
-          0.4152,
-          0.4014,
-          0.3971
+          0.5777,
+          0.3791,
+          0.3749,
+          0.3662,
+          0.3545
         ],
-        "combinedCagr": 0.4445
+        "combinedCagr": 0.4105
       }
     },
     "10yr": {
       "with": {
         "tickers": [
           "NVDA",
-          "000660",
           "USD",
-          "AVGO",
-          "WDC"
+          "WDC",
+          "MU",
+          "AMD"
         ],
         "strategies": [
           "rsi20",
+          "ma10",
           "rsi20",
-          "rsi30",
-          "rsi20",
-          "rsi20"
+          "daily",
+          "ma100"
         ],
         "cagrs": [
-          0.4641,
-          0.4185,
-          0.3786,
-          0.3477,
-          0.3422
+          0.5074,
+          0.3532,
+          0.323,
+          0.3218,
+          0.3204
         ],
-        "combinedCagr": 0.3902
+        "combinedCagr": 0.3652
       },
       "without": {
         "tickers": [
           "NVDA",
-          "000660",
           "USD",
-          "AVGO",
-          "WDC"
+          "WDC",
+          "MU",
+          "AMD"
         ],
         "strategies": [
           "rsi20",
+          "ma10",
           "rsi20",
-          "rsi30",
-          "rsi20",
-          "rsi20"
+          "daily",
+          "ma100"
         ],
         "cagrs": [
-          0.4641,
-          0.4185,
-          0.3786,
-          0.3477,
-          0.3422
+          0.5074,
+          0.3532,
+          0.323,
+          0.3218,
+          0.3204
         ],
-        "combinedCagr": 0.3902
+        "combinedCagr": 0.3652
       }
     }
   }
