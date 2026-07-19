@@ -167,7 +167,12 @@ export default function ComboBacktest({ focus = null }) {
     setError(null);
     setResults(null);
     setRevealed(basic || freeCombo);
+    setLoading(true);
+    setLoadingMsg("가격 데이터 불러오는 중...");
     const runStart = Date.now();
+
+    // 로딩 시트가 무거운 계산 전에 화면에 그려지도록 한 프레임 양보
+    await new Promise((r) => setTimeout(r, 30));
 
     try {
       const endDate = new Date();
@@ -179,7 +184,6 @@ export default function ComboBacktest({ focus = null }) {
         startDate.setFullYear(startDate.getFullYear() - 5);
       }
 
-      setLoadingMsg("가격 데이터 불러오는 중...");
       const allPrices = {};
       await Promise.all(
         tickers.map(async (t) => { allPrices[t] = await loadPrices(t); })
