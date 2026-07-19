@@ -2617,63 +2617,24 @@ input, select {
   text-align: center;
 }
 
-.ssheet-card {
-  margin-bottom: 14px;
-}
 .ssheet-card-img {
   display: block;
   width: 100%;
   max-width: 260px;
-  margin: 0 auto 10px;
+  margin: 0 auto 16px;
   border-radius: 14px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
-.ssheet-card-btn {
+
+.ssheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ssheet-action {
   width: 100%;
   font-size: 14px;
 }
-
-.ssheet-btns {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  scrollbar-width: none;
-}
-.ssheet-btns::-webkit-scrollbar { display: none; }
-
-.ssheet-btn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 15px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e8eaf0;
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  flex-shrink: 0;
-  font-family: var(--font);
-  transition: background 0.12s;
-}
-.ssheet-btn:active { background: rgba(255, 255, 255, 0.14); }
-
-.ssheet-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.ssheet-icon--x        { background: #000; color: #fff; }
-.ssheet-icon--kakao    { background: #FEE500; color: #3C1E1E; }
-.ssheet-icon--telegram { background: #29ABE2; color: #fff; }
-.ssheet-icon--insta    { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%); color: #fff; }
-.ssheet-icon--link     { background: rgba(255, 255, 255, 0.12); color: #e8eaf0; }
 
 .ssheet-close {
   display: block;
