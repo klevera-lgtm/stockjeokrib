@@ -4,6 +4,7 @@ import { runStrategy, ALL_STRATEGIES, STRATEGY_LABELS, formatKRW, formatPct } fr
 import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import { getTickerLabel } from "../utils/tickers.js";
+import { getPlans, addPlan, removePlan, planLimit, FREE_PLAN_LIMIT, BASIC_PLAN_LIMIT } from "../utils/goalPlans.js";
 import TickerSearch from "./TickerSearch.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
@@ -52,30 +53,45 @@ export default function GoalCalculator() {
   const [pendingRankPeriod, setPendingRankPeriod] = useState(null);
   const [showShare, setShowShare] = useState(false);
   const [remindStatus, setRemindStatus] = useState(null);
+  const [plans, setPlans] = useState(() => getPlans());
   const resultRef = useRef(null);
   const basic = isBasic();
 
   useEffect(() => { setRemindStatus(null); }, [results]);
 
-  // 계획 저장 + 토스 알림 수신 동의 요청
-  async function handleRemind() {
-    logClick("goal_remind", { ticker, years });
-    try {
-      localStorage.setItem("stockjeokrib_goal_plan", JSON.stringify({
-        ticker,
-        goalAmount,
-        years,
-        requiredMonthly: Math.round(results[0].requiredMonthly),
-        savedAt: new Date().toISOString(),
-      }));
-    } catch {}
-    try {
-      const { requestNotificationAgreement } = await import("@apps-in-toss/web-framework");
-      await requestNotificationAgreement();
-      setRemindStatus("✓ 알림 신청 완료");
-    } catch {
-      setRemindStatus("✓ 계획 저장 완료 · 알림은 토스 앱에서 지원돼요");
+  // 계획 저장 (무료: 저장만 / 베이직: 저장 + 알림 동의)
+  async function handleSavePlan() {
+    logClick("goal_save_plan", { ticker, years, basic });
+    const plan = {
+      ticker,
+      goalAmount,
+      years,
+      requiredMonthly: Math.round(results[0].requiredMonthly),
+    };
+    const res = addPlan(plan);
+    if (!res.ok && res.reason === "limit") {
+      // 무료 한도 초과 → 베이직 유도
+      logClick("goal_plan_limit_hit");
+      setShowUpgrade(true);
+      return;
     }
+    setPlans(getPlans());
+
+    if (basic) {
+      // 베이직: 알림 수신 동의 요청 (실제 발송은 추후 스마트 발송 연동)
+      try {
+        const { requestNotificationAgreement } = await import("@apps-in-toss/web-framework");
+        await requestNotificationAgreement();
+      } catch {}
+      setRemindStatus("✓ 저장 완료 · 알림 준비 중이에요");
+    } else {
+      setRemindStatus(`✓ 저장 완료 (${getPlans().length}/${FREE_PLAN_LIMIT}) · 알림은 베이직에서`);
+    }
+  }
+
+  function handleRemovePlan(id) {
+    removePlan(id);
+    setPlans(getPlans());
   }
 
   function handleReveal() {
@@ -165,6 +181,33 @@ export default function GoalCalculator() {
           <div className="quota-badge">남은 코인 {remaining}개</div>
         )}
       </div>
+
+      {plans.length > 0 && (
+        <div className="goal-plans">
+          <p className="goal-plans-title">
+            📌 내 목표 계획 <span className="goal-plans-count">{plans.length}/{planLimit()}</span>
+          </p>
+          {plans.map((p) => (
+            <div key={p.id} className="goal-plan-row">
+              <div className="goal-plan-info">
+                <span className="goal-plan-main">
+                  {getTickerLabel(p.ticker)} · {formatKRW(p.goalAmount)}
+                </span>
+                <span className="goal-plan-sub">
+                  월 {formatKRW(p.requiredMonthly)} × {p.years}년
+                  {basic ? " · 🔔 알림" : ""}
+                </span>
+              </div>
+              <button className="goal-plan-del" onClick={() => handleRemovePlan(p.id)}>✕</button>
+            </div>
+          ))}
+          {!basic && plans.length >= FREE_PLAN_LIMIT && (
+            <button className="goal-plans-upsell" onClick={() => setShowUpgrade(true)}>
+              베이직으로 {BASIC_PLAN_LIMIT}개까지 저장 + 매월 알림 →
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="goal-ranking-section">
         <div className="goal-ranking-header">
@@ -328,15 +371,20 @@ export default function GoalCalculator() {
             <div className="goal-remind">
               <p className="goal-remind-text">
                 월 {formatKRW(Math.round(results[0].requiredMonthly))}씩 {years}년 —
-                이 계획, 잊지 않게 알려드릴까요?
+                이 계획을 저장하고 {basic ? "알림받아 보세요" : "관리해보세요"}
               </p>
               <button
                 className="btn-primary goal-remind-btn"
-                onClick={handleRemind}
+                onClick={handleSavePlan}
                 disabled={!!remindStatus}
               >
-                {remindStatus ?? "📅 이 계획 매월 알림 받기"}
+                {remindStatus ?? (basic ? "📅 계획 저장하고 알림받기" : "💾 이 계획 저장하기")}
               </button>
+              {!basic && (
+                <p className="goal-remind-sub">
+                  📅 저장한 계획을 매월 알림받으려면 베이직이 필요해요
+                </p>
+              )}
             </div>
           )}
 
