@@ -58,6 +58,7 @@ export default function EventExplorer() {
   const [showGainersQueryGate, setShowGainersQueryGate] = useState(false);
   const [gainersRemaining, setGainersRemaining] = useState(getQueryBalance());
   const [showShare, setShowShare] = useState(false);
+  const [showRankShare, setShowRankShare] = useState(false);
   const [autoRun, setAutoRun] = useState(false);
 
   useEffect(() => {
@@ -218,6 +219,11 @@ export default function EventExplorer() {
               <p className="reveal-balance">남은 코인 {gainersRemaining}개 · 광고 시청 시 +2개</p>
             </div>
           )}
+          {gainersRevealed && (
+            <button className="ssheet-trigger" onClick={() => setShowRankShare(true)}>
+              📤 이 랭킹 공유하기
+            </button>
+          )}
           {gainersRevealed && gainersData?.updatedAt && (
             <p className="gainers-updated">기준일: {gainersData.updatedAt} · 매주 업데이트</p>
           )}
@@ -348,6 +354,20 @@ export default function EventExplorer() {
             strategies: [`${getTickerLabel(ticker)} · 매월 첫 거래일 적립`],
           }}
           onClose={() => setShowShare(false)}
+        />
+      )}
+      {showRankShare && selectedEvent && topGainers.length > 0 && (
+        <ShareSheet
+          text={`📈 ${selectedEvent.label} 이후 급등 TOP5\n${topGainers.slice(0, 5).map((g, i) => `${i + 1}. ${getTickerLabel(g.ticker)} (${g.returnPct >= 0 ? "+" : ""}${Math.round(g.returnPct)}%)`).join("\n")}\n\n${selectedEvent.date.slice(0, 7)} 기준`}
+          card={{
+            title: `${selectedEvent.label} 이후 급등 TOP 5`,
+            period: `${selectedEvent.date.slice(0, 7)} 이후 · 단순 주가 수익률`,
+            rows: topGainers.slice(0, 5).map((g) => ({
+              label: getTickerLabel(g.ticker),
+              value: `${g.returnPct >= 0 ? "+" : ""}${Math.round(g.returnPct).toLocaleString()}%`,
+            })),
+          }}
+          onClose={() => setShowRankShare(false)}
         />
       )}
     </div>
