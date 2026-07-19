@@ -567,6 +567,9 @@ export default function ComboBacktest({ focus = null }) {
             returnPct: results.totalReturn,
             mdd: results.mdd,
             series: results.portfolioValues.map((v) => v.value),
+            strategies: results.allocs.map(
+              (a) => `${getTickerLabel(a.ticker)} · ${STRATEGY_LABELS[results.strategyMap[a.ticker]] ?? "매월 첫 거래일"}`
+            ),
           }}
           onClose={() => setShowShare(false)}
         />

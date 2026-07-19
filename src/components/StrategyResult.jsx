@@ -323,6 +323,9 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             returnPct: results.list[0].totalReturn,
             mdd: results.list[0].mdd,
             series: results.list[0].portfolioValues.map((v) => v.value),
+            strategies: revealed
+              ? [`${ticker} · ${STRATEGY_LABELS[results.list[0].strategy]}`]
+              : undefined,
           }}
           onClose={() => setShowShare(false)}
         />

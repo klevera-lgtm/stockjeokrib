@@ -1,8 +1,17 @@
 import { formatKRW, formatPct } from "./calculator.js";
+import { saveImageBase64 } from "./tossShare.js";
 
 const W = 1080;
 const H = 1080;
 const PAD = 72;
+
+// 한 줄을 폭에 맞게 자르고 넘치면 … 처리
+function fitLine(ctx, text, maxWidth) {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let t = text;
+  while (t.length > 1 && ctx.measureText(t + "…").width > maxWidth) t = t.slice(0, -1);
+  return t + "…";
+}
 
 // 긴 제목을 최대 2줄로 자르기
 function wrapTitle(ctx, text, maxWidth) {
@@ -30,7 +39,7 @@ function wrapTitle(ctx, text, maxWidth) {
   return lines;
 }
 
-export function renderShareCard({ title, period, invested, finalValue, returnPct, mdd, series, rows }) {
+export function renderShareCard({ title, period, invested, finalValue, returnPct, mdd, series, rows, strategies }) {
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
@@ -131,11 +140,33 @@ export function renderShareCard({ title, period, invested, finalValue, returnPct
     return canvas;
   }
 
-  // ── 차트 ──
-  const chartTop = 390;
-  const chartBottom = 620;
+  // ── 적용 전략 블록 (있으면 표시) ──
+  const hasStrat = strategies && strategies.length > 0;
+  const stratList = hasStrat ? strategies.slice(0, 5) : [];
+  let stratBottom = y;
+  if (hasStrat) {
+    let sy = y + 60;
+    ctx.font = "700 30px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+    ctx.fillStyle = "#ffd54a";
+    ctx.fillText("📌 적용 전략", PAD, sy);
+    sy += 50;
+    ctx.font = "600 33px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+    for (const s of stratList) {
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.fillText(fitLine(ctx, s, W - PAD * 2), PAD, sy);
+      sy += 50;
+    }
+    stratBottom = sy;
+  }
+
+  const statY = 680;
+
+  // ── 차트: 전략 없으면 큰 차트, 있으면 남는 공간에 컴팩트 차트 ──
+  const chartTop = hasStrat ? stratBottom + 24 : 390;
+  const chartBottom = hasStrat ? statY - 48 : 620;
   const chartH = chartBottom - chartTop;
-  if (series && series.length > 1) {
+  const drawChart = series && series.length > 1 && chartH >= 110;
+  if (drawChart) {
     const min = Math.min(...series);
     const max = Math.max(...series);
     const range = max - min || 1;
@@ -177,8 +208,7 @@ export function renderShareCard({ title, period, invested, finalValue, returnPct
     ctx.fill();
   }
 
-  // ── 스탯 ──
-  const statY = 680;
+  // ── 스탯 (하단 고정) ──
   ctx.font = "500 32px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
   ctx.fillStyle = "rgba(255,255,255,0.55)";
   ctx.fillText("납입 원금", PAD, statY);
@@ -222,9 +252,16 @@ export function renderShareCard({ title, period, invested, finalValue, returnPct
   return canvas;
 }
 
-// 이미지 공유: navigator.share(files) → 클립보드 이미지 → 다운로드 순서로 시도
+// 이미지 공유: 토스 갤러리 저장 → (브라우저) 네이티브 공유 → 클립보드 → 다운로드
 export async function shareCardImage(cardData) {
   const canvas = renderShareCard(cardData);
+  const dataUrl = canvas.toDataURL("image/png");
+
+  // 1) 토스 앱: 기기 갤러리에 저장
+  const base64 = dataUrl.split(",")[1];
+  if ((await saveImageBase64(base64)) === "saved") return "saved";
+
+  // 2) 브라우저 폴백
   const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
   if (!blob) return "failed";
 
@@ -244,7 +281,7 @@ export async function shareCardImage(cardData) {
   } catch {}
 
   const a = document.createElement("a");
-  a.href = canvas.toDataURL("image/png");
+  a.href = dataUrl;
   a.download = "주식적립왕.png";
   a.click();
   return "downloaded";

@@ -391,6 +391,9 @@ export default function GoalCalculator() {
             returnPct: results[0].totalReturn,
             mdd: results[0].mdd,
             series: results[0].portfolioValues.map((v) => v.value),
+            strategies: revealed
+              ? [`${getTickerLabel(ticker)} · ${STRATEGY_LABELS[results[0].strategy]}`]
+              : undefined,
           }}
           onClose={() => setShowShare(false)}
         />

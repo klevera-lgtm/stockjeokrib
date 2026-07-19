@@ -345,6 +345,7 @@ export default function EventExplorer() {
             returnPct: result.totalReturn,
             mdd: result.mdd,
             series: result.portfolioValues.map((v) => v.value),
+            strategies: [`${getTickerLabel(ticker)} · 매월 첫 거래일 적립`],
           }}
           onClose={() => setShowShare(false)}
         />

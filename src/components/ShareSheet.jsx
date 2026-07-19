@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { APP_LINK } from "../utils/share.js";
-import { shareKakao } from "../utils/kakao.js";
 import { renderShareCard, shareCardImage } from "../utils/shareCard.js";
 import { maybeRequestReview } from "../utils/review.js";
 import { logClick } from "../utils/analytics.js";
+import { openExternalUrl, shareTextNative } from "../utils/tossShare.js";
 
 function XIcon() {
   return (
@@ -76,16 +76,17 @@ export default function ShareSheet({ text, card, onClose }) {
     markShare("image");
     const result = await shareCardImage(card);
     const msg = {
+      saved: "✓ 갤러리에 저장됐어요 · 카톡·인스타에 올려보세요",
       shared: null,
-      copied: "이미지 복사됨 ✓ 카톡에 붙여넣기 하세요",
+      copied: "이미지 복사됨 ✓ 붙여넣기 하세요",
       downloaded: "이미지 저장됨 ✓",
       cancelled: null,
-      failed: "이미지 생성 실패",
+      failed: "이미지 저장 실패",
     }[result];
     if (msg) {
       setImgStatus(msg);
       clearTimeout(imgStatusTimer.current);
-      imgStatusTimer.current = setTimeout(() => setImgStatus(null), 3000);
+      imgStatusTimer.current = setTimeout(() => setImgStatus(null), 3500);
     }
   }
 
@@ -96,28 +97,27 @@ export default function ShareSheet({ text, card, onClose }) {
 
   async function handleKakao() {
     markShare("kakao");
-    await shareKakao(text, APP_LINK);
-    setKakaoCopied(true);
-    setTimeout(() => setKakaoCopied(false), 3000);
+    // 토스 네이티브 공유 시트 → 카카오톡 선택 (WebView에서 가장 안정적)
+    const r = await shareTextNative(fullText);
+    if (r === "copied") {
+      setKakaoCopied(true);
+      setTimeout(() => setKakaoCopied(false), 3000);
+    }
   }
 
   function handleX() {
     markShare("x");
-    window.open(`https://x.com/intent/post?text=${encodedFull}`, "_blank", "noopener,noreferrer");
+    openExternalUrl(`https://x.com/intent/post?text=${encodedFull}`);
   }
 
   function handleTelegram() {
     markShare("telegram");
-    window.open(`https://t.me/share/url?url=${encodedLink}&text=${encodedText}`, "_blank", "noopener,noreferrer");
+    openExternalUrl(`https://t.me/share/url?url=${encodedLink}&text=${encodedText}`);
   }
 
   async function handleInsta() {
     markShare("insta");
-    if (navigator.share) {
-      try { await navigator.share({ text: fullText }); } catch {}
-    } else {
-      await navigator.clipboard.writeText(fullText).catch(() => {});
-    }
+    await shareTextNative(fullText);
   }
 
   async function handleCopyLink() {
