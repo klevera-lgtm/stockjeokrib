@@ -109,19 +109,20 @@ export default function App() {
 
   return (
     <div className="app">
-      {/* 코인 잔액 칩 — 베이직이 아닌 경우 우상단 고정 */}
-      {!basic && (
-        <button
-          className="coin-chip"
-          style={{ position: "fixed", top: 12, right: 12, zIndex: 90 }}
-          onClick={() => { logClick("coin_chip_open"); setShowCoinShop(true); }}
-        >
-          <span className="coin-chip-icon">🪙</span>
-          {coinBalance === Infinity ? "∞" : coinBalance}
-          <span className="coin-chip-plus">+</span>
-        </button>
-      )}
       <div className="content-area">
+        {/* 코인 잔액 칩 — 콘텐츠 최상단, 네비바 아래 */}
+        {!basic && (
+          <div className="coin-chip-bar">
+            <button
+              className="coin-chip"
+              onClick={() => { logClick("coin_chip_open"); setShowCoinShop(true); }}
+            >
+              <span className="coin-chip-icon">🪙</span>
+              {coinBalance === Infinity ? "∞" : coinBalance}
+              <span className="coin-chip-plus">+</span>
+            </button>
+          </div>
+        )}
         {renderContent()}
         <Disclaimer />
       </div>
