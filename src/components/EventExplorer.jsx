@@ -339,6 +339,7 @@ export default function EventExplorer() {
           onUpgrade={() => setShowUpgrade(true)}
         />
       )}
+      {!result && <AdBanner className="ad-banner-results" />}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
       {showShare && result && (
         <ShareSheet

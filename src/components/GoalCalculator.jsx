@@ -427,6 +427,7 @@ export default function GoalCalculator() {
           onUpgrade={() => setShowUpgrade(true)}
         />
       )}
+      {!results && <AdBanner className="ad-banner-results" />}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
       {showShare && results?.[0] && (
         <ShareSheet

@@ -559,6 +559,7 @@ export default function ComboBacktest({ focus = null }) {
           onUpgrade={() => setShowUpgrade(true)}
         />
       )}
+      {!results && <AdBanner className="ad-banner-results" />}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
       {showShare && results && (
         <ShareSheet

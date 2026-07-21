@@ -311,6 +311,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
           onUpgrade={() => setShowUpgrade(true)}
         />
       )}
+      {!results && <AdBanner className="ad-banner-results" />}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
       {showShare && results?.list?.[0] && (
         <ShareSheet
