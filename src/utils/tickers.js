@@ -261,7 +261,9 @@ export const SUPPORTED_TICKERS = new Set([
 ]);
 
 export function getTickerLabel(ticker) {
-  return TICKER_LABELS[ticker] || ticker;
+  const label = TICKER_LABELS[ticker] || ticker;
+  if (label === ticker) return ticker;
+  return `${label}(${ticker})`;
 }
 
 export const BASE_URL =
