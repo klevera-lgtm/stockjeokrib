@@ -2743,3 +2743,65 @@ input, select {
   border-color: var(--primary);
   color: var(--primary);
 }
+
+/* ── 배너 광고 슬롯 ── */
+.ad-banner-slot {
+  width: 100%;
+  min-height: 96px;
+  margin: 16px 0 8px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* ── 코인 잔액 칩 (앱 헤더 옆) ── */
+.coin-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--primary-light);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.coin-chip:active {
+  background: var(--primary);
+  color: #fff;
+}
+.coin-chip-icon { font-size: 14px; }
+.coin-chip-plus {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-left: 2px;
+}
+
+/* ── 즐겨찾기 안내 토스트 ── */
+.fav-toast {
+  position: fixed;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 200;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fav-toast-in 0.3s ease, fav-toast-out 0.4s 3.5s ease forwards;
+}
+@keyframes fav-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes fav-toast-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}

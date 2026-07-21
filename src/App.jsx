@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import TabBar from "./components/TabBar.jsx";
 import Disclaimer from "./components/Disclaimer.jsx";
 import StrategyResult from "./components/StrategyResult.jsx";
@@ -9,10 +9,12 @@ import WhatOthersBuy from "./components/WhatOthersBuy.jsx";
 import MyPortfolio from "./components/MyPortfolio.jsx";
 import OnboardingModal, { isOnboardDone } from "./components/OnboardingModal.jsx";
 import InvestTypeTest from "./components/InvestTypeTest.jsx";
+import CoinShopModal from "./components/CoinShopModal.jsx";
 import { loadPrices, prefetchTickers } from "./utils/dataLoader.js";
 import { precomputeFeaturedCombos } from "./utils/comboResultCache.js";
-import { logScreen } from "./utils/analytics.js";
+import { logScreen, logClick } from "./utils/analytics.js";
 import { initPaidCoins } from "./utils/coinsApi.js";
+import { getQueryBalance, isBasic } from "./utils/premium.js";
 import "./App.css";
 
 // 앱 시작 시 자주 쓰이는 티커 백그라운드 프리페치
@@ -24,10 +26,25 @@ export default function App() {
   const [showOnboard, setShowOnboard] = useState(() => !isOnboardDone());
   const [showTest, setShowTest] = useState(false);
   const [comboFocus, setComboFocus] = useState(null);
+  const [showCoinShop, setShowCoinShop] = useState(false);
+  const [coinBalance, setCoinBalance] = useState(() => getQueryBalance());
+  const [favToast, setFavToast] = useState(null);
+  const basic = isBasic();
+
+  const refreshCoins = useCallback(() => setCoinBalance(getQueryBalance()), []);
+
+  const FAV_TOAST_KEY = "ait_fav_toast_shown";
+  function showFavToast() {
+    try { if (localStorage.getItem(FAV_TOAST_KEY)) return; } catch {}
+    try { localStorage.setItem(FAV_TOAST_KEY, "1"); } catch {}
+    setFavToast("⭐ 상단 ☆를 누르면 토스 홈에서 바로 열 수 있어요");
+    setTimeout(() => setFavToast(null), 4000);
+  }
 
   useEffect(() => {
     logScreen(`tab_${activeTab}`);
-  }, [activeTab]);
+    refreshCoins();
+  }, [activeTab, refreshCoins]);
 
   // 성향 테스트 결과 → 해당 기능으로 라우팅
   function handleTestRoute(route) {
@@ -92,6 +109,18 @@ export default function App() {
 
   return (
     <div className="app">
+      {/* 코인 잔액 칩 — 베이직이 아닌 경우 우상단 고정 */}
+      {!basic && (
+        <button
+          className="coin-chip"
+          style={{ position: "fixed", top: 12, right: 12, zIndex: 90 }}
+          onClick={() => { logClick("coin_chip_open"); setShowCoinShop(true); }}
+        >
+          <span className="coin-chip-icon">🪙</span>
+          {coinBalance === Infinity ? "∞" : coinBalance}
+          <span className="coin-chip-plus">+</span>
+        </button>
+      )}
       <div className="content-area">
         {renderContent()}
         <Disclaimer />
@@ -99,11 +128,18 @@ export default function App() {
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
       {showOnboard && (
         <OnboardingModal
-          onClose={() => setShowOnboard(false)}
-          onStartTest={() => { setShowOnboard(false); setShowTest(true); }}
+          onClose={() => { setShowOnboard(false); showFavToast(); }}
+          onStartTest={() => { setShowOnboard(false); setShowTest(true); showFavToast(); }}
         />
       )}
       {showTest && <InvestTypeTest onClose={() => setShowTest(false)} onRoute={handleTestRoute} />}
+      {showCoinShop && (
+        <CoinShopModal
+          onClose={() => { setShowCoinShop(false); refreshCoins(); }}
+          onPurchased={refreshCoins}
+        />
+      )}
+      {favToast && <div className="fav-toast">{favToast}</div>}
     </div>
   );
 }

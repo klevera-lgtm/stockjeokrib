@@ -18,6 +18,7 @@ import {
 } from "../utils/portfolioApi.js";
 import TickerSearch from "./TickerSearch.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
+import AdBanner from "./AdBanner.jsx";
 import { logClick } from "../utils/analytics.js";
 
 const FREE_LIMIT = 3;
@@ -218,13 +219,23 @@ export default function MyPortfolio() {
   }
 
   async function removeItem(ticker) {
-    // 화면 먼저 반영 (낙관적 업데이트) — 서버 실패해도 UI는 유지
+    // 화면 먼저 반영 (낙관적 업데이트)
     setItems((prev) => prev.filter((i) => i.ticker !== ticker));
     setConditions((c) => { const n = { ...c }; delete n[ticker]; return n; });
+    if (!anonKeyRef.current) return;
     try {
-      if (anonKeyRef.current) await removePortfolioItem(anonKeyRef.current, ticker);
+      const ok = await removePortfolioItem(anonKeyRef.current, ticker);
+      if (!ok) throw new Error("delete failed");
     } catch {
-      // 서버 동기화 실패 — 다음 로드 시 재조정됨
+      // 서버 삭제 실패 — 서버 상태로 재조정 (지운 척하지 않고 되살림)
+      try {
+        const cloudItems = await fetchPortfolio(anonKeyRef.current);
+        if (cloudItems) {
+          const enriched = cloudItems.map(enrichItem);
+          setItems(enriched);
+          checkAllConditions(enriched);
+        }
+      } catch {}
     }
   }
 
@@ -457,6 +468,8 @@ export default function MyPortfolio() {
           )}
         </div>
       )}
+
+      <AdBanner className="ad-banner-results" />
 
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
     </div>
