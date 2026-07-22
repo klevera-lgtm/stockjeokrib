@@ -1,4 +1,4 @@
-export const APP_LINK = "https://toss.im/app-links/stockjeokrib";
+export const APP_LINK = "https://minion.toss.im/VtK5I1vz";
 
 export async function shareText(text) {
   if (navigator.share) {
