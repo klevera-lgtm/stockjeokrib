@@ -337,6 +337,7 @@ export default function GoalCalculator() {
           <h2 className="section-title">
             {ticker}로 {formatKRW(goalAmount)} 만들기 ({years}년)
           </h2>
+          <span className="tx-fee-badge">💰 거래 비용 0.35% 반영</span>
 
           {/* 전략 공개 CTA */}
           {!revealed && (

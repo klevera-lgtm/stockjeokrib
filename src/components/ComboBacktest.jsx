@@ -437,6 +437,7 @@ export default function ComboBacktest({ focus = null }) {
             {getAllocLabel(results.allocs)}
             <span className="period-label">{results.period}</span>
           </h2>
+          <span className="tx-fee-badge">💰 거래 비용 0.35% 반영</span>
 
           <LineChart data={results.portfolioValues} title="포트폴리오 가치" />
 

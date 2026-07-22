@@ -281,6 +281,7 @@ export default function EventExplorer() {
               {ticker} · 매월 {formatKRW(monthlyAmount)} 적립
             </h2>
             <p className="event-result-since">{result.event.date.slice(0, 7)}부터 현재까지</p>
+            <span className="tx-fee-badge">💰 거래 비용 0.35% 반영</span>
           </div>
 
           <LineChart data={result.portfolioValues} title="포트폴리오 가치" />

@@ -190,6 +190,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
               {customStart ? customStart + " ~ 현재" : "최근 5년"}
             </span>
           </h2>
+          <span className="tx-fee-badge">💰 거래 비용 0.35% 반영</span>
 
           {results.list[0] && (() => {
             const best = results.list[0];

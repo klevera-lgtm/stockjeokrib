@@ -1,3 +1,5 @@
+const TX_FEE = 0.0035; // 매수 수수료 0.35% (수수료 0.1% + 환전 스프레드 0.25%)
+
 // ── Moving average ──────────────────────────────────────────────────────────
 export function calcSMA(prices, period) {
   const closes = prices.map((p) => p.close);
@@ -83,7 +85,8 @@ function _runWithPool(filtered, strategy, monthlyAmount, conditionFn) {
     pool += dailyAmount;
 
     if (conditionFn(p, i) && p.close > 0 && pool > 0) {
-      shares += pool / p.close;
+      const net = pool * (1 - TX_FEE);
+      shares += net / p.close;
       totalInvested += pool;
       pool = 0;
     }
@@ -200,7 +203,8 @@ export function runStrategy(prices, strategy, monthlyAmount, startDate, endDate)
     }
 
     if (buy && p.close > 0 && investAmt > 0) {
-      shares += investAmt / p.close;
+      const net = investAmt * (1 - TX_FEE);
+      shares += net / p.close;
       totalInvested += investAmt;
     }
 
