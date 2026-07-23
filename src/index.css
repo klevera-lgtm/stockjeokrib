@@ -2822,3 +2822,190 @@ input, select {
   from { opacity: 1; }
   to   { opacity: 0; }
 }
+
+/* ── Period Badge (기간 뱃지) ──────────────────────────── */
+.period-badge {
+  display: inline-block;
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  vertical-align: middle;
+  margin-left: 2px;
+}
+
+/* ── Strategy Scorecard ───────────────────────────────── */
+.btn-scorecard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #1b2a4a 0%, #24365c 100%);
+  border: 1.5px solid rgba(255, 215, 0, 0.25);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+.btn-scorecard:active { opacity: 0.85; transform: scale(0.99); }
+.btn-scorecard:disabled { opacity: 0.5; pointer-events: none; }
+.scorecard-icon { font-size: 22px; flex-shrink: 0; }
+.scorecard-text { flex: 1; }
+.scorecard-text strong {
+  display: block;
+  font-size: 14px;
+  color: #ffd54a;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.scorecard-desc {
+  display: block;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.scorecard-cost {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffd54a;
+  background: rgba(255, 215, 0, 0.12);
+  padding: 4px 10px;
+  border-radius: 99px;
+}
+
+.scorecard-results {
+  margin: 16px 0;
+  padding: 0 16px;
+}
+
+.scorecard-method {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border-left: 4px solid #ffd54a;
+  box-shadow: var(--shadow-sm);
+}
+.scorecard-method-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.scorecard-method-body {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 6px;
+}
+.scorecard-method-body:last-child { margin-bottom: 0; }
+.scorecard-method-body strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.scorecard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scorecard-row {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.scorecard-row.top {
+  border: 1.5px solid color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+.scorecard-row-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.scorecard-row-main:active {
+  background: var(--bg);
+}
+
+.scorecard-rank {
+  font-size: 16px;
+  min-width: 28px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-tertiary);
+}
+
+.scorecard-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scorecard-score-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  flex-shrink: 0;
+}
+.scorecard-total {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary);
+}
+.scorecard-pct {
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.scorecard-wins {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.scorecard-chevron {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.scorecard-detail {
+  padding: 0 14px 12px;
+  border-top: 1px solid var(--border);
+}
+.scorecard-detail-header,
+.scorecard-detail-row {
+  display: grid;
+  grid-template-columns: 1fr 50px 70px 50px;
+  gap: 4px;
+  padding: 6px 0;
+  font-size: 12px;
+}
+.scorecard-detail-header {
+  font-weight: 700;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  border-bottom: 1px solid var(--border);
+}
+.scorecard-detail-row {
+  color: var(--text-secondary);
+}
+.scorecard-detail-row .pos { color: var(--positive, #00b96b); font-weight: 600; }
+.scorecard-detail-row .neg { color: var(--negative, #ff3b30); font-weight: 600; }

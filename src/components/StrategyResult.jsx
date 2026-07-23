@@ -18,6 +18,7 @@ import TickerInfoCard from "./TickerInfoCard.jsx";
 import ShareSheet from "./ShareSheet.jsx";
 import { APP_LINK } from "../utils/share.js";
 import AdBanner from "./AdBanner.jsx";
+import StrategyScorecard from "./StrategyScorecard.jsx";
 
 function getPeriodDates(yearsBack) {
   const end = new Date();
@@ -42,9 +43,22 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   const [remaining, setRemaining] = useState(getQueryBalance());
   const [revealed, setRevealed] = useState(isBasic());
   const [showShare, setShowShare] = useState(false);
+  const [has10yr, setHas10yr] = useState(false);
   const basic = isBasic();
   const autoRanRef = useRef(false);
   const streak = getStreakInfo();
+
+  useEffect(() => {
+    if (!ticker) { setHas10yr(false); return; }
+    let cancelled = false;
+    loadPrices(ticker).then((p) => {
+      if (cancelled) return;
+      const tenYearsAgo = new Date();
+      tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
+      setHas10yr(p.length > 0 && p[0].date <= tenYearsAgo);
+    }).catch(() => { if (!cancelled) setHas10yr(false); });
+    return () => { cancelled = true; };
+  }, [ticker]);
 
   function handleReveal() {
     if (basic) { setRevealed(true); return; }
@@ -171,12 +185,22 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
               value={customStart}
               onChange={(e) => setCustomStart(e.target.value)}
             />
-            <span className="period-hint">~ 현재 {!customStart && "(미입력 시 최근 5년)"}</span>
+            <span className="period-hint">
+              ~ 현재 {!customStart && <span className="period-badge">기본 최근 5년</span>}
+            </span>
           </div>
 
           <button className="btn-primary run-btn" onClick={run} disabled={loading}>
             {loading ? "계산 중..." : `${ticker} 전략 분석하기`}
           </button>
+
+          <StrategyScorecard
+            tickers={[ticker]}
+            weights={{ [ticker]: 100 }}
+            monthlyAmount={monthlyAmount}
+            has10yr={has10yr}
+            onNeedUpgrade={() => setShowUpgrade(true)}
+          />
         </div>
       )}
 

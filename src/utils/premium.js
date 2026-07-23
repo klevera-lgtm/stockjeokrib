@@ -135,6 +135,14 @@ export function consumeQuery() {
   return false;
 }
 
+export function consumeQueries(n) {
+  if (isBasic()) return true;
+  ensureDailyRefill();
+  if (getQueryBalance() < n) return false;
+  for (let i = 0; i < n; i++) consumeQuery();
+  return true;
+}
+
 export function earnAdQueries() {
   setStoredBalance(getStoredBalance() + AD_REWARD_QUERIES);
 }

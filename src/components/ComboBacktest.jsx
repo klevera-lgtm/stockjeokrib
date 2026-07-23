@@ -22,6 +22,7 @@ import ShareSheet from "./ShareSheet.jsx";
 import AdBanner from "./AdBanner.jsx";
 import { getTickerLabel } from "../utils/tickers.js";
 import { APP_LINK } from "../utils/share.js";
+import StrategyScorecard from "./StrategyScorecard.jsx";
 
 function hasPoolStrategy(strategyMap) {
   return Object.values(strategyMap ?? {}).some(
@@ -62,6 +63,7 @@ export default function ComboBacktest({ focus = null }) {
   const [showShare, setShowShare] = useState(false);
   const [percentile, setPercentile] = useState(null);
   const [gateReason, setGateReason] = useState("reveal");
+  const [has10yr, setHas10yr] = useState(false);
   const resultRef = useRef(null);
   const basic = isBasic();
 
@@ -76,6 +78,19 @@ export default function ComboBacktest({ focus = null }) {
     calcPercentile(years, cagr).then((p) => { if (!cancelled) setPercentile(p); });
     return () => { cancelled = true; };
   }, [results]);
+
+  useEffect(() => {
+    if (tickers.length === 0) { setHas10yr(false); return; }
+    let cancelled = false;
+    Promise.all(tickers.map((t) => loadPrices(t))).then((allP) => {
+      if (cancelled) return;
+      const tenYearsAgo = new Date();
+      tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
+      const ok = allP.every((p) => p.length > 0 && p[0].date <= tenYearsAgo);
+      setHas10yr(ok);
+    }).catch(() => { if (!cancelled) setHas10yr(false); });
+    return () => { cancelled = true; };
+  }, [tickers]);
 
   function handleReveal() {
     if (basic) { setRevealed(true); return; }
@@ -382,7 +397,9 @@ export default function ComboBacktest({ focus = null }) {
               value={customStart}
               onChange={(e) => setCustomStart(e.target.value)}
             />
-            <span className="period-hint">~ 현재 {!customStart && "(미입력 시 최근 5년)"}</span>
+            <span className="period-hint">
+              ~ 현재 {!customStart && <span className="period-badge">기본 최근 5년</span>}
+            </span>
           </div>
 
           <button
@@ -410,6 +427,14 @@ export default function ComboBacktest({ focus = null }) {
               ? loadingMsg || "계산 중..."
               : `조합 백테스트 실행${useAutoStrategy && !basic ? " (코인 1개)" : ""}`}
           </button>
+
+          <StrategyScorecard
+            tickers={tickers}
+            weights={weights}
+            monthlyAmount={monthlyAmount}
+            has10yr={has10yr}
+            onNeedUpgrade={() => setShowUpgrade(true)}
+          />
         </div>
       )}
 
