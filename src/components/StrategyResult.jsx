@@ -250,63 +250,60 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             );
           })()}
 
-          {/* 전략 공개 CTA */}
           {!revealed && (
             <div className="reveal-cta">
-              <p className="reveal-hint">
-                수익률을 확인했어요! 어떤 전략인지 보려면 코인 1개가 필요해요.
-              </p>
+              <p className="reveal-hint">어떤 전략이 가장 높은 수익률을 냈을까요?</p>
               <button className="btn-primary reveal-btn" onClick={handleReveal}>
-                🔓 전략 공개하기 (코인 1개)
+                🔓 전략 순위 보기 (코인 1개)
               </button>
               <p className="reveal-balance">남은 코인 {remaining}개 · 광고 시청 시 +2개</p>
             </div>
           )}
 
-          <div className="strategy-list">
-            {results.list.map((r, idx) => {
-              const isBest = idx === 0;
-              const isWorst = idx === results.list.length - 1;
-              const isBenchmark = r.strategy === "monthly-25";
-              const delta = results.benchmark && !isBenchmark
-                ? r.totalReturn - results.benchmark.totalReturn
-                : null;
+          {revealed && (
+            <div className="strategy-list">
+              {results.list.map((r, idx) => {
+                const isBest = idx === 0;
+                const isWorst = idx === results.list.length - 1;
+                const isBenchmark = r.strategy === "monthly-25";
+                const delta = results.benchmark && !isBenchmark
+                  ? r.totalReturn - results.benchmark.totalReturn
+                  : null;
 
-              return (
-                <div
-                  key={r.strategy}
-                  className={`strategy-row${isBest ? " best" : ""}${isWorst ? " worst" : ""}${isBenchmark ? " benchmark" : ""}`}
-                >
-                  <div className="strategy-rank">
-                    {isBenchmark ? "📅" : isBest ? "🥇" : `${idx + 1}`}
-                  </div>
-                  <div className="strategy-info">
-                    <div className="strategy-name">
-                      <span className={!revealed ? "name--blur" : ""}>
+                return (
+                  <div
+                    key={r.strategy}
+                    className={`strategy-row${isBest ? " best" : ""}${isWorst ? " worst" : ""}${isBenchmark ? " benchmark" : ""}`}
+                  >
+                    <div className="strategy-rank">
+                      {isBenchmark ? "📅" : isBest ? "🥇" : `${idx + 1}`}
+                    </div>
+                    <div className="strategy-info">
+                      <div className="strategy-name">
                         {STRATEGY_LABELS[r.strategy]}
-                      </span>
-                      {revealed && isBenchmark && <span className="benchmark-badge">월급날 기준</span>}
+                        {isBenchmark && <span className="benchmark-badge">월급날 기준</span>}
+                      </div>
+                      <div className="strategy-meta">
+                        납입 {formatKRW(r.totalInvested)} →&nbsp;
+                        <strong>{formatKRW(r.finalValue)}</strong>
+                      </div>
                     </div>
-                    <div className="strategy-meta">
-                      납입 {formatKRW(r.totalInvested)} →&nbsp;
-                      <strong>{formatKRW(r.finalValue)}</strong>
+                    <div className="strategy-return">
+                      <div className={`return-pct ${r.totalReturn >= 0 ? "pos" : "neg"}`}>
+                        {formatPct(r.totalReturn)}
+                      </div>
+                      {delta !== null
+                        ? <div className={`vs-benchmark ${delta >= 0 ? "pos" : "neg"}`}>
+                            월급날 대비 {delta >= 0 ? "+" : ""}{(delta * 100).toFixed(1)}%p
+                          </div>
+                        : <div className="cagr">연 {formatPct(r.cagr)}</div>
+                      }
                     </div>
                   </div>
-                  <div className="strategy-return">
-                    <div className={`return-pct ${r.totalReturn >= 0 ? "pos" : "neg"}`}>
-                      {formatPct(r.totalReturn)}
-                    </div>
-                    {delta !== null
-                      ? <div className={`vs-benchmark ${delta >= 0 ? "pos" : "neg"}`}>
-                          월급날 대비 {delta >= 0 ? "+" : ""}{(delta * 100).toFixed(1)}%p
-                        </div>
-                      : <div className="cagr">연 {formatPct(r.cagr)}</div>
-                    }
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
 
           {results.list[0] && (
             <button className="ssheet-trigger" onClick={() => setShowShare(true)}>

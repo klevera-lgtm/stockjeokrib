@@ -140,6 +140,23 @@
 
 .sim-chart-wrap { padding: 0 12px 12px; }
 
+/* Investment method banner */
+.sim-method-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+.sim-method-icon { font-size: 18px; }
+.sim-method-text { flex: 1; }
+
 /* Dividend income */
 .sim-dividend-section { margin: 0 16px 12px; background: var(--surface); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-sm); }
 .sim-div-title { font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; text-align: center; }

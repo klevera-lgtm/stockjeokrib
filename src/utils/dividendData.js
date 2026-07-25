@@ -4,6 +4,7 @@ const DATA_BASE =
 let metaCache = null;
 const priceCache = {};
 const divCache = {};
+const simCache = {};
 
 export async function loadDividendMeta() {
   if (metaCache) return metaCache;
@@ -46,6 +47,15 @@ export async function loadDividends(ticker) {
   const parsed = rows.map((r) => ({ date: r.date, amount: parseFloat(r.amount) }));
   divCache[ticker] = parsed;
   return parsed;
+}
+
+export async function loadSimData(ticker) {
+  if (simCache[ticker]) return simCache[ticker];
+  const res = await fetch(`${DATA_BASE}/dividend_sim/${ticker}.json`);
+  if (!res.ok) throw new Error(`${ticker} 시뮬레이션 데이터 없음`);
+  const data = await res.json();
+  simCache[ticker] = data;
+  return data;
 }
 
 export function getCategoryLabel(cat) {

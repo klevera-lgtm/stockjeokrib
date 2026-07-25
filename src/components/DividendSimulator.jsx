@@ -69,13 +69,10 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
     setLoading(true);
     setError("");
     setResult(null);
+    setRevealed(isBasic());
 
     try {
-      const end = new Date();
-      const start = new Date();
-      start.setFullYear(end.getFullYear() - periodYears);
-
-      const res = await runDividendSim(ticker, amount, start, end, drip);
+      const res = await runDividendSim(ticker, amount, periodYears, drip);
       if (!res) {
         setError("해당 기간의 데이터가 부족합니다.");
       } else {
@@ -83,7 +80,7 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
         logScreen("sim_result");
       }
     } catch (e) {
-      setError("시뮬레이션 중 오류가 발생했어요.");
+      setError("데이터를 불러올 수 없습니다.");
     } finally {
       setLoading(false);
     }
@@ -126,7 +123,7 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
     <div className="page sim-page">
       <div className="page-header">
         <h1 className="page-title">배당 시뮬레이션</h1>
-        <p className="page-subtitle">매월 적립하면 배당금이 얼마나 불어날까요?</p>
+        <p className="page-subtitle">매일 꾸준히 적립하면 배당금이 얼마나 불어날까요?</p>
       </div>
 
       <AdBanner slot="sim-top" />
@@ -257,67 +254,24 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
         <div className="sim-results">
           <h2 className="section-title">시뮬레이션 결과</h2>
 
-          {/* Summary cards */}
-          <div className="sim-summary">
-            <div className="sim-summary-card highlight">
-              <div className="sim-summary-label">최종 포트폴리오</div>
-              <div className="sim-summary-value">{formatKRW(result.finalValue)}</div>
-            </div>
-            <div className="sim-summary-card">
-              <div className="sim-summary-label">총 투자금</div>
-              <div className="sim-summary-value">{formatKRW(result.totalInvested)}</div>
-            </div>
-            <div className="sim-summary-card">
-              <div className="sim-summary-label">수익률</div>
-              <div className={`sim-summary-value ${result.totalReturn >= 0 ? "pos" : "neg"}`}>
-                {result.totalReturn >= 0 ? "+" : ""}{(result.totalReturn * 100).toFixed(1)}%
-              </div>
-            </div>
-            <div className="sim-summary-card">
-              <div className="sim-summary-label">연평균 수익률</div>
-              <div className={`sim-summary-value ${result.cagr >= 0 ? "pos" : "neg"}`}>
-                {result.cagr >= 0 ? "+" : ""}{(result.cagr * 100).toFixed(1)}%
-              </div>
-            </div>
+          {/* Investment method banner */}
+          <div className="sim-method-banner">
+            <span className="sim-method-icon">📊</span>
+            <span className="sim-method-text">
+              매 거래일 자동 매수 · 하루 {formatKRW(result.dailyKRW)}씩 투자
+            </span>
           </div>
 
-          {/* Chart */}
+          {/* Chart - teaser */}
           {chartData && (
             <div className="sim-chart-wrap">
               <LineChart labels={chartData.labels} datasets={chartData.datasets} />
             </div>
           )}
 
-          {/* Dividend income - gated */}
-          <div className={revealed ? "sim-dividend-section" : "sim-dividend-section div-gated"}>
-            <h3 className="sim-div-title">예상 배당 수입</h3>
-            <div className="sim-div-grid">
-              <div className="sim-div-item">
-                <div className="sim-div-label">현재 월 배당금</div>
-                <div className="sim-div-value">{formatKRW(result.monthlyDivKRW)}</div>
-              </div>
-              <div className="sim-div-item">
-                <div className="sim-div-label">현재 연 배당금</div>
-                <div className="sim-div-value">{formatKRW(result.annualDivKRW)}</div>
-              </div>
-              <div className="sim-div-item">
-                <div className="sim-div-label">누적 받은 배당금</div>
-                <div className="sim-div-value">{formatKRW(result.totalDividendsKRW)}</div>
-              </div>
-              <div className="sim-div-item">
-                <div className="sim-div-label">보유 주식 수</div>
-                <div className="sim-div-value">{result.totalShares.toFixed(2)}주</div>
-              </div>
-            </div>
-            <div className="sim-div-note">
-              {result.drip
-                ? "배당금이 자동 재투자되어 복리 효과를 누렸어요"
-                : `현금 배당 수령: ${formatKRW(result.totalDividendsKRW)}`}
-            </div>
-          </div>
           {!revealed && (
             <div className="reveal-cta">
-              <p className="reveal-hint">자세한 배당 분석을 보려면 코인 1개가 필요해요</p>
+              <p className="reveal-hint">수익률과 배당 수입을 확인하려면 코인 1개가 필요해요</p>
               <button className="btn-primary reveal-btn" onClick={() => {
                 if (isBasic()) { setRevealed(true); return; }
                 if (getQueryBalance() <= 0) { setShowGate(true); return; }
@@ -325,18 +279,74 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
                 onCoinsChanged?.();
                 setRevealed(true);
               }}>
-                🔓 배당 수익 상세 보기 {!isBasic() && "(코인 1개)"}
+                🔓 시뮬레이션 결과 보기 (코인 1개)
               </button>
-              {!isBasic() && <p className="reveal-balance">남은 코인 {getQueryBalance()}개</p>}
+              <p className="reveal-balance">남은 코인 {getQueryBalance()}개 · 광고 시청 시 +2개</p>
             </div>
           )}
 
-          <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
-            📤 결과 공유하기
-          </button>
+          {revealed && (
+            <>
+              {/* Summary cards */}
+              <div className="sim-summary">
+                <div className="sim-summary-card highlight">
+                  <div className="sim-summary-label">최종 포트폴리오</div>
+                  <div className="sim-summary-value">{formatKRW(result.finalValue)}</div>
+                </div>
+                <div className="sim-summary-card">
+                  <div className="sim-summary-label">총 투자금</div>
+                  <div className="sim-summary-value">{formatKRW(result.totalInvested)}</div>
+                </div>
+                <div className="sim-summary-card">
+                  <div className="sim-summary-label">수익률</div>
+                  <div className={`sim-summary-value ${result.totalReturn >= 0 ? "pos" : "neg"}`}>
+                    {result.totalReturn >= 0 ? "+" : ""}{(result.totalReturn * 100).toFixed(1)}%
+                  </div>
+                </div>
+                <div className="sim-summary-card">
+                  <div className="sim-summary-label">연평균 수익률</div>
+                  <div className={`sim-summary-value ${result.cagr >= 0 ? "pos" : "neg"}`}>
+                    {result.cagr >= 0 ? "+" : ""}{(result.cagr * 100).toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+
+              {/* Dividend income */}
+              <div className="sim-dividend-section">
+                <h3 className="sim-div-title">예상 배당 수입</h3>
+                <div className="sim-div-grid">
+                  <div className="sim-div-item">
+                    <div className="sim-div-label">현재 월 배당금</div>
+                    <div className="sim-div-value">{formatKRW(result.monthlyDivKRW)}</div>
+                  </div>
+                  <div className="sim-div-item">
+                    <div className="sim-div-label">현재 연 배당금</div>
+                    <div className="sim-div-value">{formatKRW(result.annualDivKRW)}</div>
+                  </div>
+                  <div className="sim-div-item">
+                    <div className="sim-div-label">누적 받은 배당금</div>
+                    <div className="sim-div-value">{formatKRW(result.totalDividendsKRW)}</div>
+                  </div>
+                  <div className="sim-div-item">
+                    <div className="sim-div-label">보유 주식 수</div>
+                    <div className="sim-div-value">{result.totalShares.toFixed(2)}주</div>
+                  </div>
+                </div>
+                <div className="sim-div-note">
+                  {result.drip
+                    ? "배당금이 자동 재투자되어 복리 효과를 누렸어요"
+                    : `현금 배당 수령: ${formatKRW(result.totalDividendsKRW)}`}
+                </div>
+              </div>
+
+              <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
+                📤 결과 공유하기
+              </button>
+            </>
+          )}
 
           <div className="sim-fee-notice">
-            거래 비용(0.35%)이 매수 시 반영되었어요
+            매 거래일 매수 · 거래 비용(0.35%) 반영
           </div>
 
           <AdBanner slot="sim-result" />
