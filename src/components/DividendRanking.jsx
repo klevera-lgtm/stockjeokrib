@@ -9,6 +9,7 @@ import {
   formatPrice,
 } from "../utils/dividendData.js";
 import { logScreen, logClick } from "../utils/analytics.js";
+import ShareSheet from "./ShareSheet.jsx";
 import AdBanner from "./AdBanner.jsx";
 
 const SORT_OPTIONS = [
@@ -30,6 +31,7 @@ export default function DividendRanking({ onTickerSelect, onNavigate }) {
   const [sortBy, setSortBy] = useState("yield");
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [showShare, setShowShare] = useState(false);
 
   useEffect(() => {
     logScreen("tab_ranking");
@@ -146,6 +148,25 @@ export default function DividendRanking({ onTickerSelect, onNavigate }) {
           </button>
         ))}
       </div>
+
+      <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
+        📤 랭킹 공유하기
+      </button>
+
+      {showShare && (
+        <ShareSheet
+          text={`📊 배당 랭킹 TOP 5 (${SORT_OPTIONS.find(s => s.id === sortBy)?.label})\n${items.slice(0, 5).map((t, i) => `${i + 1}. ${t.ticker} - ${formatYield(t.currentYield)}`).join("\n")}`}
+          card={{
+            title: `배당 랭킹 - ${SORT_OPTIONS.find(s => s.id === sortBy)?.label}`,
+            period: `${FILTER_OPTIONS.find(f => f.id === filter)?.label} · ${items.length}종목`,
+            rows: items.slice(0, 5).map((t) => ({
+              label: `${t.ticker} ${t.name}`,
+              value: sortBy === "growth" ? (t.divGrowth5y != null ? formatPct(t.divGrowth5y) : "-") : sortBy === "years" ? `${t.consecutiveYears}년` : formatYield(t.currentYield),
+            })),
+          }}
+          onClose={() => setShowShare(false)}
+        />
+      )}
 
       {onNavigate && (
         <button className="cross-link" onClick={() => onNavigate("accumulation", "strategy")}>

@@ -36,6 +36,7 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
   const [showGate, setShowGate] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [revealed, setRevealed] = useState(isBasic());
 
   useEffect(() => {
     loadDividendMeta().then(setMeta);
@@ -76,12 +77,6 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
   function handleCalc() {
     if (portfolio.length === 0) return;
     logClick("retire_calc", { targetMonthly, monthlyInvest, count: portfolio.length });
-
-    if (!isBasic()) {
-      if (getQueryBalance() <= 0) { setShowGate(true); return; }
-      if (!consumeQuery()) { setShowGate(true); return; }
-      onCoinsChanged?.();
-    }
 
     const targetAnnualUSD = (targetMonthly * 12) / KRW_USD;
     const requiredCapitalUSD = targetAnnualUSD / avgYield;
@@ -255,7 +250,6 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
           disabled={portfolio.length === 0}
         >
           은퇴 시점 계산하기
-          {!isBasic() && <span className="sim-cost-badge">🪙 1</span>}
         </button>
       </div>
 
@@ -296,7 +290,8 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
             </div>
           </div>
 
-          {/* Projection chart */}
+          {/* Projection charts - gated */}
+          <div className={revealed ? "" : "div-gated"}>
           {result.projections.length > 2 && (
             <div className="sim-chart-wrap">
               <LineChart
@@ -354,6 +349,22 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
                 ]}
                 title="월 배당금 성장"
               />
+            </div>
+          )}
+          </div>
+          {!revealed && (
+            <div className="reveal-cta">
+              <p className="reveal-hint">상세 예측 차트를 보려면 코인 1개가 필요해요</p>
+              <button className="btn-primary reveal-btn" onClick={() => {
+                if (isBasic()) { setRevealed(true); return; }
+                if (getQueryBalance() <= 0) { setShowGate(true); return; }
+                if (!consumeQuery()) { setShowGate(true); return; }
+                onCoinsChanged?.();
+                setRevealed(true);
+              }}>
+                🔓 예측 차트 보기 {!isBasic() && "(코인 1개)"}
+              </button>
+              {!isBasic() && <p className="reveal-balance">남은 코인 {getQueryBalance()}개</p>}
             </div>
           )}
 

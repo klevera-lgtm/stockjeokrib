@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { loadDividendMeta, getCategoryLabel, getCategoryColor, getFrequencyLabel, formatYield, formatKRW } from "../utils/dividendData.js";
-import { isBasic } from "../utils/premium.js";
+import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
 import { logClick, logScreen } from "../utils/analytics.js";
+import QueryGateModal from "./QueryGateModal.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
 import ShareSheet from "./ShareSheet.jsx";
 import AdBanner from "./AdBanner.jsx";
@@ -29,7 +30,9 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
   const [editTicker, setEditTicker] = useState(null);
   const [editShares, setEditShares] = useState("");
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showGate, setShowGate] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [revealed, setRevealed] = useState(isBasic());
 
   useEffect(() => { loadDividendMeta().then(setMeta); }, []);
 
@@ -222,7 +225,7 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
           </div>
 
           {/* My dividend calendar */}
-          <div className="port-cal-section">
+          <div className={revealed ? "port-cal-section" : "port-cal-section div-gated"}>
             <h3 className="sim-div-title">내 배당 캘린더</h3>
             <div className="port-cal-grid">
               {MONTHS.map((m, i) => {
@@ -248,7 +251,7 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
           </button>
 
           {/* Per-holding breakdown */}
-          <div className="port-breakdown">
+          <div className={revealed ? "port-breakdown" : "port-breakdown div-gated"}>
             <h3 className="sim-div-title">종목별 배당 상세</h3>
             {holdings.map((h) => {
               const t = meta[h.ticker];
@@ -270,6 +273,21 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
               );
             })}
           </div>
+          {!revealed && (
+            <div className="reveal-cta">
+              <p className="reveal-hint">상세 배당 분석을 보려면 코인 1개가 필요해요</p>
+              <button className="btn-primary reveal-btn" onClick={() => {
+                if (isBasic()) { setRevealed(true); return; }
+                if (getQueryBalance() <= 0) { setShowGate(true); return; }
+                if (!consumeQuery()) { setShowGate(true); return; }
+                onCoinsChanged?.();
+                setRevealed(true);
+              }}>
+                🔓 배당 상세 분석 보기 {!isBasic() && "(코인 1개)"}
+              </button>
+              {!isBasic() && <p className="reveal-balance">남은 코인 {getQueryBalance()}개</p>}
+            </div>
+          )}
         </div>
       )}
 
@@ -336,6 +354,13 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
         </div>
       )}
 
+      {showGate && (
+        <QueryGateModal
+          onClose={() => setShowGate(false)}
+          onEarned={() => onCoinsChanged?.()}
+          onUpgrade={() => { setShowGate(false); setShowUpgrade(true); }}
+        />
+      )}
       {showUpgrade && (
         <UpgradeModal onClose={() => { setShowUpgrade(false); onCoinsChanged?.(); }} />
       )}

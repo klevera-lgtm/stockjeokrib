@@ -39,7 +39,7 @@ function wrapTitle(ctx, text, maxWidth) {
   return lines;
 }
 
-export function renderShareCard({ title, period, invested, finalValue, returnPct, mdd, series, rows, strategies }) {
+export function renderShareCard({ title, period, subtitle, invested, finalValue, returnPct, mdd, series, rows, strategies, stats }) {
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
@@ -83,7 +83,7 @@ export function renderShareCard({ title, period, invested, finalValue, returnPct
   // 기간
   ctx.font = "500 34px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
   ctx.fillStyle = "rgba(255,255,255,0.55)";
-  ctx.fillText(period, PAD, y + 4);
+  ctx.fillText(period || subtitle || "", PAD, y + 4);
 
   // ── 순위표 카드 (rows 지정 시 차트·스탯 대신 리스트) ──
   if (rows?.length) {
@@ -209,33 +209,50 @@ export function renderShareCard({ title, period, invested, finalValue, returnPct
   }
 
   // ── 스탯 (하단 고정) ──
-  ctx.font = "500 32px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,0.55)";
-  ctx.fillText("납입 원금", PAD, statY);
-  ctx.fillText("최종 가치", W / 2 + 20, statY);
+  if (stats?.length && invested == null) {
+    const colW = (W - PAD * 2 - 40) / 2;
+    stats.slice(0, 6).forEach((stat, i) => {
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const sx = PAD + col * (colW + 40);
+      const ry = statY + row * 90;
 
-  ctx.font = "700 58px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
-  ctx.fillStyle = "#ffffff";
-  ctx.fillText(formatKRW(invested), PAD, statY + 44);
-  ctx.fillStyle = "#4ade80";
-  ctx.fillText(formatKRW(finalValue), W / 2 + 20, statY + 44);
+      ctx.font = "500 28px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.fillText(stat.label, sx, ry);
 
-  // 수익률 — 가장 큰 강조
-  const retY = statY + 140;
-  ctx.font = "500 32px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,0.55)";
-  ctx.fillText("수익률", PAD, retY);
-  ctx.font = "800 84px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
-  ctx.fillStyle = returnPct >= 0 ? "#4ade80" : "#f87171";
-  ctx.fillText(`${returnPct >= 0 ? "+" : ""}${formatPct(returnPct)}`, PAD, retY + 40);
-
-  if (mdd != null) {
+      ctx.font = "700 44px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+      ctx.fillStyle = stat.color || "#ffffff";
+      ctx.fillText(fitLine(ctx, stat.value, colW), sx, ry + 36);
+    });
+  } else {
     ctx.font = "500 32px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
     ctx.fillStyle = "rgba(255,255,255,0.55)";
-    ctx.fillText("MDD", W / 2 + 20, retY);
+    ctx.fillText("납입 원금", PAD, statY);
+    ctx.fillText("최종 가치", W / 2 + 20, statY);
+
     ctx.font = "700 58px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
-    ctx.fillStyle = "#f87171";
-    ctx.fillText(formatPct(mdd), W / 2 + 20, retY + 50);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(formatKRW(invested), PAD, statY + 44);
+    ctx.fillStyle = "#4ade80";
+    ctx.fillText(formatKRW(finalValue), W / 2 + 20, statY + 44);
+
+    const retY = statY + 140;
+    ctx.font = "500 32px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.fillText("수익률", PAD, retY);
+    ctx.font = "800 84px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+    ctx.fillStyle = returnPct >= 0 ? "#4ade80" : "#f87171";
+    ctx.fillText(`${returnPct >= 0 ? "+" : ""}${formatPct(returnPct)}`, PAD, retY + 40);
+
+    if (mdd != null) {
+      ctx.font = "500 32px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.fillText("MDD", W / 2 + 20, retY);
+      ctx.font = "700 58px 'Pretendard', 'Apple SD Gothic Neo', sans-serif";
+      ctx.fillStyle = "#f87171";
+      ctx.fillText(formatPct(mdd), W / 2 + 20, retY + 50);
+    }
   }
 
   // ── 하단 CTA ──

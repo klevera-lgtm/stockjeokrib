@@ -13,15 +13,16 @@ export const TICKER_CATEGORIES = {
     "TQQQ","SOXL","UPRO","QLD","SSO","SPXL","TECL","TSLL","NVDL","MSTU",
     "IONX","ORCX","USD","KORU","UGL","AGQ","UBT","TMF",
   ],
-  "배당·인컴 ETF": ["SCHD","JEPI","JEPQ","SPYD","DGRO","QYLD","RYLD","VYM","DVY","VIG","HDV","SPHD","DIVO","PFF","XYLD","SDIV","QQQI","SPYM"],
-  "배당주·리츠": ["O","MAIN","STAG","AGNC","JNJ","PG","PEP","MCD","ABBV","XOM","CVX","T","VZ","MO","MMM","IBM"],
+  "배당·인컴 ETF": ["SCHD","JEPI","JEPQ","SPYD","DGRO","DGRW","QYLD","RYLD","VYM","DVY","VIG","HDV","SPHD","DIVO","PFF","XYLD","SDIV","QQQI","SPYI","GPIQ","SPYM"],
+  "커버드콜·초고배당": ["MSTY","TSLY","YMAX","NVDY"],
+  "배당주·리츠": ["O","MAIN","STAG","AGNC","ARCC","JNJ","PG","PEP","MCD","ABBV","XOM","CVX","T","VZ","MO","MMM","IBM"],
   "GICS 11섹터 ETF": ["XLK","XLC","XLY","XLP","XLV","XLF","XLI","XLE","XLB","XLU","XLRE"],
   "테마 섹터 ETF": ["ITA","XBI","ICLN","LIT","ARKK","ARKF","ARKX","QTUM","VNQ","ARKG","PAVE"],
   "안전자산": ["GLD","SLV","TLT","SHY","USO","BND","AGG","HYG","IAU","GDX","IEF","SGOV","JEM"],
   "아시아 국가 ETF": ["INDA","EWJ","MCHI","EWT","VNM","EWY","EWH","EWS","EIDO","THD","FXI","EWM"],
   "유럽 국가 ETF": ["VGK","EWG","EWU","EWQ","EWI","EWL","EZU"],
   "기타 국가 ETF": ["EWZ","EWW","EEM","ACWI","EWA","KSA","VT","VXUS","IEFA","IEMG","VWO"],
-  "국내 자산": ["KS11","KQ11","005930","000660","069500","360750"],
+  "국내 자산": ["KS11","KQ11","005930","000660","069500","360750","088980","458730"],
 };
 
 export const TICKER_LABELS = {
@@ -32,6 +33,8 @@ export const TICKER_LABELS = {
   "000660": "SK하이닉스",
   "069500": "KODEX 200",
   "360750": "TIGER 미국S&P500",
+  "088980": "맥쿼리인프라",
+  "458730": "TIGER 미국배당다우존스",
 
   // 미국 개별 주식
   "AAOI": "어플라이드 옵토",
@@ -147,12 +150,22 @@ export const TICKER_LABELS = {
   "PFF": "우선주 ETF",
   "XYLD": "S&P500 커버드콜 ETF",
   "SDIV": "글로벌 고배당 ETF",
+  "SPYI": "S&P500 인컴 ETF",
+  "DGRW": "배당성장 ETF",
+  "GPIQ": "GS 나스닥 커버드콜 ETF",
+
+  // 커버드콜·초고배당
+  "MSTY": "마이크로스트래티지 옵션 ETF",
+  "TSLY": "테슬라 옵션 ETF",
+  "YMAX": "YieldMax 유니버스 ETF",
+  "NVDY": "엔비디아 옵션 ETF",
 
   // 배당주·리츠
   "O": "리얼티인컴",
   "MAIN": "메인스트리트 캐피털",
   "STAG": "스태그 인더스트리얼",
   "AGNC": "AGNC 인베스트먼트",
+  "ARCC": "에어스 캐피탈",
   "JNJ": "존슨앤드존슨",
   "PG": "P&G",
   "PEP": "펩시코",
@@ -258,6 +271,10 @@ export const SUPPORTED_TICKERS = new Set([
   // 배당 유니버스 (배당왕 준비로 추가)
   "HDV","SPHD","DIVO","PFF","XYLD","SDIV","O","MAIN","STAG","AGNC",
   "JNJ","PG","PEP","MCD","ABBV","XOM","CVX","T","VZ","MO","MMM","IBM",
+  // 커버드콜·초고배당 + 신규 배당
+  "ARCC","MSTY","TSLY","YMAX","NVDY","SPYI","DGRW","GPIQ",
+  // 한국 배당 자산
+  "088980","458730",
 ]);
 
 export function getTickerLabel(ticker) {

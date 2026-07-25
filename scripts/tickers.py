@@ -10,8 +10,9 @@ TICKERS = {
     "채권": ["TLT", "IEF", "BND"],
     "채권 레버리지": ["UBT", "TMF"],
     "배당/인컴": ["SCHD", "VYM", "JEPI", "JEPQ", "DVY", "VIG"],
-    "고배당 ETF": ["HDV", "SPHD", "DIVO", "PFF", "XYLD", "SDIV"],
-    "월배당 리츠/BDC": ["O", "MAIN", "STAG", "AGNC"],
+    "고배당 ETF": ["HDV", "SPHD", "DIVO", "PFF", "XYLD", "SDIV", "SPYI", "DGRW", "GPIQ"],
+    "커버드콜/초고배당": ["MSTY", "TSLY", "YMAX", "NVDY", "QQQI"],
+    "월배당 리츠/BDC": ["O", "MAIN", "STAG", "AGNC", "ARCC"],
     "배당귀족 개별주": [
         "JNJ", "PG", "PEP", "MCD", "ABBV", "XOM",
         "CVX", "T", "VZ", "MO", "MMM", "IBM",

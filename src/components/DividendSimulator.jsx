@@ -37,6 +37,7 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
   const [pickerOpen, setPickerOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [showShare, setShowShare] = useState(false);
+  const [revealed, setRevealed] = useState(isBasic());
 
   useEffect(() => {
     loadDividendMeta().then(setMeta);
@@ -64,18 +65,6 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
   const handleRun = useCallback(async () => {
     if (!ticker || !meta?.[ticker]) return;
     logClick("sim_run", { ticker, amount, periodYears, drip });
-
-    if (!isBasic()) {
-      if (getQueryBalance() <= 0) {
-        setShowGate(true);
-        return;
-      }
-      if (!consumeQuery()) {
-        setShowGate(true);
-        return;
-      }
-      onCoinsChanged?.();
-    }
 
     setLoading(true);
     setError("");
@@ -257,12 +246,7 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
           onClick={handleRun}
           disabled={!ticker || loading}
         >
-          {loading ? "계산 중..." : (
-            <>
-              시뮬레이션 시작
-              {!isBasic() && <span className="sim-cost-badge">🪙 1</span>}
-            </>
-          )}
+          {loading ? "계산 중..." : "시뮬레이션 시작"}
         </button>
       </div>
 
@@ -304,8 +288,8 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
             </div>
           )}
 
-          {/* Dividend income */}
-          <div className="sim-dividend-section">
+          {/* Dividend income - gated */}
+          <div className={revealed ? "sim-dividend-section" : "sim-dividend-section div-gated"}>
             <h3 className="sim-div-title">예상 배당 수입</h3>
             <div className="sim-div-grid">
               <div className="sim-div-item">
@@ -331,6 +315,21 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
                 : `현금 배당 수령: ${formatKRW(result.totalDividendsKRW)}`}
             </div>
           </div>
+          {!revealed && (
+            <div className="reveal-cta">
+              <p className="reveal-hint">자세한 배당 분석을 보려면 코인 1개가 필요해요</p>
+              <button className="btn-primary reveal-btn" onClick={() => {
+                if (isBasic()) { setRevealed(true); return; }
+                if (getQueryBalance() <= 0) { setShowGate(true); return; }
+                if (!consumeQuery()) { setShowGate(true); return; }
+                onCoinsChanged?.();
+                setRevealed(true);
+              }}>
+                🔓 배당 수익 상세 보기 {!isBasic() && "(코인 1개)"}
+              </button>
+              {!isBasic() && <p className="reveal-balance">남은 코인 {getQueryBalance()}개</p>}
+            </div>
+          )}
 
           <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
             📤 결과 공유하기

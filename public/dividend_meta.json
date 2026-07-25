@@ -1,24 +1,4 @@
 {
-  "088980": {
-    "ticker": "088980",
-    "name": "맥쿼리인프라",
-    "category": "korean",
-    "frequency": "semi-annual",
-    "paymentMonths": [
-      6,
-      12
-    ],
-    "currentYield": 0.0716,
-    "ttmDividend": 730.0,
-    "annualDividend": 730.0,
-    "latestPrice": 10190.0,
-    "consecutiveYears": 21,
-    "lastDivDate": "2026-06-29",
-    "lastDivAmount": 350.0,
-    "divCount": 40,
-    "divGrowth5y": -0.008,
-    "divGrowth3y": -0.0176
-  },
   "458730": {
     "ticker": "458730",
     "name": "TIGER 미국배당다우존스",
@@ -39,14 +19,34 @@
       12
     ],
     "currentYield": 0.0283,
-    "ttmDividend": 431.0,
-    "annualDividend": 431.0,
-    "latestPrice": 15220.0,
+    "ttmDividend": 431,
+    "annualDividend": 431,
+    "latestPrice": 15220,
     "consecutiveYears": 4,
     "lastDivDate": "2026-06-29",
-    "lastDivAmount": 45.0,
+    "lastDivAmount": 45,
     "divCount": 35,
     "divGrowth3y": 0.0447
+  },
+  "088980": {
+    "ticker": "088980",
+    "name": "맥쿼리인프라",
+    "category": "korean",
+    "frequency": "semi-annual",
+    "paymentMonths": [
+      6,
+      12
+    ],
+    "currentYield": 0.0716,
+    "ttmDividend": 730,
+    "annualDividend": 730,
+    "latestPrice": 10190,
+    "consecutiveYears": 21,
+    "lastDivDate": "2026-06-29",
+    "lastDivAmount": 350,
+    "divCount": 40,
+    "divGrowth5y": -0.008,
+    "divGrowth3y": -0.0176
   },
   "ABBV": {
     "ticker": "ABBV",
@@ -97,8 +97,8 @@
     "lastDivDate": "2026-06-30",
     "lastDivAmount": 0.12,
     "divCount": 168,
-    "divGrowth5y": 0.0,
-    "divGrowth3y": 0.0
+    "divGrowth5y": 0,
+    "divGrowth3y": 0
   },
   "ARCC": {
     "ticker": "ARCC",
@@ -120,7 +120,7 @@
     "lastDivAmount": 0.48,
     "divCount": 80,
     "divGrowth5y": 0.0222,
-    "divGrowth3y": 0.0
+    "divGrowth3y": 0
   },
   "CVX": {
     "ticker": "CVX",
@@ -896,7 +896,7 @@
     "lastDivAmount": 0.278,
     "divCount": 80,
     "divGrowth5y": -0.0697,
-    "divGrowth3y": 0.0
+    "divGrowth3y": 0
   },
   "TSLY": {
     "ticker": "TSLY",
@@ -1075,5 +1075,63 @@
     "divCount": 103,
     "divGrowth3y": 0.1296,
     "warning": "yieldmax"
+  },
+  "DGRW": {
+    "ticker": "DGRW",
+    "name": "WisdomTree 배당성장 ETF",
+    "category": "dividend_etf",
+    "frequency": "monthly",
+    "paymentMonths": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "currentYield": 0.0128,
+    "ttmDividend": 1.218,
+    "annualDividend": 1.218,
+    "latestPrice": 95.44,
+    "consecutiveYears": 13,
+    "lastDivDate": "2026-06-25",
+    "lastDivAmount": 0.16,
+    "divCount": 156,
+    "divGrowth5y": 0.0812,
+    "divGrowth3y": 0.0543
+  },
+  "GPIQ": {
+    "ticker": "GPIQ",
+    "name": "GS 나스닥100 커버드콜 ETF",
+    "category": "covered_call_etf",
+    "frequency": "monthly",
+    "paymentMonths": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "currentYield": 0.1018,
+    "ttmDividend": 5.617,
+    "annualDividend": 5.617,
+    "latestPrice": 55.18,
+    "consecutiveYears": 3,
+    "lastDivDate": "2026-07-01",
+    "lastDivAmount": 0.519,
+    "divCount": 33
   }
 }

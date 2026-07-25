@@ -80,6 +80,7 @@ export default function DividendVsGrowth({ onCoinsChanged, onNavigate }) {
   const [showGate, setShowGate] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [revealed, setRevealed] = useState(isBasic());
 
   useEffect(() => { loadDividendMeta().then(setMeta); }, []);
 
@@ -101,12 +102,6 @@ export default function DividendVsGrowth({ onCoinsChanged, onNavigate }) {
   const handleRun = useCallback(async () => {
     if (!divTicker || !meta?.[divTicker]) return;
     logClick("vs_run", { divTicker, growthTicker, amount, periodYears });
-
-    if (!isBasic()) {
-      if (getQueryBalance() <= 0) { setShowGate(true); return; }
-      if (!consumeQuery()) { setShowGate(true); return; }
-      onCoinsChanged?.();
-    }
 
     setLoading(true);
     setError("");
@@ -255,11 +250,25 @@ export default function DividendVsGrowth({ onCoinsChanged, onNavigate }) {
         </div>
       </div>
 
+      {/* Investment approach explanation */}
+      <div className="vs-explainer">
+        <div className="vs-explainer-card">
+          <div className="vs-explainer-icon">💰</div>
+          <div className="vs-explainer-title">배당 투자</div>
+          <div className="vs-explainer-desc">기업 이익의 일부를 배당금으로 정기 수령하는 전략이에요. 주가 변동과 무관한 현금 흐름을 만들 수 있고, DRIP(배당 재투자)로 복리 효과를 극대화해요.</div>
+        </div>
+        <div className="vs-explainer-card">
+          <div className="vs-explainer-icon">📈</div>
+          <div className="vs-explainer-title">성장 투자</div>
+          <div className="vs-explainer-desc">S&P500, 나스닥100 같은 시장 지수를 추종하며 주가 상승(자본 이득)에 집중하는 전략이에요. 장기적으로 높은 수익률을 기대할 수 있지만 변동성이 더 커요.</div>
+        </div>
+      </div>
+
       {/* Run */}
       <div className="sim-section" style={{ padding: "0 16px" }}>
         <button className="btn-primary sim-run-btn" onClick={handleRun} disabled={!divTicker || loading}>
           {loading ? "비교 중..." : (
-            <>비교 시뮬레이션 시작{!isBasic() && <span className="sim-cost-badge">🪙 1</span>}</>
+            "비교 시뮬레이션 시작"
           )}
         </button>
       </div>
@@ -312,7 +321,8 @@ export default function DividendVsGrowth({ onCoinsChanged, onNavigate }) {
             )}
           </div>
 
-          {/* Chart */}
+          {/* Chart + insight - gated */}
+          <div className={revealed ? "" : "div-gated"}>
           {chartData && (
             <div className="sim-chart-wrap">
               <LineChart labels={chartData.labels} datasets={chartData.datasets} />
@@ -324,6 +334,22 @@ export default function DividendVsGrowth({ onCoinsChanged, onNavigate }) {
             <p>배당주는 하락장에서 배당금이 쿠션 역할을 하고, 성장주는 상승장에서 자본이득이 더 큽니다.</p>
             <p>두 전략을 섞으면 안정성과 성장성을 동시에 추구할 수 있어요.</p>
           </div>
+          </div>
+          {!revealed && (
+            <div className="reveal-cta">
+              <p className="reveal-hint">상세 차트와 분석을 보려면 코인 1개가 필요해요</p>
+              <button className="btn-primary reveal-btn" onClick={() => {
+                if (isBasic()) { setRevealed(true); return; }
+                if (getQueryBalance() <= 0) { setShowGate(true); return; }
+                if (!consumeQuery()) { setShowGate(true); return; }
+                onCoinsChanged?.();
+                setRevealed(true);
+              }}>
+                🔓 상세 분석 보기 {!isBasic() && "(코인 1개)"}
+              </button>
+              {!isBasic() && <p className="reveal-balance">남은 코인 {getQueryBalance()}개</p>}
+            </div>
+          )}
 
           <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
             📤 비교 결과 공유하기

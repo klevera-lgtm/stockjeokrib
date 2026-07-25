@@ -31,6 +31,8 @@ DIVIDEND_TICKERS = [
     "QQQI", "SPYI", "ARCC",
     # YieldMax 계열 — 초고분배·NAV 잠식 주의, 노출 시 위험 맥락 필수
     "MSTY", "NVDY", "TSLY", "YMAX",
+    # 배당성장 + GS 커버드콜
+    "DGRW", "GPIQ",
 ]
 
 # 국내 상장 배당 자산: yfinance 심볼 → 저장 파일명 (앱 관례: 접미사 없는 종목코드)
