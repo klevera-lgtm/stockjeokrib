@@ -1,9 +1,9 @@
 {
-  "last_updated": "2026-07-24",
-  "updated_at": "2026-07-24T22:52:47.742567",
-  "total_tickers": 117,
-  "updated": 203,
-  "skipped": 16,
+  "last_updated": "2026-07-25",
+  "updated_at": "2026-07-25T22:43:38.790238",
+  "total_tickers": 126,
+  "updated": 6,
+  "skipped": 222,
   "failed": [],
   "categories": {
     "미국 대형주 ETF": [
@@ -67,13 +67,24 @@
       "DIVO",
       "PFF",
       "XYLD",
-      "SDIV"
+      "SDIV",
+      "SPYI",
+      "DGRW",
+      "GPIQ"
+    ],
+    "커버드콜/초고배당": [
+      "MSTY",
+      "TSLY",
+      "YMAX",
+      "NVDY",
+      "QQQI"
     ],
     "월배당 리츠/BDC": [
       "O",
       "MAIN",
       "STAG",
-      "AGNC"
+      "AGNC",
+      "ARCC"
     ],
     "배당귀족 개별주": [
       "JNJ",
