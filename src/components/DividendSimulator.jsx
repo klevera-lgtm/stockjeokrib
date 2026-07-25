@@ -258,7 +258,7 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
           <div className="sim-method-banner">
             <span className="sim-method-icon">📊</span>
             <span className="sim-method-text">
-              매 거래일 자동 매수 · 하루 {formatKRW(result.dailyKRW)}씩 투자
+              매 거래일 자동 매수 · 하루 {Math.round(result.dailyKRW).toLocaleString()}원씩 투자
             </span>
           </div>
 
