@@ -36,7 +36,6 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
   const [showGate, setShowGate] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const [revealed, setRevealed] = useState(isBasic());
 
   useEffect(() => {
     loadDividendMeta().then(setMeta);
@@ -74,10 +73,7 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
     setResult(null);
   }
 
-  function handleCalc() {
-    if (portfolio.length === 0) return;
-    logClick("retire_calc", { targetMonthly, monthlyInvest, count: portfolio.length });
-
+  function doCalc() {
     const targetAnnualUSD = (targetMonthly * 12) / KRW_USD;
     const requiredCapitalUSD = targetAnnualUSD / avgYield;
     const requiredCapitalKRW = requiredCapitalUSD * KRW_USD;
@@ -110,8 +106,7 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
 
     const yearsToGoal = months / 12;
     const totalInvested = monthlyInvest * months;
-    const finalCapitalKRW = capital * KRW_USD;
-    const finalMonthlyDiv = (capital * monthlyYield) * KRW_USD;
+    const finalMonthlyDiv = (capital * (avgYield / 12)) * KRW_USD;
     const finalAnnualDiv = (capital * avgYield) * KRW_USD;
 
     setResult({
@@ -119,7 +114,7 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
       months,
       totalInvested,
       requiredCapitalKRW,
-      finalCapitalKRW,
+      finalCapitalKRW: capital * KRW_USD,
       finalMonthlyDiv,
       finalAnnualDiv,
       avgYield,
@@ -127,6 +122,26 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
       reached: months < maxMonths,
     });
     logScreen("retire_result");
+  }
+
+  function handleCalc() {
+    if (portfolio.length === 0) return;
+    logClick("retire_calc", { targetMonthly, monthlyInvest, count: portfolio.length });
+
+    if (isBasic()) {
+      doCalc();
+      return;
+    }
+    if (getQueryBalance() <= 0) {
+      setShowGate(true);
+      return;
+    }
+    if (!consumeQuery()) {
+      setShowGate(true);
+      return;
+    }
+    onCoinsChanged?.();
+    doCalc();
   }
 
   if (!meta) return <div className="loading-msg">배당 데이터 로딩 중...</div>;
@@ -290,8 +305,7 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
             </div>
           </div>
 
-          {/* Projection charts - gated */}
-          <div className={revealed ? "" : "div-gated"}>
+          {/* Projection charts */}
           {result.projections.length > 2 && (
             <div className="sim-chart-wrap">
               <LineChart
@@ -349,22 +363,6 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
                 ]}
                 title="월 배당금 성장"
               />
-            </div>
-          )}
-          </div>
-          {!revealed && (
-            <div className="reveal-cta">
-              <p className="reveal-hint">상세 예측 차트를 보려면 코인 1개가 필요해요</p>
-              <button className="btn-primary reveal-btn" onClick={() => {
-                if (isBasic()) { setRevealed(true); return; }
-                if (getQueryBalance() <= 0) { setShowGate(true); return; }
-                if (!consumeQuery()) { setShowGate(true); return; }
-                onCoinsChanged?.();
-                setRevealed(true);
-              }}>
-                🔓 예측 차트 보기 {!isBasic() && "(코인 1개)"}
-              </button>
-              {!isBasic() && <p className="reveal-balance">남은 코인 {getQueryBalance()}개</p>}
             </div>
           )}
 
