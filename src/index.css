@@ -64,6 +64,60 @@ input, select {
   min-height: 100vh;
 }
 
+/* ── Section toggle ─────────────────────────── */
+.section-toggle-bar {
+  display: flex;
+  justify-content: center;
+  padding: 12px 16px 8px;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+.section-toggle {
+  display: flex;
+  background: var(--surface);
+  border-radius: 99px;
+  padding: 3px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+.section-btn {
+  padding: 8px 28px;
+  border-radius: 99px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  background: transparent;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+.section-btn.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(49, 130, 246, 0.3);
+}
+
+/* ── Cross-link cards ───────────────────────── */
+.cross-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 16px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--primary-light);
+  transition: transform 0.1s;
+}
+.cross-link:active { transform: scale(0.98); }
+.cross-link-icon { font-size: 22px; flex-shrink: 0; }
+.cross-link-text { flex: 1; min-width: 0; }
+.cross-link-text strong { display: block; font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.cross-link-text span { font-size: 11px; color: var(--text-secondary); }
+.cross-link-arrow { color: var(--primary); font-size: 16px; font-weight: 700; flex-shrink: 0; }
+
 .content-area {
   flex: 1;
   padding-bottom: 120px;

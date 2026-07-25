@@ -43,7 +43,7 @@ function findBestStrategy(prices, monthlyAmount, startDate, endDate) {
   return results[0].strategy;
 }
 
-export default function ComboBacktest({ focus = null }) {
+export default function ComboBacktest({ focus = null, onNavigate }) {
   const [tickers, setTickers] = useState([]);
   const [weights, setWeights] = useState({});
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
@@ -604,6 +604,17 @@ export default function ComboBacktest({ focus = null }) {
           }}
           onClose={() => setShowShare(false)}
         />
+      )}
+
+      {onNavigate && (
+        <button className="cross-link" onClick={() => onNavigate("dividend", "calendar")}>
+          <span className="cross-link-icon">📅</span>
+          <div className="cross-link-text">
+            <strong>이 종목들의 배당 일정 확인하기</strong>
+            <span>매월 배당 받는 최적 조합을 추천해드려요</span>
+          </div>
+          <span className="cross-link-arrow">→</span>
+        </button>
       )}
     </div>
   );

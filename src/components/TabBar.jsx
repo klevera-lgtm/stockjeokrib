@@ -5,9 +5,15 @@ import {
   IconFlag,
   IconNews,
   IconUsers,
+  IconList,
+  IconCalculator,
+  IconCalendar,
+  IconPigMoney,
+  IconWallet,
+  IconArrowsExchange,
 } from "@tabler/icons-react";
 
-const TABS = [
+export const ACCUMULATION_TABS = [
   { id: "strategy",  label: "시뮬레이션", Icon: IconDeviceAnalytics },
   { id: "combo",     label: "조합 탐색",  Icon: IconCirclesRelation },
   { id: "portfolio", label: "포트폴리오", Icon: IconChartPie },
@@ -16,10 +22,19 @@ const TABS = [
   { id: "others",    label: "남들은?",    Icon: IconUsers },
 ];
 
-export default function TabBar({ activeTab, onTabChange }) {
+export const DIVIDEND_TABS = [
+  { id: "ranking",       label: "배당 랭킹",  Icon: IconList },
+  { id: "div-sim",       label: "배당 시뮬",  Icon: IconCalculator },
+  { id: "calendar",      label: "월배당",     Icon: IconCalendar },
+  { id: "retirement",    label: "은퇴 계산",  Icon: IconPigMoney },
+  { id: "div-portfolio", label: "포트폴리오", Icon: IconWallet },
+  { id: "div-compare",   label: "배당vs성장", Icon: IconArrowsExchange },
+];
+
+export default function TabBar({ activeTab, onTabChange, tabs = ACCUMULATION_TABS }) {
   return (
     <nav className="tabbar">
-      {TABS.map(({ id, label, Icon }) => (
+      {tabs.map(({ id, label, Icon }) => (
         <button
           key={id}
           className={`tabbar-item${activeTab === id ? " active" : ""}`}

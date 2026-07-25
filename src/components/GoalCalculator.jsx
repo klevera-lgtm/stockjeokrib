@@ -31,7 +31,7 @@ function findRequiredMonthly(prices, strategy, startDate, endDate, targetValue) 
   return (lo + hi) / 2;
 }
 
-export default function GoalCalculator() {
+export default function GoalCalculator({ onNavigate }) {
   const [ticker, setTicker] = useState(null);
   const [goalAmount, setGoalAmount] = useState(100000000);
   const [years, setYears] = useState(10);
@@ -447,6 +447,17 @@ export default function GoalCalculator() {
           }}
           onClose={() => setShowShare(false)}
         />
+      )}
+
+      {onNavigate && (
+        <button className="cross-link" onClick={() => onNavigate("dividend", "retirement")}>
+          <span className="cross-link-icon">🏖️</span>
+          <div className="cross-link-text">
+            <strong>배당으로 은퇴 자금 만들기</strong>
+            <span>목표 월 배당금 달성까지 걸리는 기간을 계산해요</span>
+          </div>
+          <span className="cross-link-arrow">→</span>
+        </button>
       )}
     </div>
   );

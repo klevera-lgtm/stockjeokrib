@@ -108,7 +108,7 @@ function checkTodayCondition(prices, strategy) {
   return false;
 }
 
-export default function MyPortfolio() {
+export default function MyPortfolio({ onNavigate }) {
   const [items, setItems] = useState([]);
   const [loadingCloud, setLoadingCloud] = useState(true);
   const [syncError, setSyncError] = useState(false);
@@ -467,6 +467,17 @@ export default function MyPortfolio() {
             </p>
           )}
         </div>
+      )}
+
+      {onNavigate && (
+        <button className="cross-link" onClick={() => onNavigate("dividend", "div-portfolio")}>
+          <span className="cross-link-icon">💰</span>
+          <div className="cross-link-text">
+            <strong>배당 포트폴리오도 관리하기</strong>
+            <span>보유 배당주의 월별 배당 일정을 확인해요</span>
+          </div>
+          <span className="cross-link-arrow">→</span>
+        </button>
       )}
 
       <AdBanner className="ad-banner-results" />

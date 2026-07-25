@@ -99,9 +99,9 @@ const TYPES = {
   dividend: {
     emoji: "💰",
     name: "배당 안정형",
-    desc: "매달 들어오는 현금흐름을 사랑하는 타입이에요.\n배당 투자에 특화된 '배당적립왕'을 준비하고 있어요!",
-    cta: "목표 금액 계산해보기",
-    route: { tab: "goal" },
+    desc: "매달 들어오는 현금흐름을 사랑하는 타입이에요.\n배당 섹션에서 배당 랭킹, 시뮬레이션, 은퇴 계산까지 한번에 확인해보세요!",
+    cta: "배당 섹션 둘러보기",
+    route: { section: "dividend" },
   },
 };
 
@@ -126,7 +126,6 @@ export default function InvestTypeTest({ onClose, onRoute }) {
   const [score, setScore] = useState({ r: 0, t: 0, i: 0 });
   const [typeKey, setTypeKey] = useState(null);
   const [showShare, setShowShare] = useState(false);
-  const [waitlisted, setWaitlisted] = useState(false);
 
   const done = typeKey !== null;
   const type = done ? TYPES[typeKey] : null;
@@ -146,17 +145,6 @@ export default function InvestTypeTest({ onClose, onRoute }) {
       setTypeKey(k);
       try { localStorage.setItem(TYPE_KEY, k); } catch {}
       logClick("invtest_done", { type: k });
-    }
-  }
-
-  async function handleWaitlist() {
-    logClick("divapp_waitlist");
-    try {
-      const { requestNotificationAgreement } = await import("@apps-in-toss/web-framework");
-      await requestNotificationAgreement();
-      setWaitlisted(true);
-    } catch {
-      setWaitlisted(true);
     }
   }
 
@@ -212,16 +200,6 @@ export default function InvestTypeTest({ onClose, onRoute }) {
                 </div>
               ))}
             </div>
-
-            {typeKey === "dividend" && (
-              <button
-                className="btn-secondary itt-waitlist"
-                onClick={handleWaitlist}
-                disabled={waitlisted}
-              >
-                {waitlisted ? "✓ 출시되면 알려드릴게요!" : "🔔 배당적립왕 출시 알림 받기"}
-              </button>
-            )}
 
             <button className="btn-primary itt-cta" onClick={handleRoute}>
               {type.cta} →

@@ -31,7 +31,7 @@ function makeSimShareText(ticker, result, monthlyAmount) {
   return `👑 주식적립왕 시뮬 결과\n\n${ticker} · ${Math.round(result.years)}년\n월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립 →\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)}`;
 }
 
-export default function StrategyResult({ initialTicker = null, onOpenTest = null }) {
+export default function StrategyResult({ initialTicker = null, onOpenTest = null, onNavigate = null }) {
   const [ticker, setTicker] = useState(initialTicker);
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
   const [customStart, setCustomStart] = useState("");
@@ -336,6 +336,17 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
           onUpgrade={() => setShowUpgrade(true)}
         />
       )}
+      {onNavigate && (
+        <button className="cross-link" onClick={() => onNavigate("dividend", "ranking")}>
+          <span className="cross-link-icon">💰</span>
+          <div className="cross-link-text">
+            <strong>배당 투자도 확인해보세요</strong>
+            <span>배당 랭킹, 월배당 캘린더, 은퇴 계산기까지</span>
+          </div>
+          <span className="cross-link-arrow">→</span>
+        </button>
+      )}
+
       {!results && <AdBanner className="ad-banner-results" />}
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
       {showShare && results?.list?.[0] && (
