@@ -3196,21 +3196,12 @@ input, select {
 .scanner-paywall { text-align: center; padding: 16px; font-size: 13px; color: var(--text-secondary); background: var(--surface); border: 1px dashed var(--border); border-radius: 10px; margin-bottom: 16px; }
 
 .scanner-help-accordion { margin: 16px 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.scanner-help-accordion.highlight { border: 1.5px solid #f59e0b; background: linear-gradient(135deg, #fffbeb, #fef3c7); margin: 0 0 16px; }
-.scanner-help-accordion.highlight .scanner-help-toggle { background: transparent; color: #92400e; font-weight: 700; }
-.scanner-help-accordion.highlight .scanner-help-body { background: transparent; }
-.scanner-help-accordion.highlight .scanner-help-note { background: rgba(245,158,11,0.1); color: #78350f; }
-@media (prefers-color-scheme: dark) {
-  .scanner-help-accordion.highlight { border-color: #b45309; background: linear-gradient(135deg, #451a03, #78350f33); }
-  .scanner-help-accordion.highlight .scanner-help-toggle { color: #fbbf24; }
-  .scanner-help-accordion.highlight .scanner-help-note { background: rgba(245,158,11,0.15); color: #fcd34d; }
-}
-:root[data-theme="dark"] .scanner-help-accordion.highlight { border-color: #b45309; background: linear-gradient(135deg, #451a03, #78350f33); }
-:root[data-theme="dark"] .scanner-help-accordion.highlight .scanner-help-toggle { color: #fbbf24; }
-:root[data-theme="dark"] .scanner-help-accordion.highlight .scanner-help-note { background: rgba(245,158,11,0.15); color: #fcd34d; }
-:root[data-theme="light"] .scanner-help-accordion.highlight { border-color: #f59e0b; background: linear-gradient(135deg, #fffbeb, #fef3c7); }
-:root[data-theme="light"] .scanner-help-accordion.highlight .scanner-help-toggle { color: #92400e; }
-:root[data-theme="light"] .scanner-help-accordion.highlight .scanner-help-note { background: rgba(245,158,11,0.1); color: #78350f; }
+.scanner-help-accordion.highlight { border: 1.5px solid #d97706; background: linear-gradient(135deg, #78350f, #92400e); margin: 0 0 16px; }
+.scanner-help-accordion.highlight .scanner-help-toggle { background: transparent; color: #fde68a; font-weight: 700; }
+.scanner-help-accordion.highlight .scanner-help-body { background: transparent; color: #fef3c7; }
+.scanner-help-accordion.highlight .scanner-help-note { background: rgba(0,0,0,0.2); color: #fde68a; }
+.scanner-help-accordion.highlight .scanner-help-list dt { color: #fff; }
+.scanner-help-accordion.highlight .scanner-help-list dd { color: #fef3c7; }
 .scanner-help-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 14px; font-size: 13px; font-weight: 600; color: var(--text-secondary); background: var(--surface); border: none; cursor: pointer; }
 .scanner-help-arrow { font-size: 10px; transition: transform 0.2s; }
 .scanner-help-arrow.open { transform: rotate(180deg); }
