@@ -10,6 +10,8 @@ import AdBanner from "./AdBanner.jsx";
 const KRW_USD = 1380;
 const STORAGE_KEY = "bdw_my_portfolio";
 const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+const FREE_LIMIT = 3;
+const BASIC_LIMIT = 20;
 
 function loadSaved() {
   try {
@@ -37,7 +39,7 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
   useEffect(() => { loadDividendMeta().then(setMeta); }, []);
 
   useEffect(() => {
-    if (isBasic()) savePortfolio(holdings);
+    savePortfolio(holdings);
   }, [holdings]);
 
   const tickers = useMemo(() => {
@@ -83,8 +85,14 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
     return { totalValue, annualDivKRW, monthlyDivKRW, avgYield, monthMap, coveredMonths };
   }, [meta, holdings]);
 
+  const maxSlots = isBasic() ? BASIC_LIMIT : FREE_LIMIT;
+
   function addHolding(ticker) {
     if (holdings.find((h) => h.ticker === ticker)) return;
+    if (holdings.length >= maxSlots) {
+      setShowUpgrade(true);
+      return;
+    }
     setHoldings([...holdings, { ticker, shares: 1 }]);
     setPickerOpen(false);
     setSearch("");
@@ -107,11 +115,6 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
   }
 
   function handleSave() {
-    if (!isBasic()) {
-      logClick("portfolio_save_gate");
-      setShowUpgrade(true);
-      return;
-    }
     savePortfolio(holdings);
     logClick("portfolio_saved");
   }
@@ -124,8 +127,6 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
         <h1 className="page-title">내 배당 포트폴리오</h1>
         <p className="page-subtitle">보유 종목의 배당 현황을 한눈에 확인해요</p>
       </div>
-
-      <AdBanner slot="port-top" />
 
       {/* Holdings list */}
       <div className="sim-section">
@@ -179,9 +180,15 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
               </div>
             );
           })}
-          {holdings.length < 10 && (
+          {holdings.length < maxSlots ? (
             <button className="retire-add-btn" onClick={() => setPickerOpen(true)}>
-              + 종목 추가
+              + 종목 추가 ({holdings.length}/{maxSlots})
+            </button>
+          ) : (
+            <button className="retire-add-btn port-limit-btn" onClick={() => setShowUpgrade(true)}>
+              {isBasic()
+                ? `최대 ${BASIC_LIMIT}종목까지 저장 가능`
+                : `🔒 3종목 이상 추가하려면 Basic`}
             </button>
           )}
         </div>
@@ -191,12 +198,10 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
       {holdings.length > 0 && (
         <div className="sim-section" style={{ padding: "0 16px" }}>
           <button className="btn-primary port-save-btn" onClick={handleSave}>
-            {isBasic() ? "포트폴리오 저장하기" : (
-              <>포트폴리오 저장하기 <span className="port-basic-tag">Basic</span></>
-            )}
+            포트폴리오 저장하기
           </button>
-          {!isBasic() && (
-            <div className="port-save-hint">Basic 구독 시 포트폴리오를 저장하고 언제든 확인할 수 있어요</div>
+          {!isBasic() && holdings.length >= FREE_LIMIT && (
+            <div className="port-save-hint">Basic 구독 시 최대 {BASIC_LIMIT}종목까지 저장할 수 있어요</div>
           )}
         </div>
       )}
@@ -223,6 +228,8 @@ export default function DividendPortfolio({ onCoinsChanged, onNavigate }) {
               <div className="sim-summary-value">{(summary.avgYield * 100).toFixed(2)}%</div>
             </div>
           </div>
+
+          <AdBanner className="ad-banner-inline" />
 
           {/* My dividend calendar */}
           <div className={revealed ? "port-cal-section" : "port-cal-section div-gated"}>

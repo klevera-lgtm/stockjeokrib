@@ -377,6 +377,8 @@ export default function MyPortfolio({ onNavigate }) {
         </button>
       )}
 
+      <AdBanner className="ad-banner-inline" />
+
       {/* 추가하기 */}
       {adding ? (
         <div className="form-section">

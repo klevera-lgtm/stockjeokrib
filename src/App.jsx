@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import TabBar, { ACCUMULATION_TABS, DIVIDEND_TABS } from "./components/TabBar.jsx";
+import TabBar, { ACCUMULATION_TABS, DIVIDEND_TABS, TRADING_TABS } from "./components/TabBar.jsx";
 import Disclaimer from "./components/Disclaimer.jsx";
 import StrategyResult from "./components/StrategyResult.jsx";
 import ComboBacktest from "./components/ComboBacktest.jsx";
@@ -13,6 +13,10 @@ import MonthlyCalendar from "./components/MonthlyCalendar.jsx";
 import RetirementCalc from "./components/RetirementCalc.jsx";
 import DividendPortfolio from "./components/DividendPortfolio.jsx";
 import DividendVsGrowth from "./components/DividendVsGrowth.jsx";
+import TradingSimulation from "./components/TradingSimulation.jsx";
+import TradingScanner from "./components/TradingScanner.jsx";
+import TradingRanking from "./components/TradingRanking.jsx";
+import TradingPortfolio from "./components/TradingPortfolio.jsx";
 import OnboardingModal, { isOnboardDone } from "./components/OnboardingModal.jsx";
 import InvestTypeTest from "./components/InvestTypeTest.jsx";
 import CoinShopModal from "./components/CoinShopModal.jsx";
@@ -32,9 +36,10 @@ function loadSection() {
 
 export default function App() {
   const [section, setSection] = useState(loadSection);
-  const [activeTab, setActiveTab] = useState(() =>
-    loadSection() === "dividend" ? "ranking" : "strategy"
-  );
+  const [activeTab, setActiveTab] = useState(() => {
+    const s = loadSection();
+    return s === "dividend" ? "ranking" : s === "trading" ? "trade-sim" : "strategy";
+  });
   const [jumpTicker, setJumpTicker] = useState(null);
   const [showOnboard, setShowOnboard] = useState(() => !isOnboardDone());
   const [showTest, setShowTest] = useState(false);
@@ -51,7 +56,8 @@ export default function App() {
     logClick("section_switch", { to: newSection });
     setSection(newSection);
     try { localStorage.setItem(SECTION_KEY, newSection); } catch {}
-    setActiveTab(newSection === "dividend" ? "ranking" : "strategy");
+    const defaultTab = newSection === "dividend" ? "ranking" : newSection === "trading" ? "trade-sim" : "strategy";
+    setActiveTab(defaultTab);
   }
 
   const handleNavigate = useCallback((targetSection, targetTab, data) => {
@@ -81,6 +87,10 @@ export default function App() {
   function handleTestRoute(route) {
     if (route.section === "dividend") {
       switchSection("dividend");
+      return;
+    }
+    if (route.section === "trading") {
+      switchSection("trading");
       return;
     }
     if (route.tab === "combo") {
@@ -133,6 +143,15 @@ export default function App() {
         default:              return <DividendRanking onTickerSelect={handleDividendTickerSelect} onNavigate={handleNavigate} />;
       }
     }
+    if (section === "trading") {
+      switch (activeTab) {
+        case "trade-sim":       return <TradingSimulation onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+        case "trade-scanner":   return <TradingScanner onNavigate={handleNavigate} />;
+        case "trade-ranking":   return <TradingRanking onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+        case "trade-portfolio": return <TradingPortfolio onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+        default:                return <TradingSimulation onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+      }
+    }
     switch (activeTab) {
       case "strategy":
         return <StrategyResult key={jumpTicker} initialTicker={jumpTicker} onOpenTest={() => setShowTest(true)} onNavigate={handleNavigate} />;
@@ -151,13 +170,19 @@ export default function App() {
     }
   }
 
-  const currentTabs = section === "dividend" ? DIVIDEND_TABS : ACCUMULATION_TABS;
+  const currentTabs = section === "trading" ? TRADING_TABS : section === "dividend" ? DIVIDEND_TABS : ACCUMULATION_TABS;
 
   return (
     <div className="app">
       {/* Section toggle */}
       <div className="section-toggle-bar">
         <div className="section-toggle">
+          <button
+            className={`section-btn${section === "trading" ? " active" : ""}`}
+            onClick={() => switchSection("trading")}
+          >
+            거래
+          </button>
           <button
             className={`section-btn${section === "accumulation" ? " active" : ""}`}
             onClick={() => switchSection("accumulation")}

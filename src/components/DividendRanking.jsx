@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   loadDividendMeta,
   getCategoryLabel,
@@ -96,56 +96,58 @@ export default function DividendRanking({ onTickerSelect, onNavigate }) {
 
       <div className="ranking-list">
         {items.map((item, idx) => (
-          <button
-            key={item.ticker}
-            className="ranking-row"
-            onClick={() => {
-              logClick("ranking_select", { ticker: item.ticker });
-              onTickerSelect?.(item.ticker);
-            }}
-          >
-            <div className="ranking-rank">{idx + 1}</div>
-            <div className="ranking-info">
-              <div className="ranking-name">
-                <span className="ranking-ticker">{item.ticker}</span>
-                <span className="ranking-label">{item.name}</span>
-              </div>
-              <div className="ranking-tags">
-                <span
-                  className="cat-badge"
-                  style={{ backgroundColor: getCategoryColor(item.category) + "18", color: getCategoryColor(item.category) }}
-                >
-                  {getCategoryLabel(item.category)}
-                </span>
-                <span className="freq-badge">{getFrequencyLabel(item.frequency)}</span>
-                {item.warning === "yieldmax" && <span className="warn-badge">NAV 주의</span>}
-              </div>
-            </div>
-            <div className="ranking-stats">
-              <div className="ranking-yield">
-                <span className="stat-value">{formatYield(item.currentYield)}</span>
-                <span className="stat-label">배당률</span>
-              </div>
-              {sortBy === "growth" ? (
-                <div className="ranking-growth">
-                  <span className={`stat-value ${(item.divGrowth5y ?? 0) >= 0 ? "pos" : "neg"}`}>
-                    {item.divGrowth5y != null ? formatPct(item.divGrowth5y) : "-"}
+          <React.Fragment key={item.ticker}>
+            {(idx === 7 || idx === 20) && <AdBanner className="ad-banner-inline" />}
+            <button
+              className="ranking-row"
+              onClick={() => {
+                logClick("ranking_select", { ticker: item.ticker });
+                onTickerSelect?.(item.ticker);
+              }}
+            >
+              <div className="ranking-rank">{idx + 1}</div>
+              <div className="ranking-info">
+                <div className="ranking-name">
+                  <span className="ranking-ticker">{item.ticker}</span>
+                  <span className="ranking-label">{item.name}</span>
+                </div>
+                <div className="ranking-tags">
+                  <span
+                    className="cat-badge"
+                    style={{ backgroundColor: getCategoryColor(item.category) + "18", color: getCategoryColor(item.category) }}
+                  >
+                    {getCategoryLabel(item.category)}
                   </span>
-                  <span className="stat-label">5년 성장</span>
+                  <span className="freq-badge">{getFrequencyLabel(item.frequency)}</span>
+                  {item.warning === "yieldmax" && <span className="warn-badge">NAV 주의</span>}
                 </div>
-              ) : sortBy === "years" ? (
-                <div className="ranking-years">
-                  <span className="stat-value">{item.consecutiveYears}년</span>
-                  <span className="stat-label">연속배당</span>
+              </div>
+              <div className="ranking-stats">
+                <div className="ranking-yield">
+                  <span className="stat-value">{formatYield(item.currentYield)}</span>
+                  <span className="stat-label">배당률</span>
                 </div>
-              ) : (
-                <div className="ranking-price">
-                  <span className="stat-value">{formatPrice(item.latestPrice)}</span>
-                  <span className="stat-label">현재가</span>
-                </div>
-              )}
-            </div>
-          </button>
+                {sortBy === "growth" ? (
+                  <div className="ranking-growth">
+                    <span className={`stat-value ${(item.divGrowth5y ?? 0) >= 0 ? "pos" : "neg"}`}>
+                      {item.divGrowth5y != null ? formatPct(item.divGrowth5y) : "-"}
+                    </span>
+                    <span className="stat-label">5년 성장</span>
+                  </div>
+                ) : sortBy === "years" ? (
+                  <div className="ranking-years">
+                    <span className="stat-value">{item.consecutiveYears}년</span>
+                    <span className="stat-label">연속배당</span>
+                  </div>
+                ) : (
+                  <div className="ranking-price">
+                    <span className="stat-value">{formatPrice(item.latestPrice)}</span>
+                    <span className="stat-label">현재가</span>
+                  </div>
+                )}
+              </div>
+            </button>
+          </React.Fragment>
         ))}
       </div>
 

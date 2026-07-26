@@ -77,8 +77,6 @@ export default function MonthlyCalendar({ onCoinsChanged }) {
         <p className="page-subtitle">매월 배당 받는 포트폴리오를 만들어보세요</p>
       </div>
 
-      <AdBanner slot="cal-top" />
-
       {/* 12-month grid */}
       <div className="cal-grid">
         {calendarData.map((stocks, i) => (
@@ -98,6 +96,8 @@ export default function MonthlyCalendar({ onCoinsChanged }) {
           </button>
         ))}
       </div>
+
+      <AdBanner className="ad-banner-inline" />
 
       {/* Month detail */}
       {selectedMonth !== null && (
