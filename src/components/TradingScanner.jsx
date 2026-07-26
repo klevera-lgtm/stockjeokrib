@@ -94,6 +94,37 @@ export default function TradingScanner({ onNavigate }) {
         ))}
       </div>
 
+      {/* Help accordion — right below chips */}
+      <div className="scanner-help-accordion highlight">
+        <button className="scanner-help-toggle" onClick={() => setHelpOpen(!helpOpen)}>
+          <span>❓ 조건 상태가 뭔가요?</span>
+          <span className={`scanner-help-arrow${helpOpen ? " open" : ""}`}>▼</span>
+        </button>
+        {helpOpen && (
+          <div className="scanner-help-body">
+            <p className="scanner-help-note">모든 판단은 <strong>마지막 거래일 종가</strong> 기준입니다.</p>
+            <dl className="scanner-help-list">
+              <dt><span className="scanner-badge buy">조건 진입</span></dt>
+              <dd>마지막 거래일에 전략 조건을 충족했어요.
+                <br />MA: 가격이 이동평균선 위로 올라감
+                <br />RSI: 과매도 구간(설정값 이하) 진입
+                <br />MACD: 히스토그램이 양수로 전환
+              </dd>
+              <dt><span className="scanner-badge sell">조건 이탈</span></dt>
+              <dd>마지막 거래일에 전략 조건에서 벗어났어요.
+                <br />MA: 가격이 이동평균선 아래로 내려감
+                <br />RSI: 과매수 구간(설정값 이상) 진입
+                <br />MACD: 히스토그램이 음수로 전환
+              </dd>
+              <dt><span className="scanner-badge hold">조건 유지 중</span></dt>
+              <dd>이전에 조건 진입 후 아직 그 상태가 유지되고 있어요.</dd>
+              <dt><span className="scanner-badge wait">대기</span></dt>
+              <dd>현재 어떤 조건에도 해당하지 않아요.</dd>
+            </dl>
+          </div>
+        )}
+      </div>
+
       {/* Loading */}
       {loading && (
         <div className="scanner-loading">
@@ -150,36 +181,6 @@ export default function TradingScanner({ onNavigate }) {
           <AdBanner className="ad-banner-inline" />
         </>
       )}
-
-      <div className="scanner-help-accordion">
-        <button className="scanner-help-toggle" onClick={() => setHelpOpen(!helpOpen)}>
-          <span>조건 상태 설명</span>
-          <span className={`scanner-help-arrow${helpOpen ? " open" : ""}`}>▼</span>
-        </button>
-        {helpOpen && (
-          <div className="scanner-help-body">
-            <p className="scanner-help-note">모든 판단은 <strong>마지막 거래일 종가</strong> 기준입니다.</p>
-            <dl className="scanner-help-list">
-              <dt><span className="scanner-badge buy">조건 진입</span></dt>
-              <dd>마지막 거래일에 전략 조건을 충족했어요.
-                <br />MA: 가격이 이동평균선 위로 올라감
-                <br />RSI: 과매도 구간(설정값 이하) 진입
-                <br />MACD: 히스토그램이 양수로 전환
-              </dd>
-              <dt><span className="scanner-badge sell">조건 이탈</span></dt>
-              <dd>마지막 거래일에 전략 조건에서 벗어났어요.
-                <br />MA: 가격이 이동평균선 아래로 내려감
-                <br />RSI: 과매수 구간(설정값 이상) 진입
-                <br />MACD: 히스토그램이 음수로 전환
-              </dd>
-              <dt><span className="scanner-badge hold">조건 유지 중</span></dt>
-              <dd>이전에 조건 진입 후 아직 그 상태가 유지되고 있어요.</dd>
-              <dt><span className="scanner-badge wait">대기</span></dt>
-              <dd>현재 어떤 조건에도 해당하지 않아요.</dd>
-            </dl>
-          </div>
-        )}
-      </div>
 
       <div className="trade-disclaimer">
         ⚠️ 스캔 결과는 기계적 조건 충족 여부만 표시하며, 투자 권유가 아닙니다.
