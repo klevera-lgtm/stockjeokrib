@@ -5,7 +5,7 @@ import { isBasic } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import { getTickerLabel, TICKER_CATEGORIES } from "../utils/tickers.js";
 import {
-  currentMASignal, currentRSISignal,
+  currentMASignal, currentRSISignal, currentDualMASignal,
   MA_PERIODS,
 } from "../utils/tradingEngine.js";
 
@@ -24,6 +24,8 @@ const SCAN_STRATEGIES = [
   { id: "ma-200", label: "200일 이평선", fn: (p) => currentMASignal(p, 200) },
   { id: "rsi-30", label: "RSI 30 이하", fn: (p) => currentRSISignal(p, { buyBelow: 30, sellAbove: 70 }) },
   { id: "rsi-20", label: "RSI 20 이하", fn: (p) => currentRSISignal(p, { buyBelow: 20, sellAbove: 80 }) },
+  { id: "dualma-50-200", label: "골든크로스 (50/200)", fn: (p) => currentDualMASignal(p, 50, 200) },
+  { id: "dualma-10-50",  label: "10/50 교차", fn: (p) => currentDualMASignal(p, 10, 50) },
 ];
 
 const FREE_LIMIT = 3;
@@ -163,7 +165,8 @@ export default function TradingScanner({ onNavigate }) {
                   </span>
                   {r.proximity !== undefined && (
                     <span className="scanner-prox">
-                      {r.maValue ? `MA $${r.maValue.toFixed(0)} · 현재 $${r.price.toFixed(0)}` :
+                      {r.maShort ? `단기 $${r.maShort.toFixed(0)} / 장기 $${r.maLong.toFixed(0)} (${r.proximity > 0 ? "+" : ""}${r.proximity.toFixed(1)}%)` :
+                       r.maValue ? `MA $${r.maValue.toFixed(0)} · 현재 $${r.price.toFixed(0)}` :
                        r.rsi ? `RSI ${r.rsi.toFixed(1)}` : ""}
                     </span>
                   )}

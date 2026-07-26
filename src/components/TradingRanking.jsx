@@ -6,9 +6,9 @@ import { getTickerLabel, TICKER_CATEGORIES } from "../utils/tickers.js";
 import { isBasic } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import {
-  backtestMA, backtestRSI, backtestMACD,
+  backtestMA, backtestRSI, backtestMACD, backtestDualMA,
   filterByPeriod, toWeekly, buyAndHold, scoreResult, strategyLabel,
-  MA_PERIODS, RSI_COMBOS, BACKTEST_PERIODS,
+  MA_PERIODS, RSI_COMBOS, DUAL_MA_COMBOS, BACKTEST_PERIODS,
 } from "../utils/tradingEngine.js";
 
 const SORT_OPTIONS = [
@@ -33,6 +33,8 @@ function buildStrategies() {
   for (const c of RSI_COMBOS)
     list.push({ type: "rsi", params: c, fn: (prices) => backtestRSI(prices, c) });
   list.push({ type: "macd", params: {}, fn: (prices) => backtestMACD(prices) });
+  for (const d of DUAL_MA_COMBOS)
+    list.push({ type: "dualma", params: { short: d.short, long: d.long }, fn: (prices) => backtestDualMA(prices, d.short, d.long) });
   return list;
 }
 
@@ -205,7 +207,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
               <div className="scanner-progress-bar">
                 <div className="scanner-progress-fill" style={{ width: `${progress}%` }} />
               </div>
-              <p className="scanner-progress-text">29개 전략 분석 중... {progress}%</p>
+              <p className="scanner-progress-text">33개 전략 분석 중... {progress}%</p>
             </div>
           )}
 
@@ -299,7 +301,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
                 <div className="rank-scan-header">
                   <span className="rank-scan-fire">🔥</span>
                   <div>
-                    <h3 className="rank-scan-title">{UNIQUE_SCAN_TICKERS.length}개 종목 × 29개 전략 스캔</h3>
+                    <h3 className="rank-scan-title">{UNIQUE_SCAN_TICKERS.length}개 종목 × 33개 전략 스캔</h3>
                     <p className="rank-scan-desc">
                       인기 {UNIQUE_SCAN_TICKERS.length}개 종목에서<br />
                       바이앤홀드를 이기는 종목×전략을 자동으로 찾아드려요
@@ -347,7 +349,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
                     ) : !scanning && (
                       <div className="rank-scan-cta">
                         <button className="rank-scan-btn" onClick={handleScanClick}>
-                          {UNIQUE_SCAN_TICKERS.length}개 종목 × 29개 전략 스캔 시작
+                          {UNIQUE_SCAN_TICKERS.length}개 종목 × 33개 전략 스캔 시작
                         </button>
                       </div>
                     )}
@@ -377,7 +379,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
                     </div>
 
                     <div className="rank-scan-cta">
-                      <p className="rank-scan-hint">🔒 베이직에서 {UNIQUE_SCAN_TICKERS.length}개 종목 × 29개 전략을 무제한 스캔할 수 있어요</p>
+                      <p className="rank-scan-hint">🔒 베이직에서 {UNIQUE_SCAN_TICKERS.length}개 종목 × 33개 전략을 무제한 스캔할 수 있어요</p>
                     </div>
                   </>
                 )}
