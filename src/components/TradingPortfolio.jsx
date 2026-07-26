@@ -168,7 +168,7 @@ export default function TradingPortfolio({ onCoinsChanged, onNavigate }) {
   return (
     <div className="trade-portfolio">
       <h2 className="section-title">전략 포트폴리오</h2>
-      <p className="section-desc">종목별 최적 전략을 저장하고 신호를 모니터링하세요</p>
+      <p className="section-desc">종목별 최적 전략을 저장하고 조건을 모니터링하세요</p>
 
       {/* Empty state */}
       {!portfolio.length && !showAdd && (
