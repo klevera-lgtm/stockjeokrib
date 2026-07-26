@@ -177,7 +177,7 @@ export default function TradingPortfolio({ onCoinsChanged, onNavigate }) {
           <h3 className="pf-empty-title">포트폴리오가 비어있어요</h3>
           <p className="pf-empty-desc">
             종목을 추가하면 최적 전략이 자동 배정되고<br />
-            매매 신호를 모니터링합니다
+            조건 상태를 모니터링합니다
           </p>
           <button className="pf-add-btn primary" onClick={() => setShowAdd(true)}>
             + 종목 추가
@@ -257,7 +257,7 @@ export default function TradingPortfolio({ onCoinsChanged, onNavigate }) {
         <div className="pf-prox-teaser">
           <p className="pf-prox-teaser-title">📈 베이직 전용: 상세 근접도</p>
           <p className="pf-prox-teaser-desc">
-            매매 신호까지 남은 거리를 추적하고<br />
+            조건 충족까지 남은 거리를 추적하고<br />
             Top 10 전략 중 원하는 전략으로 변경 가능
           </p>
         </div>
