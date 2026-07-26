@@ -3167,7 +3167,7 @@ input, select {
 .trade-scanner .section-title { font-size: 20px; font-weight: 800; margin-bottom: 2px; }
 .trade-scanner .section-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
 
-.scanner-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.scanner-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; justify-content: center; }
 .scanner-chip { padding: 7px 14px; font-size: 13px; font-weight: 600; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; }
 .scanner-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 .scanner-chip:disabled { opacity: 0.5; }
@@ -3194,6 +3194,16 @@ input, select {
 .scanner-prox { font-size: 11px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
 
 .scanner-paywall { text-align: center; padding: 16px; font-size: 13px; color: var(--text-secondary); background: var(--surface); border: 1px dashed var(--border); border-radius: 10px; margin-bottom: 16px; }
+
+.scanner-help-accordion { margin: 16px 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.scanner-help-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 14px; font-size: 13px; font-weight: 600; color: var(--text-secondary); background: var(--surface); border: none; cursor: pointer; }
+.scanner-help-arrow { font-size: 10px; transition: transform 0.2s; }
+.scanner-help-arrow.open { transform: rotate(180deg); }
+.scanner-help-body { padding: 0 14px 14px; background: var(--surface); }
+.scanner-help-note { font-size: 12px; color: var(--text-tertiary); margin-bottom: 10px; padding: 8px 10px; background: var(--surface-alt, #f5f5f5); border-radius: 6px; }
+.scanner-help-list { margin: 0; }
+.scanner-help-list dt { margin-top: 10px; }
+.scanner-help-list dd { margin: 4px 0 0 0; font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
 
 /* ── Ranking ────────────────────────────────── */
 .trade-ranking { padding: 0 16px 120px; }

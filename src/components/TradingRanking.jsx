@@ -1,10 +1,9 @@
 import { useState, useCallback } from "react";
 import TickerSearch from "./TickerSearch.jsx";
 import AdBanner from "./AdBanner.jsx";
-import QueryGateModal from "./QueryGateModal.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
-import { getTickerLabel } from "../utils/tickers.js";
-import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
+import { getTickerLabel, TICKER_CATEGORIES } from "../utils/tickers.js";
+import { isBasic } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import {
   backtestMA, backtestRSI, backtestMACD,
@@ -19,8 +18,13 @@ const SORT_OPTIONS = [
   { id: "mdd", label: "MDD (낮은순)" },
 ];
 
-const SCAN_TICKERS = ["SPY", "QQQ", "NVDA", "AAPL", "TSLA", "MSFT", "AMZN", "GOOG", "META", "AMD"];
-const SCAN_COIN_COST = 5;
+const SCAN_TICKERS = [
+  ...TICKER_CATEGORIES["미국 개별주식"].slice(0, 20),
+  ...TICKER_CATEGORIES["미국 인덱스 ETF"].slice(0, 6),
+  ...TICKER_CATEGORIES["레버리지 ETF"].slice(0, 6),
+  ...TICKER_CATEGORIES["배당주·리츠"].slice(0, 6),
+];
+const UNIQUE_SCAN_TICKERS = [...new Set(SCAN_TICKERS)];
 
 function buildStrategies() {
   const list = [];
@@ -41,8 +45,6 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
   const [bh, setBh] = useState(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [gateOpen, setGateOpen] = useState(false);
-
   const [scanResults, setScanResults] = useState(null);
   const [scanning, setScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
@@ -116,8 +118,8 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
     const strategies = buildStrategies();
     const hits = [];
 
-    for (let t = 0; t < SCAN_TICKERS.length; t++) {
-      const tick = SCAN_TICKERS[t];
+    for (let t = 0; t < UNIQUE_SCAN_TICKERS.length; t++) {
+      const tick = UNIQUE_SCAN_TICKERS[t];
       try {
         const raw = await loadPrices(tick);
         const filtered = filterByPeriod(raw, period.years);
@@ -143,7 +145,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
           } catch {}
         }
       } catch {}
-      setScanProgress(Math.round(((t + 1) / SCAN_TICKERS.length) * 100));
+      setScanProgress(Math.round(((t + 1) / UNIQUE_SCAN_TICKERS.length) * 100));
     }
 
     hits.sort((a, b) => b.margin - a.margin);
@@ -153,12 +155,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
   }
 
   function handleScanClick() {
-    if (basic) { runCrossScan(); return; }
-    const bal = getQueryBalance();
-    if (bal < SCAN_COIN_COST) { setGateOpen(true); return; }
-    for (let i = 0; i < SCAN_COIN_COST; i++) consumeQuery();
-    onCoinsChanged?.();
-    logClick("trade_cross_scan_coin", { cost: SCAN_COIN_COST });
+    if (!basic) return;
     runCrossScan();
   }
 
@@ -297,62 +294,73 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
 
               <AdBanner className="ad-banner-inline" />
 
-              {/* Cross-ticker scan — premium with teasing */}
+              {/* Cross-ticker scan — Basic only */}
               <div className="rank-scan-section">
                 <div className="rank-scan-header">
                   <span className="rank-scan-fire">🔥</span>
                   <div>
-                    <h3 className="rank-scan-title">인기 종목 바이앤홀드 이긴 전략 스캔</h3>
+                    <h3 className="rank-scan-title">{UNIQUE_SCAN_TICKERS.length}개 종목 × 29개 전략 스캔</h3>
                     <p className="rank-scan-desc">
-                      SPY, QQQ, NVDA 등 인기 10종목에서<br />
+                      인기 {UNIQUE_SCAN_TICKERS.length}개 종목에서<br />
                       바이앤홀드를 이기는 종목×전략을 자동으로 찾아드려요
                     </p>
                   </div>
                 </div>
 
-                {scanning && (
-                  <div className="scanner-loading" style={{ margin: "12px 0 0" }}>
-                    <div className="scanner-progress-bar">
-                      <div className="scanner-progress-fill" style={{ width: `${scanProgress}%` }} />
-                    </div>
-                    <p className="scanner-progress-text">
-                      인기 종목 스캔 중... {scanProgress}%
-                    </p>
-                  </div>
-                )}
-
-                {scanResults ? (
-                  <div className="rank-scan-results">
-                    <p className="rank-scan-summary">
-                      {scanResults.length}개 종목×전략 조합이 바이앤홀드를 이겼어요!
-                    </p>
-                    <div className="rank-scan-list">
-                      {scanResults.slice(0, 20).map((r, i) => (
-                        <div className="rank-scan-item" key={i}>
-                          <div className="rank-scan-item-top">
-                            <span className="rank-scan-ticker">{r.ticker}</span>
-                            <span className="rank-scan-strat">{r.strategy}</span>
-                          </div>
-                          <div className="rank-scan-item-bot">
-                            <span className="positive">+{r.ret.toFixed(0)}%</span>
-                            <span className="rank-scan-vs">vs B&H +{r.bh.toFixed(0)}%</span>
-                            <span className="rank-scan-gap">+{r.margin.toFixed(0)}%p</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    {scanResults.length > 20 && (
-                      <p className="rank-scan-list-more">+{scanResults.length - 20}개 결과 더</p>
-                    )}
-                  </div>
-                ) : !scanning && (
+                {basic ? (
                   <>
-                    {/* Blurred preview — teasing */}
+                    {scanning && (
+                      <div className="scanner-loading" style={{ margin: "12px 0 0" }}>
+                        <div className="scanner-progress-bar">
+                          <div className="scanner-progress-fill" style={{ width: `${scanProgress}%` }} />
+                        </div>
+                        <p className="scanner-progress-text">
+                          {UNIQUE_SCAN_TICKERS.length}개 종목 스캔 중... {scanProgress}%
+                        </p>
+                      </div>
+                    )}
+
+                    {scanResults ? (
+                      <div className="rank-scan-results">
+                        <p className="rank-scan-summary">
+                          {scanResults.length}개 종목×전략 조합이 바이앤홀드를 이겼어요!
+                        </p>
+                        <div className="rank-scan-list">
+                          {scanResults.slice(0, 30).map((r, i) => (
+                            <div className="rank-scan-item" key={i}>
+                              <div className="rank-scan-item-top">
+                                <span className="rank-scan-ticker">{r.ticker}</span>
+                                <span className="rank-scan-strat">{r.strategy}</span>
+                              </div>
+                              <div className="rank-scan-item-bot">
+                                <span className="positive">+{r.ret.toFixed(0)}%</span>
+                                <span className="rank-scan-vs">vs B&H +{r.bh.toFixed(0)}%</span>
+                                <span className="rank-scan-gap">+{r.margin.toFixed(0)}%p</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {scanResults.length > 30 && (
+                          <p className="rank-scan-list-more">+{scanResults.length - 30}개 결과 더</p>
+                        )}
+                      </div>
+                    ) : !scanning && (
+                      <div className="rank-scan-cta">
+                        <button className="rank-scan-btn" onClick={handleScanClick}>
+                          {UNIQUE_SCAN_TICKERS.length}개 종목 × 29개 전략 스캔 시작
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {/* Blurred preview — teasing for free users */}
                     <div className="rank-scan-preview">
                       {[
                         { t: "NVDA", s: "50일 이동평균선", r: "+2,345%", g: "+404%p" },
                         { t: "TSLA", s: "RSI 30/70 (손절 -10%)", r: "+1,890%", g: "+312%p" },
                         { t: "AAPL", s: "MACD 시그널 교차", r: "+876%", g: "+201%p" },
+                        { t: "SPY", s: "100일 이동평균선", r: "+543%", g: "+178%p" },
                       ].map((row, i) => (
                         <div className="rank-scan-item preview-item" key={i}>
                           <div className="rank-scan-item-top">
@@ -369,14 +377,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
                     </div>
 
                     <div className="rank-scan-cta">
-                      <button className="rank-scan-btn" onClick={handleScanClick}>
-                        {basic
-                          ? "10개 종목 × 29개 전략 스캔 시작"
-                          : `🪙 ${SCAN_COIN_COST} — 1회 스캔하기`}
-                      </button>
-                      {!basic && (
-                        <p className="rank-scan-hint">베이직에서 무제한 스캔</p>
-                      )}
+                      <p className="rank-scan-hint">🔒 베이직에서 {UNIQUE_SCAN_TICKERS.length}개 종목 × 29개 전략을 무제한 스캔할 수 있어요</p>
                     </div>
                   </>
                 )}
@@ -390,12 +391,6 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
         ⚠️ 랭킹은 과거 백테스트 기반이며, 미래 수익을 보장하지 않습니다.
       </div>
 
-      {gateOpen && (
-        <QueryGateModal
-          onClose={() => setGateOpen(false)}
-          onSuccess={() => { setGateOpen(false); onCoinsChanged?.(); }}
-        />
-      )}
     </div>
   );
 }

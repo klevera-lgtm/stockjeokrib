@@ -61,9 +61,9 @@ function getSignal(prices, type, params) {
 }
 
 function badgeCls(status) {
-  if (status === "매수 조건 충족") return "buy";
-  if (status === "매도 조건 충족") return "sell";
-  if (status === "보유 중") return "hold";
+  if (status === "조건 진입") return "buy";
+  if (status === "조건 이탈") return "sell";
+  if (status === "조건 유지 중") return "hold";
   return "wait";
 }
 

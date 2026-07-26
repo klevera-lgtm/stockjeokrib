@@ -326,10 +326,10 @@ export function currentMASignal(prices, period) {
   const proximity = ((price - maVal) / maVal) * 100;
   const prevAbove = prices[last - 1]?.close > ma[last - 1];
   const currAbove = price > maVal;
-  let status = "관망";
-  if (!prevAbove && currAbove) status = "매수 조건 충족";
-  else if (prevAbove && !currAbove) status = "매도 조건 충족";
-  else if (currAbove) status = "보유 중";
+  let status = "대기";
+  if (!prevAbove && currAbove) status = "조건 진입";
+  else if (prevAbove && !currAbove) status = "조건 이탈";
+  else if (currAbove) status = "조건 유지 중";
   return { status, proximity, maValue: maVal, price };
 }
 
@@ -338,9 +338,9 @@ export function currentRSISignal(prices, { buyBelow = 30, sellAbove = 70 } = {})
   const last = rsi.length - 1;
   if (rsi[last] === null) return { status: "unknown", rsi: null, proximity: 0 };
   const val = rsi[last];
-  let status = "관망";
-  if (val < buyBelow) status = "매수 조건 충족";
-  else if (val > sellAbove) status = "매도 조건 충족";
+  let status = "대기";
+  if (val < buyBelow) status = "조건 진입";
+  else if (val > sellAbove) status = "조건 이탈";
   const buyProx = val < 50 ? ((buyBelow - val) / buyBelow) * 100 : 0;
   const sellProx = val >= 50 ? ((val - sellAbove) / (100 - sellAbove)) * 100 : 0;
   return { status, rsi: val, proximity: val < 50 ? buyProx : sellProx };
@@ -356,10 +356,10 @@ export function currentMACDSignal(prices) {
   const histogram = macdLine[last] - signalLine[last];
   const prevHist = macdLine[last - 1] - signalLine[last - 1];
 
-  let status = "관망";
-  if (prevHist <= 0 && histogram > 0) status = "매수 조건 충족";
-  else if (prevHist >= 0 && histogram < 0) status = "매도 조건 충족";
-  else if (histogram > 0) status = "보유 중";
+  let status = "대기";
+  if (prevHist <= 0 && histogram > 0) status = "조건 진입";
+  else if (prevHist >= 0 && histogram < 0) status = "조건 이탈";
+  else if (histogram > 0) status = "조건 유지 중";
 
   return { status, histogram, macd: macdLine[last], signal: signalLine[last], proximity: histogram };
 }

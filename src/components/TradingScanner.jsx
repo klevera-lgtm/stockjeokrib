@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import AdBanner from "./AdBanner.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
 import { isBasic } from "../utils/premium.js";
@@ -33,6 +33,7 @@ export default function TradingScanner({ onNavigate }) {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [helpOpen, setHelpOpen] = useState(false);
   const basic = isBasic();
 
   const scan = useCallback(async (strat) => {
@@ -55,7 +56,7 @@ export default function TradingScanner({ onNavigate }) {
     }
 
     out.sort((a, b) => {
-      const order = { "매수 조건 충족": 0, "매도 조건 충족": 1, "보유 중": 2, "관망": 3 };
+      const order = { "조건 진입": 0, "조건 이탈": 1, "조건 유지 중": 2, "대기": 3 };
       return (order[a.status] ?? 9) - (order[b.status] ?? 9);
     });
 
@@ -107,8 +108,8 @@ export default function TradingScanner({ onNavigate }) {
       {!loading && (
         <>
           <div className="scanner-count">
-            {results.filter(r => r.status === "매수 조건 충족").length}개 매수 조건 ·{" "}
-            {results.filter(r => r.status === "매도 조건 충족").length}개 매도 조건 ·{" "}
+            {results.filter(r => r.status === "조건 진입").length}개 진입 ·{" "}
+            {results.filter(r => r.status === "조건 이탈").length}개 이탈 ·{" "}
             총 {results.length}개 종목
           </div>
 
@@ -123,15 +124,15 @@ export default function TradingScanner({ onNavigate }) {
                 </div>
                 <div className="scanner-item-right">
                   <span className={`scanner-badge ${
-                    r.status === "매수 조건 충족" ? "buy" :
-                    r.status === "매도 조건 충족" ? "sell" :
-                    r.status === "보유 중" ? "hold" : "wait"
+                    r.status === "조건 진입" ? "buy" :
+                    r.status === "조건 이탈" ? "sell" :
+                    r.status === "조건 유지 중" ? "hold" : "wait"
                   }`}>
                     {r.status}
                   </span>
                   {r.proximity !== undefined && (
                     <span className="scanner-prox">
-                      {r.maValue ? `$${r.maValue.toFixed(0)} / $${r.price.toFixed(0)}` :
+                      {r.maValue ? `MA $${r.maValue.toFixed(0)} · 현재 $${r.price.toFixed(0)}` :
                        r.rsi ? `RSI ${r.rsi.toFixed(1)}` : ""}
                     </span>
                   )}
@@ -149,6 +150,36 @@ export default function TradingScanner({ onNavigate }) {
           <AdBanner className="ad-banner-inline" />
         </>
       )}
+
+      <div className="scanner-help-accordion">
+        <button className="scanner-help-toggle" onClick={() => setHelpOpen(!helpOpen)}>
+          <span>조건 상태 설명</span>
+          <span className={`scanner-help-arrow${helpOpen ? " open" : ""}`}>▼</span>
+        </button>
+        {helpOpen && (
+          <div className="scanner-help-body">
+            <p className="scanner-help-note">모든 판단은 <strong>마지막 거래일 종가</strong> 기준입니다.</p>
+            <dl className="scanner-help-list">
+              <dt><span className="scanner-badge buy">조건 진입</span></dt>
+              <dd>마지막 거래일에 전략 조건을 충족했어요.
+                <br />MA: 가격이 이동평균선 위로 올라감
+                <br />RSI: 과매도 구간(설정값 이하) 진입
+                <br />MACD: 히스토그램이 양수로 전환
+              </dd>
+              <dt><span className="scanner-badge sell">조건 이탈</span></dt>
+              <dd>마지막 거래일에 전략 조건에서 벗어났어요.
+                <br />MA: 가격이 이동평균선 아래로 내려감
+                <br />RSI: 과매수 구간(설정값 이상) 진입
+                <br />MACD: 히스토그램이 음수로 전환
+              </dd>
+              <dt><span className="scanner-badge hold">조건 유지 중</span></dt>
+              <dd>이전에 조건 진입 후 아직 그 상태가 유지되고 있어요.</dd>
+              <dt><span className="scanner-badge wait">대기</span></dt>
+              <dd>현재 어떤 조건에도 해당하지 않아요.</dd>
+            </dl>
+          </div>
+        )}
+      </div>
 
       <div className="trade-disclaimer">
         ⚠️ 스캔 결과는 기계적 조건 충족 여부만 표시하며, 투자 권유가 아닙니다.
