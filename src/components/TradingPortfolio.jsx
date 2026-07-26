@@ -6,10 +6,10 @@ import { getTickerLabel } from "../utils/tickers.js";
 import { isBasic } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import {
-  backtestMA, backtestRSI, backtestMACD,
+  backtestMA, backtestRSI, backtestMACD, backtestDualMA,
   filterByPeriod, scoreResult, strategyLabel,
-  currentMASignal, currentRSISignal, currentMACDSignal,
-  MA_PERIODS, RSI_COMBOS,
+  currentMASignal, currentRSISignal, currentMACDSignal, currentDualMASignal,
+  MA_PERIODS, RSI_COMBOS, DUAL_MA_COMBOS,
 } from "../utils/tradingEngine.js";
 
 const PF_KEY = "ait_trade_portfolio";
@@ -48,6 +48,13 @@ async function findTopStrategies(ticker, count = 10) {
     results.push({ type: "macd", params: {}, score: scoreResult(r),
       label: strategyLabel("macd", {}), totalReturn: r.totalReturn });
   } catch {}
+  for (const d of DUAL_MA_COMBOS) {
+    try {
+      const r = backtestDualMA(prices, d.short, d.long);
+      results.push({ type: "dualma", params: { short: d.short, long: d.long }, score: scoreResult(r),
+        label: strategyLabel("dualma", { short: d.short, long: d.long }), totalReturn: r.totalReturn });
+    } catch {}
+  }
 
   results.sort((a, b) => b.score - a.score);
   return results.slice(0, count);
@@ -56,6 +63,7 @@ async function findTopStrategies(ticker, count = 10) {
 function getSignal(prices, type, params) {
   if (type === "ma") return currentMASignal(prices, params.period);
   if (type === "rsi") return currentRSISignal(prices, params);
+  if (type === "dualma") return currentDualMASignal(prices, params.short, params.long);
   if (type === "macd") return currentMACDSignal(prices);
   return { status: "unknown", proximity: 0 };
 }
@@ -72,6 +80,8 @@ function proxText(entry, sig) {
   const { type, params } = entry.strategy;
   if (type === "ma")
     return `MA(${params.period}) 대비 ${sig.proximity > 0 ? "+" : ""}${sig.proximity?.toFixed(1)}%`;
+  if (type === "dualma")
+    return `${params.short}일 vs ${params.long}일 간격 ${sig.proximity > 0 ? "+" : ""}${sig.proximity?.toFixed(1)}%`;
   if (type === "rsi")
     return `RSI ${sig.rsi?.toFixed(1)}`;
   if (type === "macd")

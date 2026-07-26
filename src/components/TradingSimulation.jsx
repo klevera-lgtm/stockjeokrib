@@ -6,9 +6,9 @@ import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
 import { loadPrices } from "../utils/dataLoader.js";
 import { logClick } from "../utils/analytics.js";
 import {
-  backtestMA, backtestRSI, backtestMACD, backtestCombo,
+  backtestMA, backtestRSI, backtestMACD, backtestCombo, backtestDualMA,
   filterByPeriod, toWeekly, buyAndHold, scoreResult,
-  strategyLabel, comboLabel, MA_PERIODS, RSI_COMBOS, BACKTEST_PERIODS,
+  strategyLabel, comboLabel, MA_PERIODS, RSI_COMBOS, DUAL_MA_COMBOS, BACKTEST_PERIODS,
   COMBO_PRESETS,
 } from "../utils/tradingEngine.js";
 import { Chart } from "chart.js/auto";
@@ -16,6 +16,7 @@ import { Chart } from "chart.js/auto";
 const STRATEGY_TYPES = [
   { id: "ma", label: "이동평균선", desc: "이평선 돌파 매수, 이탈 매도", coin: 1 },
   { id: "rsi", label: "RSI", desc: "과매도 매수, 과매수 매도", coin: 1 },
+  { id: "dualma", label: "이중 이평선", desc: "단기 MA가 장기 MA를 교차할 때 매매", coin: 1 },
   { id: "macd", label: "MACD", desc: "시그널선 교차 매매", coin: 1 },
   { id: "combo", label: "조합 전략", desc: "여러 지표를 결합해 테스트", coin: 2 },
 ];
@@ -191,9 +192,16 @@ export default function TradingSimulation({ onCoinsChanged }) {
       setStep("ma-params");
     } else if (type === "rsi") {
       setStep("rsi-params");
+    } else if (type === "dualma") {
+      setStep("dualma-params");
     } else if (type === "combo") {
       setStep("combo-select");
     }
+  }
+
+  function handleDualMASelect(combo) {
+    setStrategyParams({ short: combo.short, long: combo.long });
+    setStep("period");
   }
 
   function handleMASelect(p) {
@@ -244,6 +252,7 @@ export default function TradingSimulation({ onCoinsChanged }) {
       switch (strategyType) {
         case "ma":    res = backtestMA(prices, strategyParams.period); break;
         case "rsi":   res = backtestRSI(prices, strategyParams); break;
+        case "dualma": res = backtestDualMA(prices, strategyParams.short, strategyParams.long); break;
         case "macd":  res = backtestMACD(prices); break;
         case "combo": res = backtestCombo(prices, strategyParams); break;
         default: throw new Error("알 수 없는 전략");
@@ -330,7 +339,7 @@ export default function TradingSimulation({ onCoinsChanged }) {
                 <span className="trade-strategy-name">{s.label}</span>
                 <span className="trade-strategy-desc">{s.desc}</span>
                 <span className="trade-strategy-count">
-                  {s.id === "ma" ? "20가지" : s.id === "rsi" ? "8가지" : s.id === "combo" ? `🪙${s.coin}` : "1가지"}
+                  {s.id === "ma" ? "20가지" : s.id === "dualma" ? "4가지" : s.id === "rsi" ? "8가지" : s.id === "combo" ? `🪙${s.coin}` : "1가지"}
                 </span>
               </button>
             ))}
@@ -346,6 +355,21 @@ export default function TradingSimulation({ onCoinsChanged }) {
             {MA_PERIODS.map((p) => (
               <button key={p} className="trade-ma-btn" onClick={() => handleMASelect(p)}>
                 {p}일
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Step 3a-2: Dual MA params */}
+      {step === "dualma-params" && (
+        <div className="trade-card">
+          <h3 className="trade-card-title">이중 이평선 조합 선택</h3>
+          <div className="trade-rsi-list">
+            {DUAL_MA_COMBOS.map((d) => (
+              <button key={`${d.short}-${d.long}`} className="trade-strategy-btn" onClick={() => handleDualMASelect(d)}>
+                <span className="trade-strategy-name">{d.label}</span>
+                <span className="trade-strategy-desc">단기 {d.short}일 / 장기 {d.long}일 교차</span>
               </button>
             ))}
           </div>

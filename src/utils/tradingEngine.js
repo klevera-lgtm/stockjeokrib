@@ -218,6 +218,37 @@ export function backtestMA(prices, period) {
   return summarizeTrades(executeTrades(signals), prices);
 }
 
+// ── Strategy: Dual Moving Average Crossover ────────────────────────────────
+
+export const DUAL_MA_COMBOS = [
+  { short: 5,  long: 20,  label: "5/20 단기 교차" },
+  { short: 10, long: 50,  label: "10/50 중기 교차" },
+  { short: 20, long: 100, label: "20/100 중장기 교차" },
+  { short: 50, long: 200, label: "골든크로스 (50/200)" },
+];
+
+export function backtestDualMA(prices, shortPeriod, longPeriod) {
+  const maShort = sma(prices, shortPeriod);
+  const maLong = sma(prices, longPeriod);
+  const signals = [];
+
+  let inPosition = false;
+  for (let i = 1; i < prices.length; i++) {
+    if (maShort[i] === null || maLong[i] === null ||
+        maShort[i - 1] === null || maLong[i - 1] === null) continue;
+
+    if (!inPosition && maShort[i - 1] <= maLong[i - 1] && maShort[i] > maLong[i]) {
+      signals.push({ date: prices[i].date, price: prices[i].close, action: "buy" });
+      inPosition = true;
+    } else if (inPosition && maShort[i - 1] >= maLong[i - 1] && maShort[i] < maLong[i]) {
+      signals.push({ date: prices[i].date, price: prices[i].close, action: "sell" });
+      inPosition = false;
+    }
+  }
+
+  return summarizeTrades(executeTrades(signals), prices);
+}
+
 // ── Strategy: RSI ───────────────────────────────────────────────────────────
 
 export function backtestRSI(prices, { buyBelow = 30, sellAbove = 70, stopLoss = -10 } = {}) {
@@ -364,6 +395,27 @@ export function currentMACDSignal(prices) {
   return { status, histogram, macd: macdLine[last], signal: signalLine[last], proximity: histogram };
 }
 
+export function currentDualMASignal(prices, shortPeriod, longPeriod) {
+  if (prices.length < longPeriod) return { status: "unknown", proximity: 0 };
+  const maShort = sma(prices, shortPeriod);
+  const maLong = sma(prices, longPeriod);
+  const last = prices.length - 1;
+  if (maShort[last] === null || maLong[last] === null ||
+      maShort[last - 1] === null || maLong[last - 1] === null)
+    return { status: "unknown", proximity: 0 };
+
+  const gap = ((maShort[last] - maLong[last]) / maLong[last]) * 100;
+  const prevAbove = maShort[last - 1] > maLong[last - 1];
+  const currAbove = maShort[last] > maLong[last];
+
+  let status = "대기";
+  if (!prevAbove && currAbove) status = "조건 진입";
+  else if (prevAbove && !currAbove) status = "조건 이탈";
+  else if (currAbove) status = "조건 유지 중";
+
+  return { status, proximity: gap, maShort: maShort[last], maLong: maLong[last], price: prices[last].close };
+}
+
 // ── Score a backtest result ─────────────────────────────────────────────────
 
 export function scoreResult(result) {
@@ -503,6 +555,7 @@ export function strategyLabel(type, params) {
   switch (type) {
     case "ma":    return `${params.period}일 이동평균선`;
     case "rsi":   return `RSI ${params.buyBelow}/${params.sellAbove} (손절 ${params.stopLoss}%)`;
+    case "dualma": return `${params.short}/${params.long} 이중이평선`;
     case "macd":  return "MACD 시그널 교차";
     case "combo": return params._comboLabel || "조합 전략";
     case "vix":   return `VIX ${params.buyAbove}↑ 매수 / ${params.sellBelow}↓ 매도 (손절 ${params.stopLoss}%)`;
