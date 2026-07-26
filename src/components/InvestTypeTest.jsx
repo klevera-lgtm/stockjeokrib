@@ -92,9 +92,9 @@ const TYPES = {
   sprinter: {
     emoji: "⚡",
     name: "단기 승부형",
-    desc: "짧은 호흡으로 기회를 잡는 타입이에요.\n최근 1달~6달 구간의 랭킹이 잘 맞을 거예요.",
-    cta: "단기 랭킹 구경하기",
-    route: { tab: "combo", leverage: false, section: "short" },
+    desc: "짧은 호흡으로 기회를 잡는 타입이에요.\n거래 섹션에서 종목 스캐너와 전략 랭킹을 확인해보세요!",
+    cta: "거래 섹션 둘러보기",
+    route: { section: "trading" },
   },
   dividend: {
     emoji: "💰",
