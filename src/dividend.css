@@ -246,7 +246,7 @@
 .port-shares-input { width: 60px; padding: 6px 8px; border: 1.5px solid var(--primary); border-radius: 8px; font-size: 14px; font-weight: 700; text-align: right; background: var(--primary-light); color: var(--primary); }
 .port-shares-unit { font-size: 12px; color: var(--text-secondary); }
 .port-save-btn { display: flex; align-items: center; justify-content: center; gap: 8px; }
-.port-basic-tag { font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.25); padding: 2px 8px; border-radius: 99px; }
+.port-limit-btn { background: var(--surface); color: var(--text-tertiary); border: 1px dashed var(--border); font-size: 13px; }
 .port-save-hint { font-size: 11px; color: var(--text-tertiary); text-align: center; margin-top: 8px; }
 .port-summary-section { padding-top: 4px; }
 

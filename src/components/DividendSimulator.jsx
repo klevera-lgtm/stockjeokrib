@@ -126,8 +126,6 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
         <p className="page-subtitle">매일 꾸준히 적립하면 배당금이 얼마나 불어날까요?</p>
       </div>
 
-      <AdBanner slot="sim-top" />
-
       {/* Ticker Picker */}
       <div className="sim-section">
         <div className="sim-label">종목 선택</div>
@@ -246,6 +244,8 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
           {loading ? "계산 중..." : "시뮬레이션 시작"}
         </button>
       </div>
+
+      <AdBanner className="ad-banner-inline" />
 
       {error && <div className="error-msg">{error}</div>}
 

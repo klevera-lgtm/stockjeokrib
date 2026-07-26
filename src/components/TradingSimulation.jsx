@@ -1,0 +1,598 @@
+import { useState, useCallback, useEffect, useRef } from "react";
+import TickerSearch from "./TickerSearch.jsx";
+import AdBanner from "./AdBanner.jsx";
+import QueryGateModal from "./QueryGateModal.jsx";
+import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
+import { loadPrices } from "../utils/dataLoader.js";
+import { logClick } from "../utils/analytics.js";
+import {
+  backtestMA, backtestRSI, backtestMACD, backtestCombo,
+  filterByPeriod, toWeekly, buyAndHold, scoreResult,
+  strategyLabel, comboLabel, MA_PERIODS, RSI_COMBOS, BACKTEST_PERIODS,
+  COMBO_PRESETS,
+} from "../utils/tradingEngine.js";
+import { Chart } from "chart.js/auto";
+
+const STRATEGY_TYPES = [
+  { id: "ma", label: "이동평균선", desc: "이평선 돌파 매수, 이탈 매도", coin: 1 },
+  { id: "rsi", label: "RSI", desc: "과매도 매수, 과매수 매도", coin: 1 },
+  { id: "macd", label: "MACD", desc: "시그널선 교차 매매", coin: 1 },
+  { id: "combo", label: "조합 전략", desc: "여러 지표를 결합해 테스트", coin: 2 },
+];
+
+const COMBO_MA_OPTIONS = [20, 50, 100, 200];
+const COMBO_STOP_OPTIONS = [-5, -10];
+
+function fmt(n, d = 1) {
+  if (n == null || isNaN(n)) return "—";
+  return n.toFixed(d);
+}
+
+function TradeChart({ prices, trades }) {
+  const canvasRef = useRef(null);
+  const chartRef = useRef(null);
+
+  useEffect(() => {
+    if (!canvasRef.current || !prices?.length) return;
+    if (chartRef.current) chartRef.current.destroy();
+
+    const step = Math.max(1, Math.floor(prices.length / 200));
+    const sampled = prices.filter((_, i) => i % step === 0 || i === prices.length - 1);
+    const labels = sampled.map(p => p.date.toISOString().slice(0, 10));
+    const closeData = sampled.map(p => p.close);
+
+    const buyPoints = [];
+    const sellPoints = [];
+    for (const t of trades) {
+      const entryKey = t.entryDate.toISOString().slice(0, 10);
+      const exitKey = t.exitDate.toISOString().slice(0, 10);
+      const bi = labels.findIndex(l => l >= entryKey);
+      const si = labels.findIndex(l => l >= exitKey);
+      if (bi >= 0) buyPoints.push({ x: labels[bi], y: closeData[bi] });
+      if (si >= 0) sellPoints.push({ x: labels[si], y: closeData[si], win: t.returnPct >= 0 });
+    }
+
+    chartRef.current = new Chart(canvasRef.current, {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "주가",
+            data: closeData,
+            borderColor: "#3182F6",
+            backgroundColor: "rgba(49,130,246,0.08)",
+            fill: true,
+            tension: 0.2,
+            pointRadius: 0,
+            borderWidth: 1.5,
+            order: 2,
+          },
+          {
+            label: "매수",
+            data: buyPoints.map(p => ({ x: p.x, y: p.y })),
+            type: "scatter",
+            pointRadius: 6,
+            pointStyle: "triangle",
+            pointBackgroundColor: "#00b96b",
+            pointBorderColor: "#fff",
+            pointBorderWidth: 1,
+            order: 1,
+          },
+          {
+            label: "매도",
+            data: sellPoints.map(p => ({ x: p.x, y: p.y })),
+            type: "scatter",
+            pointRadius: 6,
+            pointStyle: "triangle",
+            pointRotation: 180,
+            pointBackgroundColor: sellPoints.map(p => p.win ? "#00b96b" : "#ff3b30"),
+            pointBorderColor: "#fff",
+            pointBorderWidth: 1,
+            order: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            labels: { boxWidth: 10, font: { size: 11 } },
+          },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                if (ctx.dataset.label === "주가") return `$${ctx.raw.toFixed(2)}`;
+                return `${ctx.dataset.label} $${ctx.raw.y.toFixed(2)}`;
+              },
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: {
+              maxTicksLimit: 5,
+              callback(val) {
+                const l = this.getLabelForValue(val);
+                if (!l) return "";
+                return l.slice(2, 7).replace("-", ".");
+              },
+            },
+            grid: { display: false },
+          },
+          y: {
+            ticks: { callback: (v) => `$${v.toFixed(0)}` },
+          },
+        },
+      },
+    });
+
+    return () => chartRef.current?.destroy();
+  }, [prices, trades]);
+
+  return (
+    <div className="trade-chart-wrap">
+      <canvas ref={canvasRef} />
+    </div>
+  );
+}
+
+export default function TradingSimulation({ onCoinsChanged }) {
+  const [step, setStep] = useState("ticker");
+  const [ticker, setTicker] = useState(null);
+  const [timeframe, setTimeframe] = useState("daily");
+  const [strategyType, setStrategyType] = useState(null);
+  const [strategyParams, setStrategyParams] = useState(null);
+  const [period, setPeriod] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [baseline, setBaseline] = useState(null);
+  const [revealed, setRevealed] = useState(false);
+  const [showGate, setShowGate] = useState(false);
+  const [error, setError] = useState(null);
+  const [chartPrices, setChartPrices] = useState(null);
+  const [comboPreset, setComboPreset] = useState(null);
+  const [comboConfig, setComboConfig] = useState({ maPeriod: 50, buyBelow: 30, sellAbove: 70, stopLoss: -10 });
+
+  const reset = useCallback(() => {
+    setStep("ticker");
+    setTicker(null);
+    setStrategyType(null);
+    setStrategyParams(null);
+    setPeriod(null);
+    setResult(null);
+    setBaseline(null);
+    setRevealed(false);
+    setError(null);
+    setChartPrices(null);
+    setComboPreset(null);
+    setComboConfig({ maPeriod: 50, buyBelow: 30, sellAbove: 70, stopLoss: -10 });
+  }, []);
+
+  function handleTickerSelect(t) {
+    setTicker(t);
+    setStep("timeframe");
+    logClick("trade_sim_ticker", { ticker: t });
+  }
+
+  function handleTimeframe(tf) {
+    setTimeframe(tf);
+    setStep("strategy");
+  }
+
+  function handleStrategyType(type) {
+    setStrategyType(type);
+    if (type === "macd") {
+      setStrategyParams({});
+      setStep("period");
+    } else if (type === "ma") {
+      setStep("ma-params");
+    } else if (type === "rsi") {
+      setStep("rsi-params");
+    } else if (type === "combo") {
+      setStep("combo-select");
+    }
+  }
+
+  function handleMASelect(p) {
+    setStrategyParams({ period: p });
+    setStep("period");
+  }
+
+  function handleRSISelect(combo) {
+    setStrategyParams(combo);
+    setStep("period");
+  }
+
+  function handleComboPreset(preset) {
+    setComboPreset(preset);
+    setStep("combo-params");
+  }
+
+  function handleComboConfirm() {
+    const indicators = [];
+    if (comboPreset.indicators.includes("ma")) {
+      indicators.push({ type: "ma", params: { period: comboConfig.maPeriod } });
+    }
+    if (comboPreset.indicators.includes("rsi")) {
+      indicators.push({ type: "rsi", params: { buyBelow: comboConfig.buyBelow, sellAbove: comboConfig.sellAbove } });
+    }
+    if (comboPreset.indicators.includes("macd")) {
+      indicators.push({ type: "macd", params: {} });
+    }
+    const lbl = comboLabel(indicators, comboConfig.stopLoss);
+    setStrategyParams({ indicators, stopLoss: comboConfig.stopLoss, _comboLabel: lbl });
+    setStep("period");
+  }
+
+  async function runBacktest(years) {
+    setPeriod(years);
+    setLoading(true);
+    setError(null);
+    try {
+      let prices = await loadPrices(ticker);
+      prices = filterByPeriod(prices, years);
+      if (timeframe === "weekly") prices = toWeekly(prices);
+      if (prices.length < 30) throw new Error("데이터가 부족합니다");
+
+      const bh = buyAndHold(prices);
+      setBaseline(bh);
+
+      let res;
+      switch (strategyType) {
+        case "ma":    res = backtestMA(prices, strategyParams.period); break;
+        case "rsi":   res = backtestRSI(prices, strategyParams); break;
+        case "macd":  res = backtestMACD(prices); break;
+        case "combo": res = backtestCombo(prices, strategyParams); break;
+        default: throw new Error("알 수 없는 전략");
+      }
+      res.score = scoreResult(res);
+      setResult(res);
+      setChartPrices(prices);
+      setStep("result");
+      logClick("trade_sim_run", { ticker, strategy: strategyType, period: years });
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const coinCost = strategyType === "combo" ? 2 : 1;
+
+  function handleReveal() {
+    if (isBasic()) { setRevealed(true); return; }
+    if (getQueryBalance() < coinCost) { setShowGate(true); return; }
+    for (let i = 0; i < coinCost; i++) {
+      if (!consumeQuery()) { setShowGate(true); return; }
+    }
+    onCoinsChanged?.();
+    setRevealed(true);
+  }
+
+  const label = strategyType ? strategyLabel(strategyType, strategyParams || {}) : "";
+
+  return (
+    <div className="trade-sim">
+      <h2 className="section-title">백테스트 시뮬레이션</h2>
+      <p className="section-desc">전략의 과거 성과를 테스트해 보세요</p>
+
+      {/* Step indicator */}
+      <div className="trade-steps">
+        <span className={`trade-step${step === "ticker" ? " active" : ticker ? " done" : ""}`}>종목</span>
+        <span className="trade-step-arrow">›</span>
+        <span className={`trade-step${step === "timeframe" ? " active" : timeframe && step !== "ticker" ? " done" : ""}`}>봉</span>
+        <span className="trade-step-arrow">›</span>
+        <span className={`trade-step${["strategy", "ma-params", "rsi-params", "combo-select", "combo-params"].includes(step) ? " active" : strategyType ? " done" : ""}`}>전략</span>
+        <span className="trade-step-arrow">›</span>
+        <span className={`trade-step${step === "period" ? " active" : period ? " done" : ""}`}>기간</span>
+        <span className="trade-step-arrow">›</span>
+        <span className={`trade-step${step === "result" ? " active" : ""}`}>결과</span>
+      </div>
+
+      {/* Step 1: Ticker */}
+      {step === "ticker" && (
+        <TickerSearch onSelect={handleTickerSelect} />
+      )}
+
+      {/* Step 2: Timeframe */}
+      {step === "timeframe" && (
+        <div className="trade-card">
+          <h3 className="trade-card-title">{ticker} — 타임프레임 선택</h3>
+          <div className="trade-tf-grid">
+            <button className="trade-tf-btn" onClick={() => handleTimeframe("daily")}>
+              <span className="trade-tf-icon">📊</span>
+              <span className="trade-tf-label">일봉</span>
+              <span className="trade-tf-desc">매일 종가 기준</span>
+            </button>
+            <button className="trade-tf-btn" onClick={() => handleTimeframe("weekly")}>
+              <span className="trade-tf-icon">📈</span>
+              <span className="trade-tf-label">주봉</span>
+              <span className="trade-tf-desc">주간 종가 기준</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3: Strategy type */}
+      {step === "strategy" && (
+        <div className="trade-card">
+          <h3 className="trade-card-title">{ticker} · {timeframe === "daily" ? "일봉" : "주봉"} — 전략 선택</h3>
+          <div className="trade-strategy-list">
+            {STRATEGY_TYPES.map((s) => (
+              <button
+                key={s.id}
+                className={`trade-strategy-btn${s.id === "combo" ? " combo" : ""}`}
+                onClick={() => handleStrategyType(s.id)}
+              >
+                <span className="trade-strategy-name">{s.label}</span>
+                <span className="trade-strategy-desc">{s.desc}</span>
+                <span className="trade-strategy-count">
+                  {s.id === "ma" ? "20가지" : s.id === "rsi" ? "8가지" : s.id === "combo" ? `🪙${s.coin}` : "1가지"}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Step 3a: MA params */}
+      {step === "ma-params" && (
+        <div className="trade-card">
+          <h3 className="trade-card-title">이동평균선 기간 선택</h3>
+          <div className="trade-ma-grid">
+            {MA_PERIODS.map((p) => (
+              <button key={p} className="trade-ma-btn" onClick={() => handleMASelect(p)}>
+                {p}일
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Step 3b: RSI params */}
+      {step === "rsi-params" && (
+        <div className="trade-card">
+          <h3 className="trade-card-title">RSI 조합 선택</h3>
+          <div className="trade-rsi-list">
+            {RSI_COMBOS.map((c, i) => (
+              <button key={i} className="trade-rsi-btn" onClick={() => handleRSISelect(c)}>
+                <span>매수 RSI &lt; {c.buyBelow}</span>
+                <span>매도 RSI &gt; {c.sellAbove}</span>
+                <span>손절 {c.stopLoss}%</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Step 3c: Combo preset select */}
+      {step === "combo-select" && (
+        <div className="trade-card">
+          <h3 className="trade-card-title">조합 전략 선택</h3>
+          <details className="combo-accordion">
+            <summary>조합 전략은 어떻게 작동하나요?</summary>
+            <div className="combo-accordion-body">
+              <p><strong>진입 (AND)</strong> — 선택한 지표가 최근 5일 내에 모두 매수 조건을 충족해야 진입합니다. 조건이 까다로운 만큼 더 신중한 매수가 됩니다.</p>
+              <p><strong>청산 (OR)</strong> — 어떤 지표든 하나라도 매도 조건을 충족하면 즉시 청산합니다. 빠른 방어로 손실을 줄입니다.</p>
+              <p><strong>손절</strong> — 지표 조건과 무관하게 손절선에 도달하면 자동 청산합니다.</p>
+            </div>
+          </details>
+          <div className="trade-strategy-list">
+            {COMBO_PRESETS.map((p) => (
+              <button key={p.id} className="trade-strategy-btn combo" onClick={() => handleComboPreset(p)}>
+                <span className="trade-strategy-name">{p.label}</span>
+                <span className="trade-strategy-desc">
+                  {p.indicators.map(i => i === "ma" ? "이동평균선" : i === "rsi" ? "RSI" : "MACD").join(" + ")}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Step 3d: Combo params */}
+      {step === "combo-params" && comboPreset && (
+        <div className="trade-card">
+          <h3 className="trade-card-title">{comboPreset.label} — 파라미터 설정</h3>
+
+          {comboPreset.indicators.includes("ma") && (
+            <div className="combo-param-group">
+              <label className="combo-param-label">이동평균선 기간</label>
+              <div className="combo-param-chips">
+                {COMBO_MA_OPTIONS.map((p) => (
+                  <button key={p} className={`combo-param-chip${comboConfig.maPeriod === p ? " active" : ""}`}
+                    onClick={() => setComboConfig(c => ({ ...c, maPeriod: p }))}>{p}일</button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {comboPreset.indicators.includes("rsi") && (
+            <div className="combo-param-group">
+              <label className="combo-param-label">RSI 매수 기준</label>
+              <div className="combo-param-chips">
+                {[20, 30].map((v) => (
+                  <button key={v} className={`combo-param-chip${comboConfig.buyBelow === v ? " active" : ""}`}
+                    onClick={() => setComboConfig(c => ({ ...c, buyBelow: v }))}>RSI &lt; {v}</button>
+                ))}
+              </div>
+              <label className="combo-param-label">RSI 매도 기준</label>
+              <div className="combo-param-chips">
+                {[70, 80].map((v) => (
+                  <button key={v} className={`combo-param-chip${comboConfig.sellAbove === v ? " active" : ""}`}
+                    onClick={() => setComboConfig(c => ({ ...c, sellAbove: v }))}>RSI &gt; {v}</button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="combo-param-group">
+            <label className="combo-param-label">손절 기준</label>
+            <div className="combo-param-chips">
+              {COMBO_STOP_OPTIONS.map((s) => (
+                <button key={s} className={`combo-param-chip${comboConfig.stopLoss === s ? " active" : ""}`}
+                  onClick={() => setComboConfig(c => ({ ...c, stopLoss: s }))}>{s}%</button>
+              ))}
+            </div>
+          </div>
+
+          <button className="rank-run-btn" onClick={handleComboConfirm} style={{ marginTop: 16 }}>
+            이 조합으로 테스트
+          </button>
+        </div>
+      )}
+
+      {/* Step 4: Period */}
+      {step === "period" && (
+        <div className="trade-card">
+          <h3 className="trade-card-title">{ticker} · {label} — 백테스트 기간</h3>
+          <div className="trade-period-grid">
+            {BACKTEST_PERIODS.map((bp) => (
+              <button
+                key={bp.years}
+                className="trade-period-btn"
+                onClick={() => runBacktest(bp.years)}
+                disabled={loading}
+              >
+                {bp.label}
+              </button>
+            ))}
+          </div>
+          {loading && <div className="trade-loading">백테스트 실행 중...</div>}
+          {error && <p className="trade-error">{error}</p>}
+        </div>
+      )}
+
+      {/* Step 5: Result */}
+      {step === "result" && result && (
+        <div className="trade-card">
+          <div className="trade-result-header">
+            <h3 className="trade-card-title">{ticker} · {label}</h3>
+            <span className="trade-result-meta">
+              {timeframe === "daily" ? "일봉" : "주봉"} · {period}년
+            </span>
+          </div>
+
+          {!revealed ? (
+            <div className="reveal-cta">
+              <p className="reveal-hint">백테스트 결과를 확인하려면 코인 {coinCost}개가 필요해요</p>
+              <button className="btn-primary reveal-btn" onClick={handleReveal}>
+                🔓 결과 보기 (코인 {coinCost}개)
+              </button>
+              {!isBasic() && (
+                <p className="reveal-balance">남은 코인 {getQueryBalance()}개</p>
+              )}
+            </div>
+          ) : (
+            <>
+              {/* Score */}
+              <div className="trade-score-row">
+                <div className="trade-score-badge">
+                  <span className="trade-score-num">{result.score}</span>
+                  <span className="trade-score-label">점</span>
+                </div>
+              </div>
+
+              {/* Trade chart */}
+              {chartPrices && result.trades.length > 0 && (
+                <TradeChart prices={chartPrices} trades={result.trades} />
+              )}
+
+              {/* Summary grid */}
+              <div className="trade-summary-grid">
+                <div className="trade-summary-card highlight">
+                  <div className="trade-summary-label">전략 수익률</div>
+                  <div className={`trade-summary-value ${result.totalReturn >= 0 ? "up" : "down"}`}>
+                    {result.totalReturn >= 0 ? "+" : ""}{fmt(result.totalReturn)}%
+                  </div>
+                </div>
+                <div className="trade-summary-card">
+                  <div className="trade-summary-label">바이앤홀드</div>
+                  <div className={`trade-summary-value ${baseline.returnPct >= 0 ? "up" : "down"}`}>
+                    {baseline.returnPct >= 0 ? "+" : ""}{fmt(baseline.returnPct)}%
+                  </div>
+                </div>
+                <div className="trade-summary-card">
+                  <div className="trade-summary-label">승률</div>
+                  <div className="trade-summary-value">{fmt(result.winRate)}%</div>
+                </div>
+                <div className="trade-summary-card">
+                  <div className="trade-summary-label">거래 횟수</div>
+                  <div className="trade-summary-value">{result.tradeCount}회</div>
+                </div>
+                <div className="trade-summary-card">
+                  <div className="trade-summary-label">최대 손실 (MDD)</div>
+                  <div className="trade-summary-value down">-{fmt(result.mdd)}%</div>
+                </div>
+                <div className="trade-summary-card">
+                  <div className="trade-summary-label">평균 수익</div>
+                  <div className="trade-summary-value up">+{fmt(result.avgWin)}%</div>
+                </div>
+                <div className="trade-summary-card">
+                  <div className="trade-summary-label">평균 손실</div>
+                  <div className="trade-summary-value down">{fmt(result.avgLoss)}%</div>
+                </div>
+              </div>
+
+              {/* Trade list */}
+              {result.trades.length > 0 && (
+                <details className="trade-detail">
+                  <summary className="trade-detail-summary">거래 내역 ({result.trades.length}건)</summary>
+                  <div className="trade-list-wrap">
+                    <table className="trade-list-table">
+                      <thead>
+                        <tr>
+                          <th>매수일</th>
+                          <th>매수가</th>
+                          <th>매도일</th>
+                          <th>매도가</th>
+                          <th>수익률</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {result.trades.map((t, i) => (
+                          <tr key={i}>
+                            <td>{t.entryDate.toISOString().slice(2, 10)}</td>
+                            <td>${fmt(t.entryPrice, 2)}</td>
+                            <td>{t.exitDate.toISOString().slice(2, 10)}</td>
+                            <td>${fmt(t.exitPrice, 2)}</td>
+                            <td className={t.returnPct >= 0 ? "up" : "down"}>
+                              {t.returnPct >= 0 ? "+" : ""}{fmt(t.returnPct)}%
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </details>
+              )}
+
+              <AdBanner className="ad-banner-inline" />
+
+              <button className="btn-secondary trade-reset-btn" onClick={reset}>
+                다른 전략 테스트하기
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Banner between content and disclaimer */}
+      {step !== "result" && <AdBanner className="ad-banner-inline" />}
+
+      {showGate && (
+        <QueryGateModal
+          onClose={() => setShowGate(false)}
+          onPurchased={() => { setShowGate(false); onCoinsChanged?.(); }}
+        />
+      )}
+
+      <div className="trade-disclaimer">
+        ⚠️ 과거 성과는 미래 수익을 보장하지 않습니다. 이 결과는 기계적 조건의 역사적 시뮬레이션이며, 투자 권유가 아닙니다.
+      </div>
+    </div>
+  );
+}

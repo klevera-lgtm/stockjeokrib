@@ -11,6 +11,10 @@ import {
   IconPigMoney,
   IconWallet,
   IconArrowsExchange,
+  IconRadar2,
+  IconTrophy,
+  IconChartCandle,
+  IconBriefcase,
 } from "@tabler/icons-react";
 
 export const ACCUMULATION_TABS = [
@@ -29,6 +33,13 @@ export const DIVIDEND_TABS = [
   { id: "retirement",    label: "은퇴 계산",  Icon: IconPigMoney },
   { id: "div-portfolio", label: "포트폴리오", Icon: IconWallet },
   { id: "div-compare",   label: "배당vs성장", Icon: IconArrowsExchange },
+];
+
+export const TRADING_TABS = [
+  { id: "trade-scanner",   label: "스캐너",     Icon: IconRadar2 },
+  { id: "trade-ranking",   label: "랭킹",       Icon: IconTrophy },
+  { id: "trade-sim",       label: "시뮬레이션", Icon: IconChartCandle },
+  { id: "trade-portfolio", label: "포트폴리오", Icon: IconBriefcase },
 ];
 
 export default function TabBar({ activeTab, onTabChange, tabs = ACCUMULATION_TABS }) {

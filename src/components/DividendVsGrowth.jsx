@@ -188,8 +188,6 @@ export default function DividendVsGrowth({ onCoinsChanged, onNavigate }) {
         <p className="page-subtitle">같은 조건에서 배당주와 성장주, 어디가 유리할까?</p>
       </div>
 
-      <AdBanner slot="vs-top" />
-
       {/* Dividend ticker */}
       <div className="sim-section">
         <div className="sim-label">배당주 선택</div>
@@ -320,6 +318,8 @@ export default function DividendVsGrowth({ onCoinsChanged, onNavigate }) {
               <>두 전략의 결과가 비슷해요</>
             )}
           </div>
+
+          <AdBanner className="ad-banner-inline" />
 
           {/* Chart + insight - gated */}
           <div className={revealed ? "" : "div-gated"}>

@@ -153,8 +153,6 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
         <p className="page-subtitle">배당금만으로 생활하려면 얼마나 걸릴까요?</p>
       </div>
 
-      <AdBanner slot="retire-top" />
-
       {/* Target monthly dividend */}
       <div className="sim-section">
         <div className="sim-label">목표 월 배당금</div>
@@ -256,6 +254,8 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
           </div>
         </div>
       )}
+
+      <AdBanner className="ad-banner-inline" />
 
       {/* Calculate button */}
       <div className="sim-section" style={{ padding: "0 16px" }}>
