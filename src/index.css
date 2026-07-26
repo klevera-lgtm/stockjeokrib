@@ -3196,12 +3196,14 @@ input, select {
 .scanner-paywall { text-align: center; padding: 16px; font-size: 13px; color: var(--text-secondary); background: var(--surface); border: 1px dashed var(--border); border-radius: 10px; margin-bottom: 16px; }
 
 .scanner-help-accordion { margin: 16px 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.scanner-help-accordion.highlight { border: 1.5px solid #d97706; background: linear-gradient(135deg, #78350f, #92400e); margin: 0 0 16px; }
-.scanner-help-accordion.highlight .scanner-help-toggle { background: transparent; color: #fde68a; font-weight: 700; }
-.scanner-help-accordion.highlight .scanner-help-body { background: transparent; color: #fef3c7; }
-.scanner-help-accordion.highlight .scanner-help-note { background: rgba(0,0,0,0.2); color: #fde68a; }
+.scanner-help-accordion.highlight { border: 1.5px solid #4338ca; background: linear-gradient(135deg, #1e1b4b, #312e81); margin: 0 0 16px; }
+.scanner-help-accordion.highlight .scanner-help-toggle { background: transparent; color: #c7d2fe; font-weight: 700; }
+.scanner-help-accordion.highlight .scanner-help-body { background: transparent; color: #e0e7ff; }
+.scanner-help-accordion.highlight .scanner-help-note { background: rgba(255,255,255,0.1); color: #a5b4fc; }
 .scanner-help-accordion.highlight .scanner-help-list dt { color: #fff; }
-.scanner-help-accordion.highlight .scanner-help-list dd { color: #fef3c7; }
+.scanner-help-accordion.highlight .scanner-help-list dd { color: #e0e7ff; }
+.scanner-help-accordion.highlight .scanner-badge.hold { background: rgba(147,197,253,0.25); color: #93c5fd; }
+.scanner-help-accordion.highlight .scanner-badge.wait { background: rgba(255,255,255,0.15); color: #cbd5e1; }
 .scanner-help-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 14px; font-size: 13px; font-weight: 600; color: var(--text-secondary); background: var(--surface); border: none; cursor: pointer; }
 .scanner-help-arrow { font-size: 10px; transition: transform 0.2s; }
 .scanner-help-arrow.open { transform: rotate(180deg); }
