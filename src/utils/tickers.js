@@ -6,9 +6,13 @@ export const TICKER_CATEGORIES = {
     "ARM","AMAT","LRCX","ASML","BE","SMCI",
     "AAOI","CRWV","DDOG","GH","IREN","JPM","MSTR","NTRA","OKTA","SMR","UCTT",
   ],
-  "미국 인덱스 ETF": ["VOO","SPY","IVV","QQQM","QQQ","VTI","DIA","IWM","VB","SCHG","VUG"],
+  "미국 인덱스 ETF": ["VOO","SPY","IVV","QQQM","QQQ","VTI","DIA","IWM","VB","SCHG","VUG","RSP","COWZ"],
   "반도체 ETF": ["SMH","SOXX"],
   "테크 섹터 ETF": ["XLK","VGT","IGV","HACK","WCLD","BOTZ"],
+  "AI·로보틱스 ETF": ["AIQ","CHAT","ROBO"],
+  "크립토 ETF": ["BITO","BITX"],
+  "원자력·우라늄 ETF": ["URA","URNM","NLR"],
+  "방산 ETF": ["XAR","PPA"],
   "레버리지 ETF": [
     "TQQQ","SOXL","UPRO","QLD","SSO","SPXL","TECL","TSLL","NVDL","MSTU",
     "IONX","ORCX","USD","KORU","UGL","AGQ","UBT","TMF",
@@ -99,6 +103,8 @@ export const TICKER_LABELS = {
   "VUG": "미국 성장주 ETF",
   "IWM": "러셀2000 소형주 ETF",
   "VB": "미국 소형주 ETF",
+  "RSP": "S&P500 동일가중 ETF",
+  "COWZ": "현금흐름 우량주 ETF",
 
   // 레버리지 ETF
   "TQQQ": "나스닥100 3배 ETF",
@@ -119,6 +125,7 @@ export const TICKER_LABELS = {
   "ORCX": "오라클 1.5배 ETF",
   "IONX": "아이온큐 2배 ETF",
   "KORU": "한국주식 3배 ETF",
+  "BITX": "비트코인 2배 ETF",
   "SPYM": "S&P500 YM ETF",
 
   // 반도체·테크 섹터 ETF
@@ -192,6 +199,23 @@ export const TICKER_LABELS = {
   "XLRE": "리츠 ETF",
   "VNQ": "리츠 ETF",
 
+  // AI·로보틱스 ETF
+  "AIQ": "글로벌 X AI 테크 ETF",
+  "CHAT": "생성AI ETF",
+  "ROBO": "로보틱스 자동화 ETF",
+
+  // 크립토 ETF
+  "BITO": "비트코인 선물 ETF",
+
+  // 원자력·우라늄 ETF
+  "URA": "우라늄 ETF",
+  "URNM": "우라늄 광산 ETF",
+  "NLR": "원자력 ETF",
+
+  // 방산 ETF
+  "XAR": "항공우주·방위 ETF",
+  "PPA": "방산 ETF",
+
   // 테마 ETF
   "ITA": "항공우주·방위 ETF",
   "XBI": "바이오텍 ETF",
@@ -255,19 +279,19 @@ export const ALL_TICKERS = Object.values(TICKER_CATEGORIES).flat();
 // (fallback — runtime loads data/supportedTickers.json from GitHub raw)
 export const SUPPORTED_TICKERS = new Set([
   "000660","005930","069500","360750",
-  "AAOI","AAPL","ACWI","AGG","AGQ","AMAT","AMD","AMZN","ARKF","ARKG","ARKK","ARKX",
-  "ARM","ASML","AVGO","BE","BND","BOTZ","BRK-B","COIN","COST","CRWV","DDOG","DGRO",
+  "AAOI","AAPL","ACWI","AGG","AGQ","AIQ","AMAT","AMD","AMZN","ARKF","ARKG","ARKK","ARKX",
+  "ARM","ASML","AVGO","BE","BITO","BITX","BND","BOTZ","BRK-B","CHAT","COIN","COST","COWZ","CRWV","DDOG","DGRO",
   "DIA","DVY","EEM","EIDO","EWA","EWG","EWH","EWI","EWJ","EWL","EWM","EWQ","EWS",
   "EWT","EWU","EWW","EWY","EWZ","EZU","FXI","GDX","GH","GLD","GOOGL",
   "HACK","HYG","IAU","ICLN","IEF","IEFA","IEMG","IGV","INDA","INTC","IONQ","IONX",
   "IREN","ITA","IVV","IWM","JEM","JEPI","JEPQ","JPM","KO","KORU","KQ11","KS11","KSA",
-  "LIT","LLY","LRCX","MCHI","META","MRVL","MSFT","MSTR","MSTU","MU","NFLX","NTRA",
-  "NVDA","NVDL","OKTA","ORCL","ORCX","PAVE","PLTR","QCOM","QLD","QQQ","QQQI","QQQM",
-  "QTUM","QYLD","RKLB","RYLD","SCHD","SCHG","SGOV","SHOP","SHY","SLV","SMCI","SMH",
+  "LIT","LLY","LRCX","MCHI","META","MRVL","MSFT","MSTR","MSTU","MU","NFLX","NLR","NTRA",
+  "NVDA","NVDL","OKTA","ORCL","ORCX","PAVE","PPA","PLTR","QCOM","QLD","QQQ","QQQI","QQQM",
+  "QTUM","QYLD","RKLB","ROBO","RSP","RYLD","SCHD","SCHG","SGOV","SHOP","SHY","SLV","SMCI","SMH",
   "SMR","SNOW","SOXL","SOXX","SPOT","SPXL","SPY","SPYD","SPYM","SSO","TECL","THD",
-  "TLT","TMF","TQQQ","TSLA","TSLL","TSM","UBER","UBT","UCTT","UGL","UPRO","USD","USO",
+  "TLT","TMF","TQQQ","TSLA","TSLL","TSM","UBER","UBT","UCTT","UGL","UPRO","URA","URNM","USD","USO",
   "V","VB","VGK","VGT","VIG","VNM","VNQ","VOO","VT","VTI","VUG","VWO","VXUS","VYM",
-  "WCLD","WDC","XBI","XLB","XLC","XLE","XLF","XLI","XLK","XLP","XLRE","XLU","XLV","XLY",
+  "WCLD","WDC","XAR","XBI","XLB","XLC","XLE","XLF","XLI","XLK","XLP","XLRE","XLU","XLV","XLY",
   // 배당 유니버스 (배당왕 준비로 추가)
   "HDV","SPHD","DIVO","PFF","XYLD","SDIV","O","MAIN","STAG","AGNC",
   "JNJ","PG","PEP","MCD","ABBV","XOM","CVX","T","VZ","MO","MMM","IBM",
