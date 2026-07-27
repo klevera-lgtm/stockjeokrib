@@ -17,6 +17,7 @@ import TradingSimulation from "./components/TradingSimulation.jsx";
 import TradingScanner from "./components/TradingScanner.jsx";
 import TradingRanking from "./components/TradingRanking.jsx";
 import TradingPortfolio from "./components/TradingPortfolio.jsx";
+import MarketBreadth from "./components/MarketBreadth.jsx";
 import OnboardingModal, { isOnboardDone } from "./components/OnboardingModal.jsx";
 import InvestTypeTest from "./components/InvestTypeTest.jsx";
 import CoinShopModal from "./components/CoinShopModal.jsx";
@@ -39,7 +40,7 @@ export default function App() {
   const [section, setSection] = useState(loadSection);
   const [activeTab, setActiveTab] = useState(() => {
     const s = loadSection();
-    return s === "dividend" ? "ranking" : s === "trading" ? "trade-sim" : "strategy";
+    return s === "dividend" ? "ranking" : s === "trading" ? "trade-breadth" : "strategy";
   });
   const [jumpTicker, setJumpTicker] = useState(null);
   const [showOnboard, setShowOnboard] = useState(() => !isOnboardDone());
@@ -57,7 +58,7 @@ export default function App() {
     logClick("section_switch", { to: newSection });
     setSection(newSection);
     try { localStorage.setItem(SECTION_KEY, newSection); } catch {}
-    const defaultTab = newSection === "dividend" ? "ranking" : newSection === "trading" ? "trade-sim" : "strategy";
+    const defaultTab = newSection === "dividend" ? "ranking" : newSection === "trading" ? "trade-breadth" : "strategy";
     setActiveTab(defaultTab);
   }
 
@@ -146,11 +147,12 @@ export default function App() {
     }
     if (section === "trading") {
       switch (activeTab) {
+        case "trade-breadth":   return <MarketBreadth onCoinsChanged={refreshCoins} />;
         case "trade-sim":       return <TradingSimulation onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
         case "trade-scanner":   return <TradingScanner onNavigate={handleNavigate} />;
         case "trade-ranking":   return <TradingRanking onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
         case "trade-portfolio": return <TradingPortfolio onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-        default:                return <TradingSimulation onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+        default:                return <MarketBreadth onCoinsChanged={refreshCoins} />;
       }
     }
     switch (activeTab) {
