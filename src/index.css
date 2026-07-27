@@ -1570,6 +1570,25 @@ input, select {
   color: var(--positive, #00b96b);
 }
 
+/* ── Rewarded ad banner ─────────────────────── */
+.reward-banner {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 0 16px 8px;
+  padding: 10px 16px;
+  border: 1.5px solid var(--positive, #00b96b);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--positive, #00b96b) 8%, var(--bg));
+  color: var(--positive, #00b96b);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+.reward-banner:active { transform: scale(0.98); opacity: 0.85; }
+.reward-banner:disabled { opacity: 0.6; cursor: default; }
+
 /* ── Goal remind ─────────────────────────────── */
 .goal-remind {
   margin: 12px 16px 4px;
