@@ -271,35 +271,49 @@ export function renderShareCard({ title, period, subtitle, invested, finalValue,
 
 // 이미지 공유: 토스 갤러리 저장 → (브라우저) 네이티브 공유 → 클립보드 → 다운로드
 export async function shareCardImage(cardData) {
-  const canvas = renderShareCard(cardData);
+  let canvas;
+  try {
+    canvas = renderShareCard(cardData);
+  } catch {
+    return "failed";
+  }
+
   const dataUrl = canvas.toDataURL("image/png");
 
   // 1) 토스 앱: 기기 갤러리에 저장
   const base64 = dataUrl.split(",")[1];
   if ((await saveImageBase64(base64)) === "saved") return "saved";
 
-  // 2) 브라우저 폴백
-  const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
-  if (!blob) return "failed";
-
-  const file = new File([blob], "stockjeokrib.png", { type: "image/png" });
-  if (navigator.canShare?.({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file] });
-      return "shared";
-    } catch (e) {
-      if (e.name === "AbortError") return "cancelled";
-    }
-  }
-
+  // 2) 브라우저 폴백: 네이티브 공유
   try {
-    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-    return "copied";
+    const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
+    if (blob) {
+      const file = new File([blob], "stockjeokrib.png", { type: "image/png" });
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file] });
+          return "shared";
+        } catch (e) {
+          if (e.name === "AbortError") return "cancelled";
+        }
+      }
+
+      // 3) 클립보드
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+        return "copied";
+      } catch {}
+    }
   } catch {}
 
-  const a = document.createElement("a");
-  a.href = dataUrl;
-  a.download = "주식적립왕.png";
-  a.click();
-  return "downloaded";
+  // 4) <a> 다운로드 — WebView에서는 작동하지 않으므로 실패 처리
+  try {
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = "주식적립왕.png";
+    a.click();
+    return "downloaded";
+  } catch {}
+
+  return "failed";
 }

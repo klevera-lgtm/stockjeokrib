@@ -35,14 +35,19 @@ export default function ShareSheet({ text, card, onClose }) {
   // 이미지 → 갤러리 저장
   async function handleImageSave() {
     markShare("image");
-    const result = await shareCardImage(card);
+    let result;
+    try {
+      result = await shareCardImage(card);
+    } catch {
+      result = "failed";
+    }
     const msg = {
       saved: "✓ 갤러리에 저장됐어요 · 카톡·인스타에 올려보세요",
       shared: null,
       copied: "✓ 이미지 복사됨 · 붙여넣기 하세요",
       downloaded: "✓ 이미지 저장됨",
       cancelled: null,
-      failed: "이미지 저장 실패",
+      failed: "이미지 저장 실패 — 링크 공유를 이용하세요",
     }[result];
     if (msg) {
       setImgStatus(msg);

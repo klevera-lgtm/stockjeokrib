@@ -2,12 +2,14 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import TickerSearch from "./TickerSearch.jsx";
 import AdBanner from "./AdBanner.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
-import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
+import ShareSheet from "./ShareSheet.jsx";
+import { consumeQuery, consumeQueries, getQueryBalance, isBasic } from "../utils/premium.js";
 import { loadPrices } from "../utils/dataLoader.js";
 import { logClick } from "../utils/analytics.js";
+import { getTickerLabel } from "../utils/tickers.js";
 import {
   backtestMA, backtestRSI, backtestMACD, backtestCombo, backtestDualMA,
-  filterByPeriod, toWeekly, buyAndHold, scoreResult,
+  filterByPeriod, toWeekly, buyAndHold, scoreResult, scoreBreakdown, rankAllStrategies,
   strategyLabel, comboLabel, MA_PERIODS, RSI_COMBOS, DUAL_MA_COMBOS, BACKTEST_PERIODS,
   COMBO_PRESETS,
 } from "../utils/tradingEngine.js";
@@ -23,6 +25,7 @@ const STRATEGY_TYPES = [
 
 const COMBO_MA_OPTIONS = [20, 50, 100, 200];
 const COMBO_STOP_OPTIONS = [-5, -10];
+const TOP10_COIN_COST = 5;
 
 function fmt(n, d = 1) {
   if (n == null || isNaN(n)) return "—";
@@ -156,6 +159,11 @@ export default function TradingSimulation({ onCoinsChanged }) {
   const [chartPrices, setChartPrices] = useState(null);
   const [comboPreset, setComboPreset] = useState(null);
   const [comboConfig, setComboConfig] = useState({ maPeriod: 50, buyBelow: 30, sellAbove: 70, stopLoss: -10 });
+  const [top10Results, setTop10Results] = useState(null);
+  const [top10ActiveTab, setTop10ActiveTab] = useState(0);
+  const [top10Loading, setTop10Loading] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [showScoreInfo, setShowScoreInfo] = useState(false);
 
   const reset = useCallback(() => {
     setStep("ticker");
@@ -170,6 +178,11 @@ export default function TradingSimulation({ onCoinsChanged }) {
     setChartPrices(null);
     setComboPreset(null);
     setComboConfig({ maPeriod: 50, buyBelow: 30, sellAbove: 70, stopLoss: -10 });
+    setTop10Results(null);
+    setTop10ActiveTab(0);
+    setTop10Loading(false);
+    setShowShare(false);
+    setShowScoreInfo(false);
   }, []);
 
   function handleTickerSelect(t) {
@@ -235,7 +248,9 @@ export default function TradingSimulation({ onCoinsChanged }) {
     setStep("period");
   }
 
-  async function runBacktest(years) {
+  async function runBacktest(years, overrideType = null, overrideParams = null) {
+    const activeType = overrideType || strategyType;
+    const activeParams = overrideParams || strategyParams;
     setPeriod(years);
     setLoading(true);
     setError(null);
@@ -249,24 +264,84 @@ export default function TradingSimulation({ onCoinsChanged }) {
       setBaseline(bh);
 
       let res;
-      switch (strategyType) {
-        case "ma":    res = backtestMA(prices, strategyParams.period); break;
-        case "rsi":   res = backtestRSI(prices, strategyParams); break;
-        case "dualma": res = backtestDualMA(prices, strategyParams.short, strategyParams.long); break;
+      switch (activeType) {
+        case "ma":    res = backtestMA(prices, activeParams.period); break;
+        case "rsi":   res = backtestRSI(prices, activeParams); break;
+        case "dualma": res = backtestDualMA(prices, activeParams.short, activeParams.long); break;
         case "macd":  res = backtestMACD(prices); break;
-        case "combo": res = backtestCombo(prices, strategyParams); break;
+        case "combo": res = backtestCombo(prices, activeParams); break;
         default: throw new Error("알 수 없는 전략");
       }
       res.score = scoreResult(res);
       setResult(res);
       setChartPrices(prices);
+      if (overrideType) {
+        setStrategyType(overrideType);
+        setStrategyParams(overrideParams);
+      }
       setStep("result");
-      logClick("trade_sim_run", { ticker, strategy: strategyType, period: years });
+      logClick("trade_sim_run", { ticker, strategy: activeType, period: years });
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleTop10() {
+    if (isBasic()) {
+      setTop10Loading(true);
+      setError(null);
+      try {
+        const raw = await loadPrices(ticker);
+        const allResults = {};
+        for (const bp of BACKTEST_PERIODS) {
+          let prices = filterByPeriod(raw, bp.years);
+          if (timeframe === "weekly") prices = toWeekly(prices);
+          allResults[bp.years] = rankAllStrategies(prices, 10);
+        }
+        setTop10Results(allResults);
+        setTop10ActiveTab(0);
+        setStep("top10-result");
+        logClick("trade_top10_basic", { ticker });
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        setTop10Loading(false);
+      }
+    } else {
+      setStep("top10-period");
+    }
+  }
+
+  async function handleTop10Period(years) {
+    if (getQueryBalance() < TOP10_COIN_COST) { setShowGate(true); return; }
+    setTop10Loading(true);
+    setError(null);
+    try {
+      const raw = await loadPrices(ticker);
+      let prices = filterByPeriod(raw, years);
+      if (timeframe === "weekly") prices = toWeekly(prices);
+      const ranked = rankAllStrategies(prices, 10);
+
+      if (!consumeQueries(TOP10_COIN_COST)) { setShowGate(true); return; }
+      onCoinsChanged?.();
+
+      setPeriod(years);
+      setTop10Results({ [years]: ranked });
+      setStep("top10-result");
+      logClick("trade_top10_free", { ticker, period: years });
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setTop10Loading(false);
+    }
+  }
+
+  function handleTop10Select(strat) {
+    const years = isBasic() ? BACKTEST_PERIODS[top10ActiveTab].years : period;
+    setRevealed(true);
+    runBacktest(years, strat.type, strat.params);
   }
 
   const coinCost = strategyType === "combo" ? 2 : 1;
@@ -294,11 +369,11 @@ export default function TradingSimulation({ onCoinsChanged }) {
         <span className="trade-step-arrow">›</span>
         <span className={`trade-step${step === "timeframe" ? " active" : timeframe && step !== "ticker" ? " done" : ""}`}>봉</span>
         <span className="trade-step-arrow">›</span>
-        <span className={`trade-step${["strategy", "ma-params", "rsi-params", "combo-select", "combo-params"].includes(step) ? " active" : strategyType ? " done" : ""}`}>전략</span>
+        <span className={`trade-step${["strategy", "ma-params", "rsi-params", "dualma-params", "combo-select", "combo-params"].includes(step) ? " active" : strategyType || step === "top10-period" || step === "top10-result" ? " done" : ""}`}>전략</span>
         <span className="trade-step-arrow">›</span>
-        <span className={`trade-step${step === "period" ? " active" : period ? " done" : ""}`}>기간</span>
+        <span className={`trade-step${step === "period" || step === "top10-period" ? " active" : period ? " done" : ""}`}>기간</span>
         <span className="trade-step-arrow">›</span>
-        <span className={`trade-step${step === "result" ? " active" : ""}`}>결과</span>
+        <span className={`trade-step${step === "result" || step === "top10-result" ? " active" : ""}`}>결과</span>
       </div>
 
       {/* Step 1: Ticker */}
@@ -344,6 +419,26 @@ export default function TradingSimulation({ onCoinsChanged }) {
               </button>
             ))}
           </div>
+
+          <button
+            className="trade-top10-btn"
+            onClick={handleTop10}
+            disabled={top10Loading}
+          >
+            {top10Loading ? (
+              <span>33개 전략 분석 중...</span>
+            ) : (
+              <>
+                <span className="top10-btn-label">🏆 {ticker} 최적 전략 TOP 10</span>
+                {isBasic() ? (
+                  <span className="top10-basic-tag">Basic 무료</span>
+                ) : (
+                  <span className="top10-coin-tag">🪙 {TOP10_COIN_COST}</span>
+                )}
+              </>
+            )}
+          </button>
+          {error && <p className="trade-error">{error}</p>}
         </div>
       )}
 
@@ -490,6 +585,93 @@ export default function TradingSimulation({ onCoinsChanged }) {
         </div>
       )}
 
+      {/* TOP 10: Period selection (free users) */}
+      {step === "top10-period" && (
+        <div className="trade-card">
+          <h3 className="trade-card-title">🏆 {ticker} TOP 10 — 기간 선택</h3>
+          <p className="top10-period-desc">선택한 기간의 33개 전략 중 최고 점수 TOP 10을 찾습니다</p>
+          <div className="trade-period-grid">
+            {BACKTEST_PERIODS.map((bp) => (
+              <button
+                key={bp.years}
+                className="trade-period-btn"
+                onClick={() => handleTop10Period(bp.years)}
+                disabled={top10Loading}
+              >
+                {bp.label}
+              </button>
+            ))}
+          </div>
+          <p className="top10-cost-hint">🪙 코인 {TOP10_COIN_COST}개가 소비됩니다 · 남은 코인 {getQueryBalance()}개</p>
+          {top10Loading && <div className="trade-loading">33개 전략 분석 중...</div>}
+          {error && <p className="trade-error">{error}</p>}
+        </div>
+      )}
+
+      {/* TOP 10: Results */}
+      {step === "top10-result" && top10Results && (
+        <div className="trade-card">
+          <h3 className="trade-card-title">🏆 {ticker} 최적 전략 TOP 10</h3>
+
+          {isBasic() ? (
+            <div className="top10-tabs">
+              {BACKTEST_PERIODS.map((bp, i) => (
+                <button
+                  key={bp.years}
+                  className={`top10-tab${top10ActiveTab === i ? " active" : ""}`}
+                  onClick={() => setTop10ActiveTab(i)}
+                >
+                  {bp.label}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="top10-period-label">
+              {timeframe === "daily" ? "일봉" : "주봉"} · {period}년 백테스트 기준
+            </p>
+          )}
+
+          {(() => {
+            const years = isBasic() ? BACKTEST_PERIODS[top10ActiveTab].years : period;
+            const list = top10Results[years] || [];
+            if (!list.length) return <p className="top10-empty">해당 기간에 대한 데이터가 부족합니다</p>;
+            return (
+              <div className="top10-list">
+                {list.map((s, i) => (
+                  <button key={i} className="top10-card" onClick={() => handleTop10Select(s)}>
+                    <span className={`top10-rank${i < 3 ? ` medal-${i + 1}` : ""}`}>{i + 1}</span>
+                    <div className="top10-info">
+                      <span className="top10-name">{s.label}</span>
+                      <span className="top10-stats">
+                        승률 {fmt(s.winRate, 0)}% · {s.tradeCount}회 거래 · MDD -{fmt(s.mdd, 0)}%
+                      </span>
+                    </div>
+                    <div className="top10-right">
+                      <span className={`top10-score ${s.score >= 60 ? "high" : s.score >= 30 ? "mid" : "low"}`}>
+                        {s.score}점
+                      </span>
+                      <span className={`top10-return ${s.totalReturn >= 0 ? "up" : "down"}`}>
+                        {s.totalReturn >= 0 ? "+" : ""}{fmt(s.totalReturn, 0)}%
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            );
+          })()}
+
+          <p className="top10-hint">전략을 탭하면 상세 백테스트 결과를 볼 수 있어요</p>
+
+          <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
+            📤 TOP 10 공유하기
+          </button>
+
+          <button className="btn-secondary trade-reset-btn" onClick={() => setStep("strategy")}>
+            ← 전략 선택으로
+          </button>
+        </div>
+      )}
+
       {/* Step 5: Result */}
       {step === "result" && result && (
         <div className="trade-card">
@@ -517,8 +699,32 @@ export default function TradingSimulation({ onCoinsChanged }) {
                 <div className="trade-score-badge">
                   <span className="trade-score-num">{result.score}</span>
                   <span className="trade-score-label">점</span>
+                  <button className="score-info-btn" onClick={() => setShowScoreInfo(!showScoreInfo)}>?</button>
                 </div>
               </div>
+              {showScoreInfo && (() => {
+                const bd = scoreBreakdown(result);
+                return (
+                  <div className="score-breakdown">
+                    <div className="score-breakdown-row">
+                      <span>수익률 점수</span>
+                      <span className="up">+{bd.returnScore}</span>
+                    </div>
+                    <div className="score-breakdown-row">
+                      <span>승률 점수</span>
+                      <span className="up">+{bd.winScore}</span>
+                    </div>
+                    <div className="score-breakdown-row">
+                      <span>MDD 패널티</span>
+                      <span className="down">-{bd.mddPenalty}</span>
+                    </div>
+                    <div className="score-breakdown-total">
+                      <span>총점</span>
+                      <span>{bd.total}점</span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Trade chart */}
               {chartPrices && result.trades.length > 0 && (
@@ -594,6 +800,10 @@ export default function TradingSimulation({ onCoinsChanged }) {
                 </details>
               )}
 
+              <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
+                📤 결과 공유하기
+              </button>
+
               <AdBanner className="ad-banner-inline" />
 
               <button className="btn-secondary trade-reset-btn" onClick={reset}>
@@ -617,6 +827,46 @@ export default function TradingSimulation({ onCoinsChanged }) {
       <div className="trade-disclaimer">
         ⚠️ 과거 성과는 미래 수익을 보장하지 않습니다. 이 결과는 기계적 조건의 역사적 시뮬레이션이며, 투자 권유가 아닙니다.
       </div>
+
+      {showShare && step === "result" && result && revealed && (
+        <ShareSheet
+          text={`📊 ${ticker} ${label} 백테스트 (${period}년)\n점수 ${result.score}점 · 수익률 ${result.totalReturn >= 0 ? "+" : ""}${fmt(result.totalReturn)}%\n승률 ${fmt(result.winRate)}% · ${result.tradeCount}회 거래 · MDD -${fmt(result.mdd)}%`}
+          card={{
+            title: `${ticker} ${label} 백테스트`,
+            period: `${timeframe === "daily" ? "일봉" : "주봉"} · ${period}년`,
+            stats: [
+              { label: "전략 점수", value: `${result.score}점`, color: "#3182F6" },
+              { label: "수익률", value: `${result.totalReturn >= 0 ? "+" : ""}${fmt(result.totalReturn)}%`, color: result.totalReturn >= 0 ? "#4ade80" : "#f87171" },
+              { label: "바이앤홀드", value: `${baseline?.returnPct >= 0 ? "+" : ""}${fmt(baseline?.returnPct)}%`, color: baseline?.returnPct >= 0 ? "#4ade80" : "#f87171" },
+              { label: "승률", value: `${fmt(result.winRate)}%`, color: "#ffffff" },
+              { label: "거래 횟수", value: `${result.tradeCount}회`, color: "#ffffff" },
+              { label: "MDD", value: `-${fmt(result.mdd)}%`, color: "#f87171" },
+            ],
+          }}
+          onClose={() => setShowShare(false)}
+        />
+      )}
+
+      {showShare && step === "top10-result" && top10Results && (() => {
+        const years = isBasic() ? BACKTEST_PERIODS[top10ActiveTab].years : period;
+        const list = top10Results[years] || [];
+        if (!list.length) return null;
+        const tickerName = getTickerLabel(ticker);
+        return (
+          <ShareSheet
+            text={`🏆 ${ticker}(${tickerName}) TOP 10 전략 (${years}년)\n${list.slice(0, 5).map((s, i) => `${i + 1}위 ${s.label} ${s.score}점 ${s.totalReturn >= 0 ? "+" : ""}${fmt(s.totalReturn, 0)}%`).join("\n")}`}
+            card={{
+              title: `${ticker} 최적 전략 TOP 10`,
+              period: `${timeframe === "daily" ? "일봉" : "주봉"} · ${years}년 백테스트`,
+              rows: list.slice(0, 5).map((s) => ({
+                label: s.label,
+                value: `${s.score}점 ${s.totalReturn >= 0 ? "+" : ""}${fmt(s.totalReturn, 0)}%`,
+              })),
+            }}
+            onClose={() => setShowShare(false)}
+          />
+        );
+      })()}
     </div>
   );
 }

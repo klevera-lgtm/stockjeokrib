@@ -6,10 +6,8 @@ import { getTickerLabel } from "../utils/tickers.js";
 import { isBasic } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import {
-  backtestMA, backtestRSI, backtestMACD, backtestDualMA,
-  filterByPeriod, scoreResult, strategyLabel,
+  filterByPeriod, rankAllStrategies,
   currentMASignal, currentRSISignal, currentMACDSignal, currentDualMASignal,
-  MA_PERIODS, RSI_COMBOS, DUAL_MA_COMBOS,
 } from "../utils/tradingEngine.js";
 
 const PF_KEY = "ait_trade_portfolio";
@@ -26,38 +24,7 @@ function save(list) {
 async function findTopStrategies(ticker, count = 10) {
   const raw = await loadPrices(ticker);
   const prices = filterByPeriod(raw, 5);
-  if (prices.length < 50) return [];
-
-  const results = [];
-  for (const p of MA_PERIODS) {
-    try {
-      const r = backtestMA(prices, p);
-      results.push({ type: "ma", params: { period: p }, score: scoreResult(r),
-        label: strategyLabel("ma", { period: p }), totalReturn: r.totalReturn });
-    } catch {}
-  }
-  for (const c of RSI_COMBOS) {
-    try {
-      const r = backtestRSI(prices, c);
-      results.push({ type: "rsi", params: c, score: scoreResult(r),
-        label: strategyLabel("rsi", c), totalReturn: r.totalReturn });
-    } catch {}
-  }
-  try {
-    const r = backtestMACD(prices);
-    results.push({ type: "macd", params: {}, score: scoreResult(r),
-      label: strategyLabel("macd", {}), totalReturn: r.totalReturn });
-  } catch {}
-  for (const d of DUAL_MA_COMBOS) {
-    try {
-      const r = backtestDualMA(prices, d.short, d.long);
-      results.push({ type: "dualma", params: { short: d.short, long: d.long }, score: scoreResult(r),
-        label: strategyLabel("dualma", { short: d.short, long: d.long }), totalReturn: r.totalReturn });
-    } catch {}
-  }
-
-  results.sort((a, b) => b.score - a.score);
-  return results.slice(0, count);
+  return rankAllStrategies(prices, count);
 }
 
 function getSignal(prices, type, params) {
