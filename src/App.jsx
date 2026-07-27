@@ -20,6 +20,7 @@ import TradingPortfolio from "./components/TradingPortfolio.jsx";
 import OnboardingModal, { isOnboardDone } from "./components/OnboardingModal.jsx";
 import InvestTypeTest from "./components/InvestTypeTest.jsx";
 import CoinShopModal from "./components/CoinShopModal.jsx";
+import RewardedAdBanner from "./components/RewardedAdBanner.jsx";
 import { loadPrices, prefetchTickers } from "./utils/dataLoader.js";
 import { precomputeFeaturedCombos } from "./utils/comboResultCache.js";
 import { logScreen, logClick } from "./utils/analytics.js";
@@ -211,6 +212,7 @@ export default function App() {
             </button>
           </div>
         )}
+        {!basic && <RewardedAdBanner onEarned={refreshCoins} />}
         {renderContent()}
         <Disclaimer />
       </div>
