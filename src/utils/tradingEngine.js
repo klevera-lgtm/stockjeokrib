@@ -426,6 +426,20 @@ export function scoreResult(result) {
   return Math.max(0, Math.round(returnScore + winScore - mddPenalty));
 }
 
+export function scoreBreakdown(result) {
+  if (!result.tradeCount) return { returnScore: 0, winScore: 0, mddPenalty: 0, total: 0 };
+  const rawReturn = Math.min(result.totalReturn, 200) / 2;
+  const rawWin = result.winRate * 0.5;
+  const rawMdd = Math.min(result.mdd, 50);
+  const total = scoreResult(result);
+  return {
+    returnScore: Math.round(rawReturn),
+    winScore: Math.round(rawWin),
+    mddPenalty: Math.round(rawMdd),
+    total,
+  };
+}
+
 // ── Strategy label helpers ──────────────────────────────────────────────────
 
 export const MA_PERIODS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200];
@@ -569,3 +583,43 @@ export const BACKTEST_PERIODS = [
   { label: "3년", years: 3 },
   { label: "10년", years: 10 },
 ];
+
+export function rankAllStrategies(prices, count = 10) {
+  if (prices.length < 50) return [];
+  const results = [];
+
+  for (const p of MA_PERIODS) {
+    try {
+      const r = backtestMA(prices, p);
+      results.push({ type: "ma", params: { period: p }, score: scoreResult(r),
+        label: strategyLabel("ma", { period: p }),
+        totalReturn: r.totalReturn, winRate: r.winRate, mdd: r.mdd, tradeCount: r.tradeCount });
+    } catch {}
+  }
+  for (const c of RSI_COMBOS) {
+    try {
+      const r = backtestRSI(prices, c);
+      results.push({ type: "rsi", params: c, score: scoreResult(r),
+        label: strategyLabel("rsi", c),
+        totalReturn: r.totalReturn, winRate: r.winRate, mdd: r.mdd, tradeCount: r.tradeCount });
+    } catch {}
+  }
+  try {
+    const r = backtestMACD(prices);
+    results.push({ type: "macd", params: {}, score: scoreResult(r),
+      label: strategyLabel("macd", {}),
+      totalReturn: r.totalReturn, winRate: r.winRate, mdd: r.mdd, tradeCount: r.tradeCount });
+  } catch {}
+  for (const d of DUAL_MA_COMBOS) {
+    try {
+      const r = backtestDualMA(prices, d.short, d.long);
+      results.push({ type: "dualma", params: { short: d.short, long: d.long }, score: scoreResult(r),
+        label: strategyLabel("dualma", { short: d.short, long: d.long }),
+        totalReturn: r.totalReturn, winRate: r.winRate, mdd: r.mdd, tradeCount: r.tradeCount });
+    } catch {}
+  }
+
+  const filtered = results.filter((r) => r.tradeCount >= 3);
+  filtered.sort((a, b) => b.score - a.score);
+  return filtered.slice(0, count);
+}
