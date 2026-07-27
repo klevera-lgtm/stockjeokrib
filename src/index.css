@@ -3492,8 +3492,14 @@ input, select {
   background: var(--surface); border: 1.5px solid var(--border);
   border-radius: 14px; padding: 14px; position: relative;
   display: flex; flex-direction: column; gap: 6px;
+  cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s;
+  text-align: left; font: inherit; color: inherit; width: 100%;
 }
-.breadth-period-card.locked { min-height: 100px; }
+.breadth-period-card:active { transform: scale(0.97); }
+.breadth-period-card.active {
+  border-color: #3182f6; box-shadow: 0 0 0 2px rgba(49,130,246,0.18);
+}
+.breadth-period-card.locked { min-height: 100px; cursor: pointer; }
 .breadth-period-header {
   display: flex; justify-content: space-between; align-items: center;
 }
