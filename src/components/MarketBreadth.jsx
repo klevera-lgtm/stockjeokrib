@@ -4,6 +4,7 @@ import AdBanner from "./AdBanner.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
 import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
+import { shareText, APP_LINK } from "../utils/share.js";
 
 const BREADTH_URL =
   "https://raw.githubusercontent.com/kittycapital/market-breadth/main/data/market_breadth.json";
@@ -38,6 +39,40 @@ function gaugeLabel(pct) {
   return "침체";
 }
 
+function findZones(arr) {
+  const zones = [];
+  let cur = null;
+  for (let i = 0; i < arr.length; i++) {
+    const t = arr[i] >= 80 ? "hot" : arr[i] <= 20 ? "cold" : null;
+    if (t && cur?.type === t) cur.end = i;
+    else {
+      if (cur) zones.push(cur);
+      cur = t ? { start: i, end: i, type: t } : null;
+    }
+  }
+  if (cur) zones.push(cur);
+  return zones;
+}
+
+const zoneBgPlugin = {
+  id: "zoneBg",
+  beforeDraw(chart) {
+    const zones = chart.options.plugins.zoneBg?.zones;
+    if (!zones?.length) return;
+    const { ctx, chartArea: area, scales: { x } } = chart;
+    if (!area) return;
+    ctx.save();
+    zones.forEach((z) => {
+      const x1 = x.getPixelForValue(z.start);
+      const x2 = x.getPixelForValue(z.end);
+      ctx.fillStyle =
+        z.type === "hot" ? "rgba(255,59,48,0.10)" : "rgba(49,130,246,0.10)";
+      ctx.fillRect(x1, area.top, Math.max(x2 - x1, 3), area.bottom - area.top);
+    });
+    ctx.restore();
+  },
+};
+
 export default function MarketBreadth({ onCoinsChanged }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -48,6 +83,9 @@ export default function MarketBreadth({ onCoinsChanged }) {
   const [unlockedPeriods, setUnlockedPeriods] = useState({});
   const [showGate, setShowGate] = useState(false);
   const [pendingPeriod, setPendingPeriod] = useState(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [shareStatus, setShareStatus] = useState(null);
+  const [zoomedRange, setZoomedRange] = useState(null);
   const chartRef = useRef(null);
   const canvasRef = useRef(null);
   const basic = isBasic();
@@ -69,6 +107,8 @@ export default function MarketBreadth({ onCoinsChanged }) {
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => { setZoomedRange(null); }, [activeIndex, range, activePeriod]);
+
   const drawChart = useCallback(() => {
     if (!data || !canvasRef.current) return;
     if (chartRef.current) chartRef.current.destroy();
@@ -76,18 +116,26 @@ export default function MarketBreadth({ onCoinsChanged }) {
     const idx = data[activeIndex];
     if (!idx) return;
 
-    const dates = idx.dates ?? [];
-    const prices = idx.prices ?? [];
-    const breadthData = idx.breadth?.[activePeriod] ?? idx.breadth?.pct_above_20 ?? [];
-    const sliceStart = Math.max(0, dates.length - range);
-    const slicedDates = dates.slice(sliceStart);
-    const slicedPrices = prices.slice(sliceStart);
-    const slicedBreadth = breadthData.slice(sliceStart);
+    const allDates = idx.dates ?? [];
+    const allPrices = idx.prices ?? [];
+    const allBreadth = idx.breadth?.[activePeriod] ?? idx.breadth?.pct_above_20 ?? [];
     const periodLabel = PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일";
+    const rangeStart = Math.max(0, allDates.length - range);
 
-    const bgColors = slicedBreadth.map((b) =>
-      b >= 80 ? "rgba(255,59,48,0.12)" : b <= 20 ? "rgba(0,185,107,0.12)" : "transparent"
-    );
+    let slicedDates, slicedPrices, slicedBreadth;
+    if (zoomedRange) {
+      const zs = rangeStart + zoomedRange.start;
+      const ze = Math.min(allDates.length, rangeStart + zoomedRange.end + 1);
+      slicedDates = allDates.slice(zs, ze);
+      slicedPrices = allPrices.slice(zs, ze);
+      slicedBreadth = allBreadth.slice(zs, ze);
+    } else {
+      slicedDates = allDates.slice(rangeStart);
+      slicedPrices = allPrices.slice(rangeStart);
+      slicedBreadth = allBreadth.slice(rangeStart);
+    }
+
+    const zones = findZones(slicedBreadth);
 
     chartRef.current = new Chart(canvasRef.current, {
       type: "line",
@@ -116,21 +164,36 @@ export default function MarketBreadth({ onCoinsChanged }) {
             fill: false,
             yAxisID: "y1",
           },
-          {
-            label: "구간 배경",
-            data: slicedPrices,
-            backgroundColor: bgColors,
-            borderWidth: 0,
-            pointRadius: 0,
-            fill: true,
-            yAxisID: "y",
-          },
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
+        onClick: !zoomedRange
+          ? (event, _el, chart) => {
+              const ci = Math.round(chart.scales.x.getValueForPixel(event.x));
+              if (ci < 0 || ci >= slicedBreadth.length) return;
+              const hit = zones.find((z) => ci >= z.start && ci <= z.end);
+              if (!hit) return;
+              const buffer = 40;
+              const start = Math.max(0, hit.start - buffer);
+              const end = Math.min(slicedBreadth.length - 1, hit.end + buffer);
+              const zeAbs = rangeStart + hit.end;
+              const pEnd = allPrices[zeAbs];
+              let ret30 = null, ret60 = null;
+              if (pEnd && zeAbs + 30 < allDates.length)
+                ret30 = ((allPrices[zeAbs + 30] - pEnd) / pEnd) * 100;
+              if (pEnd && zeAbs + 60 < allDates.length)
+                ret60 = ((allPrices[zeAbs + 60] - pEnd) / pEnd) * 100;
+              setZoomedRange({
+                start, end, type: hit.type,
+                startDate: allDates[rangeStart + hit.start],
+                endDate: allDates[rangeStart + hit.end],
+                ret30, ret60,
+              });
+            }
+          : undefined,
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -142,9 +205,9 @@ export default function MarketBreadth({ onCoinsChanged }) {
                   return `Breadth ${periodLabel}: ${ctx.raw?.toFixed(1)}%`;
                 return null;
               },
-              filter: (item) => item.datasetIndex < 2,
             },
           },
+          zoneBg: { zones },
         },
         scales: {
           x: {
@@ -184,8 +247,9 @@ export default function MarketBreadth({ onCoinsChanged }) {
           },
         },
       },
+      plugins: [zoneBgPlugin],
     });
-  }, [data, activeIndex, range, activePeriod]);
+  }, [data, activeIndex, range, activePeriod, zoomedRange]);
 
   useEffect(() => { drawChart(); return () => chartRef.current?.destroy(); }, [drawChart]);
 
@@ -229,6 +293,31 @@ export default function MarketBreadth({ onCoinsChanged }) {
       <h2 className="section-title">마켓 브레쓰</h2>
       <p className="section-subtitle">이동평균선 상회 종목 비율</p>
 
+      {/* Help accordion */}
+      <div className="breadth-help-accordion">
+        <button className="breadth-help-toggle" onClick={() => setHelpOpen(!helpOpen)}>
+          <span>❓ 마켓 브레쓰가 뭔가요?</span>
+          <span className={`breadth-help-arrow${helpOpen ? " open" : ""}`}>▼</span>
+        </button>
+        {helpOpen && (
+          <div className="breadth-help-body">
+            <p className="breadth-help-text">
+              마켓 브레쓰(Market Breadth)는 시장 전체의 건강 상태를 보여주는 지표예요.
+            </p>
+            <dl className="breadth-help-list">
+              <dt>📊 이동평균선 상회 비율이란?</dt>
+              <dd>인덱스 구성 종목 중 현재 주가가 N일 이동평균선보다 높은 종목의 비율이에요. 예를 들어 S&P 500의 20일 상회 비율이 60%라면, 500개 종목 중 300개가 20일 이평선 위에 있다는 뜻이에요.</dd>
+              <dt>🔴 과열 구간 (80% 이상)</dt>
+              <dd>대부분의 종목이 상승 중이에요. 단기 과열 가능성이 있어요.</dd>
+              <dt>🟢 침체 구간 (20% 이하)</dt>
+              <dd>대부분의 종목이 하락 중이에요. 시장이 과도하게 위축된 상태예요.</dd>
+              <dt>📅 이동평균 기간별 의미</dt>
+              <dd>20일은 단기 추세, 50일은 중기, 200일은 장기 추세를 반영해요. 기간이 길수록 큰 흐름을 보여줘요.</dd>
+            </dl>
+          </div>
+        )}
+      </div>
+
       {/* Index tabs */}
       <div className="breadth-idx-tabs">
         {INDICES.map((sym) => (
@@ -268,6 +357,21 @@ export default function MarketBreadth({ onCoinsChanged }) {
         </div>
       </div>
 
+      {/* Share button */}
+      <button
+        className={`breadth-share-btn${shareStatus ? " done" : ""}`}
+        onClick={async () => {
+          logClick("breadth_share", { index: activeIndex });
+          const periodLabel = PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일";
+          const text = `📊 ${INDEX_NAMES[activeIndex]} 마켓 브레쓰\n${periodLabel} 이동평균선 상회 비율: ${breadthVal.toFixed(1)}% (${gaugeLabel(breadthVal)})\n기준일: ${updatedDate}\n\n주식적립왕에서 확인하기 👉 ${APP_LINK}`;
+          const result = await shareText(text);
+          setShareStatus(result);
+          setTimeout(() => setShareStatus(null), 2000);
+        }}
+      >
+        {shareStatus === "copied" ? "✓ 클립보드에 복사됨" : shareStatus === "shared" ? "✓ 공유 완료" : "📤 오늘의 시장온도 공유하기"}
+      </button>
+
       {/* Banner Ad #1 */}
       <AdBanner className="breadth-ad" />
 
@@ -276,7 +380,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
         <div className="breadth-chart-header">
           <span className="breadth-chart-title">{activeIndex} 가격 + Breadth {PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일"} 구간</span>
           <div className="breadth-range-tabs">
-            {RANGE_OPTIONS.map((r) => (
+            {!zoomedRange && RANGE_OPTIONS.map((r) => (
               <button
                 key={r.label}
                 className={`breadth-range-btn${range === r.days ? " active" : ""}`}
@@ -285,13 +389,51 @@ export default function MarketBreadth({ onCoinsChanged }) {
                 {r.label}
               </button>
             ))}
+            {zoomedRange && (
+              <button className="breadth-zoom-reset" onClick={() => setZoomedRange(null)}>
+                ← 전체 보기
+              </button>
+            )}
           </div>
         </div>
+
+        {zoomedRange && (
+          <div className="breadth-zoom-info">
+            <span className={`breadth-zone-tag ${zoomedRange.type}`}>
+              {zoomedRange.type === "hot" ? "🔴 과열" : "🔵 침체"} 구간
+            </span>
+            <span className="breadth-zone-dates">
+              {zoomedRange.startDate} ~ {zoomedRange.endDate}
+            </span>
+            {(zoomedRange.ret30 != null || zoomedRange.ret60 != null) && (
+              <div className="breadth-zone-returns">
+                {zoomedRange.ret30 != null && (
+                  <span>구간 종료 후 30일{" "}
+                    <b style={{ color: zoomedRange.ret30 >= 0 ? "#ff3b30" : "#3182f6" }}>
+                      {zoomedRange.ret30 >= 0 ? "+" : ""}{zoomedRange.ret30.toFixed(1)}%
+                    </b>
+                  </span>
+                )}
+                {zoomedRange.ret60 != null && (
+                  <span>60일{" "}
+                    <b style={{ color: zoomedRange.ret60 >= 0 ? "#ff3b30" : "#3182f6" }}>
+                      {zoomedRange.ret60 >= 0 ? "+" : ""}{zoomedRange.ret60.toFixed(1)}%
+                    </b>
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="breadth-legend">
           <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "rgba(255,59,48,0.35)" }} />과열 (80%+)</span>
-          <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "rgba(0,185,107,0.35)" }} />침체 (20%-)</span>
+          <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "rgba(49,130,246,0.35)" }} />침체 (20%-)</span>
           <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "#f59e0b" }} />Breadth {PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일"}</span>
         </div>
+        {!zoomedRange && (
+          <p className="breadth-zone-hint">색칠된 구간을 탭하면 확대돼요</p>
+        )}
         <div className="breadth-chart-wrap">
           <canvas ref={canvasRef} />
         </div>
