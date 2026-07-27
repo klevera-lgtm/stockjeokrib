@@ -44,6 +44,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
   const [error, setError] = useState(null);
   const [activeIndex, setActiveIndex] = useState("SPY");
   const [range, setRange] = useState(252);
+  const [activePeriod, setActivePeriod] = useState("pct_above_20");
   const [unlockedPeriods, setUnlockedPeriods] = useState({});
   const [showGate, setShowGate] = useState(false);
   const [pendingPeriod, setPendingPeriod] = useState(null);
@@ -77,11 +78,12 @@ export default function MarketBreadth({ onCoinsChanged }) {
 
     const dates = idx.dates ?? [];
     const prices = idx.prices ?? [];
-    const breadth20 = idx.breadth?.pct_above_20 ?? [];
+    const breadthData = idx.breadth?.[activePeriod] ?? idx.breadth?.pct_above_20 ?? [];
     const sliceStart = Math.max(0, dates.length - range);
     const slicedDates = dates.slice(sliceStart);
     const slicedPrices = prices.slice(sliceStart);
-    const slicedBreadth = breadth20.slice(sliceStart);
+    const slicedBreadth = breadthData.slice(sliceStart);
+    const periodLabel = PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일";
 
     const bgColors = slicedBreadth.map((b) =>
       b >= 80 ? "rgba(255,59,48,0.12)" : b <= 20 ? "rgba(0,185,107,0.12)" : "transparent"
@@ -104,7 +106,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
             yAxisID: "y",
           },
           {
-            label: "20일 이평선 상회 비율",
+            label: `${periodLabel} 이평선 상회 비율`,
             data: slicedBreadth,
             borderColor: "#f59e0b",
             borderWidth: 1.5,
@@ -137,7 +139,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
                 if (ctx.datasetIndex === 0)
                   return `${activeIndex}: $${ctx.raw?.toFixed(2) ?? ctx.raw}`;
                 if (ctx.datasetIndex === 1)
-                  return `Breadth 20일: ${ctx.raw?.toFixed(1)}%`;
+                  return `Breadth ${periodLabel}: ${ctx.raw?.toFixed(1)}%`;
                 return null;
               },
               filter: (item) => item.datasetIndex < 2,
@@ -183,7 +185,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
         },
       },
     });
-  }, [data, activeIndex, range]);
+  }, [data, activeIndex, range, activePeriod]);
 
   useEffect(() => { drawChart(); return () => chartRef.current?.destroy(); }, [drawChart]);
 
@@ -198,6 +200,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
     consumeQuery();
     onCoinsChanged?.();
     setUnlockedPeriods((prev) => ({ ...prev, [periodKey]: true }));
+    setActivePeriod(periodKey);
   }
 
   if (loading) {
@@ -218,7 +221,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
 
   const idx = data[activeIndex];
   const current = idx?.current ?? {};
-  const breadth20 = current.pct_above_20 ?? 0;
+  const breadthVal = current[activePeriod] ?? current.pct_above_20 ?? 0;
   const updatedDate = idx?.dates?.at(-1) ?? "";
 
   return (
@@ -243,19 +246,19 @@ export default function MarketBreadth({ onCoinsChanged }) {
       {/* Current breadth card — FREE */}
       <div className="breadth-current-card">
         <div className="breadth-current-header">
-          <span className="breadth-current-title">20일 이동평균선 상회 비율</span>
+          <span className="breadth-current-title">{PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일"} 이동평균선 상회 비율</span>
           <span className="breadth-updated">{updatedDate}</span>
         </div>
         <div className="breadth-gauge-row">
-          <span className="breadth-big-num" style={{ color: gaugeColor(breadth20) }}>
-            {breadth20.toFixed(1)}%
+          <span className="breadth-big-num" style={{ color: gaugeColor(breadthVal) }}>
+            {breadthVal.toFixed(1)}%
           </span>
-          <span className="breadth-gauge-label" style={{ background: gaugeColor(breadth20) }}>
-            {gaugeLabel(breadth20)}
+          <span className="breadth-gauge-label" style={{ background: gaugeColor(breadthVal) }}>
+            {gaugeLabel(breadthVal)}
           </span>
         </div>
         <div className="breadth-gauge-bar">
-          <div className="breadth-gauge-fill" style={{ width: `${breadth20}%`, background: gaugeColor(breadth20) }} />
+          <div className="breadth-gauge-fill" style={{ width: `${breadthVal}%`, background: gaugeColor(breadthVal) }} />
           <div className="breadth-gauge-mark breadth-gauge-20" />
           <div className="breadth-gauge-mark breadth-gauge-80" />
         </div>
@@ -271,7 +274,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
       {/* Price chart with breadth zones */}
       <div className="breadth-chart-section">
         <div className="breadth-chart-header">
-          <span className="breadth-chart-title">{activeIndex} 가격 + Breadth 구간</span>
+          <span className="breadth-chart-title">{activeIndex} 가격 + Breadth {PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일"} 구간</span>
           <div className="breadth-range-tabs">
             {RANGE_OPTIONS.map((r) => (
               <button
@@ -287,7 +290,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
         <div className="breadth-legend">
           <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "rgba(255,59,48,0.35)" }} />과열 (80%+)</span>
           <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "rgba(0,185,107,0.35)" }} />침체 (20%-)</span>
-          <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "#f59e0b" }} />Breadth 20일</span>
+          <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "#f59e0b" }} />Breadth {PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일"}</span>
         </div>
         <div className="breadth-chart-wrap">
           <canvas ref={canvasRef} />
@@ -297,21 +300,28 @@ export default function MarketBreadth({ onCoinsChanged }) {
       {/* Banner Ad #2 */}
       <AdBanner className="breadth-ad" />
 
-      {/* Premium breadth cards — COINS */}
+      {/* Period selector buttons */}
       <div className="breadth-premium-section">
         <h3 className="breadth-premium-title">이동평균선별 상회 비율</h3>
         <div className="breadth-period-grid">
           {PERIODS.map((p) => {
             const val = current[p.key] ?? 0;
             const unlocked = p.free || basic || unlockedPeriods[p.key];
+            const isActive = activePeriod === p.key;
             return (
-              <div key={p.key} className={`breadth-period-card${unlocked ? "" : " locked"}`}>
+              <button
+                key={p.key}
+                className={`breadth-period-card${unlocked ? "" : " locked"}${isActive ? " active" : ""}`}
+                onClick={() => {
+                  if (!unlocked) { handleUnlock(p.key); return; }
+                  setActivePeriod(p.key);
+                  logClick("breadth_period", { period: p.key });
+                }}
+              >
                 <div className="breadth-period-header">
                   <span className="breadth-period-label">{p.label}</span>
                   {!p.free && !unlocked && (
-                    <button className="breadth-unlock-btn" onClick={() => handleUnlock(p.key)}>
-                      🪙 1
-                    </button>
+                    <span className="breadth-unlock-btn">🪙 1</span>
                   )}
                 </div>
                 {unlocked ? (
@@ -332,7 +342,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
                     <span>코인으로 확인</span>
                   </div>
                 )}
-              </div>
+              </button>
             );
           })}
         </div>
@@ -351,6 +361,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
               consumeQuery();
               onCoinsChanged?.();
               setUnlockedPeriods((prev) => ({ ...prev, [pendingPeriod]: true }));
+              setActivePeriod(pendingPeriod);
               setPendingPeriod(null);
             }
           }}
