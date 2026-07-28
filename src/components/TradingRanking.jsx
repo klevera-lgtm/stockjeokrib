@@ -165,6 +165,12 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
             </span>
             <span className="alpha-bh-cagr">연 {result.bhCAGR.toFixed(1)}%</span>
           </div>
+          <button
+            className="alpha-accumulate-btn"
+            onClick={() => onNavigate?.("accumulation", "strategy", { ticker })}
+          >
+            💰 {ticker} 적립 시뮬레이션 해보기
+          </button>
         </div>
       )}
 

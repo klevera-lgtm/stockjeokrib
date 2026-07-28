@@ -3731,6 +3731,7 @@ input, select {
 .alpha-bh-value { font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums; }
 .alpha-bh-cagr { font-size: 12px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
 .alpha-bh-mdd { font-size: 11px; color: var(--text-tertiary); }
+.alpha-accumulate-btn { width: 100%; margin-top: 14px; padding: 14px 20px; font-size: 15px; font-weight: 700; border-radius: 10px; background: var(--primary); color: #fff; border: none; cursor: pointer; }
 
 .alpha-teaser { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1px solid #fcd34d; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
 .alpha-teaser-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
