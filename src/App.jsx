@@ -22,6 +22,7 @@ import OnboardingModal, { isOnboardDone } from "./components/OnboardingModal.jsx
 import InvestTypeTest from "./components/InvestTypeTest.jsx";
 import CoinShopModal from "./components/CoinShopModal.jsx";
 import RewardedAdBanner from "./components/RewardedAdBanner.jsx";
+import InsightCard from "./components/InsightCard.jsx";
 import { loadPrices, prefetchTickers } from "./utils/dataLoader.js";
 import { precomputeFeaturedCombos } from "./utils/comboResultCache.js";
 import { logScreen, logClick } from "./utils/analytics.js";
@@ -215,6 +216,7 @@ export default function App() {
           </div>
         )}
         {!basic && <RewardedAdBanner onEarned={refreshCoins} />}
+        <InsightCard onNavigate={handleNavigate} />
         {renderContent()}
         <Disclaimer />
       </div>
