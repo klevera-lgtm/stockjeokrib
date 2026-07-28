@@ -378,7 +378,7 @@ export default function TradingSimulation({ onCoinsChanged }) {
 
       {/* Step 1: Ticker */}
       {step === "ticker" && (
-        <TickerSearch onSelect={handleTickerSelect} />
+        <TickerSearch onSelect={handleTickerSelect} selected={ticker} />
       )}
 
       {/* Step 2: Timeframe */}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   loadDividendMeta,
+  loadRawPrices,
   getCategoryLabel,
   getCategoryColor,
   getFrequencyLabel,
@@ -11,6 +12,16 @@ import {
 import { logScreen, logClick } from "../utils/analytics.js";
 import ShareSheet from "./ShareSheet.jsx";
 import AdBanner from "./AdBanner.jsx";
+import MiniSparkline from "./MiniSparkline.jsx";
+
+function DivSparkline({ ticker }) {
+  const [prices, setPrices] = useState(null);
+  useEffect(() => {
+    loadRawPrices(ticker).then((p) => setPrices(p.slice(-120))).catch(() => {});
+  }, [ticker]);
+  if (!prices) return <div className="ranking-spark-ph" />;
+  return <MiniSparkline prices={prices} width={48} height={20} />;
+}
 
 const SORT_OPTIONS = [
   { id: "yield", label: "배당률 순" },
@@ -122,6 +133,7 @@ export default function DividendRanking({ onTickerSelect, onNavigate }) {
                   {item.warning === "yieldmax" && <span className="warn-badge">NAV 주의</span>}
                 </div>
               </div>
+              <div className="ranking-spark"><DivSparkline ticker={item.ticker} /></div>
               <div className="ranking-stats">
                 <div className="ranking-yield">
                   <span className="stat-value">{formatYield(item.currentYield)}</span>

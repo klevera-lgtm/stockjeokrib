@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import TickerSearch from "./TickerSearch.jsx";
+import BacktestChart from "./BacktestChart.jsx";
 import AdBanner from "./AdBanner.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
@@ -38,6 +39,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState(null);
   const [revealed, setRevealed] = useState(false);
+  const [expandedIdx, setExpandedIdx] = useState(0);
   const [showGate, setShowGate] = useState(false);
   const basic = isBasic();
 
@@ -70,6 +72,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
               totalReturn: r.totalReturn, cagr, excess,
               totalExcess: r.totalReturn - bh.returnPct,
               winRate: r.winRate, mdd: r.mdd, tradeCount: r.tradeCount,
+              trades: r.trades,
             });
           }
         } catch {}
@@ -77,7 +80,8 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
       }
 
       alphas.sort((a, b) => b.excess - a.excess);
-      setResult({ bh, bhCAGR, alphas });
+      setExpandedIdx(0);
+      setResult({ bh, bhCAGR, alphas, prices: filtered });
       logClick("alpha_search", { ticker: t, period: p.years, found: alphas.length });
     } catch {}
     setLoading(false);
@@ -109,7 +113,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
       <h2 className="section-title">알파 전략</h2>
       <p className="section-desc">바이앤홀드 대비 연 {ALPHA_THRESHOLD}% 이상 초과수익을 기록한 전략만 선별</p>
 
-      <TickerSearch onSelect={handleTickerSelect} compact />
+      <TickerSearch onSelect={handleTickerSelect} selected={ticker} compact />
 
       {ticker && (
         <>
@@ -234,26 +238,40 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
           </div>
 
           <div className="alpha-list">
-            {result.alphas.map((a, i) => (
-              <div className="alpha-item" key={i}>
-                <div className="alpha-item-rank">{i + 1}</div>
-                <div className="alpha-item-body">
-                  <div className="alpha-item-top">
-                    <span className="alpha-item-label">{a.label}</span>
-                    <span className="alpha-excess-badge">+{a.totalExcess.toFixed(1)}%p</span>
+            {result.alphas.map((a, i) => {
+              const isOpen = expandedIdx === i;
+              return (
+                <div className={`alpha-item${isOpen ? " alpha-item--open" : ""}`} key={i}>
+                  <div
+                    className="alpha-item-header"
+                    onClick={() => setExpandedIdx(isOpen ? null : i)}
+                  >
+                    <div className="alpha-item-rank">{i + 1}</div>
+                    <div className="alpha-item-body">
+                      <div className="alpha-item-top">
+                        <span className="alpha-item-label">{a.label}</span>
+                        <span className="alpha-excess-badge">+{a.totalExcess.toFixed(1)}%p</span>
+                      </div>
+                      <div className="alpha-item-metrics">
+                        <span className={a.totalReturn >= 0 ? "positive" : "negative"}>
+                          총 {a.totalReturn >= 0 ? "+" : ""}{a.totalReturn.toFixed(1)}%
+                        </span>
+                        <span>연 {a.cagr.toFixed(1)}%</span>
+                        <span>승률 {a.winRate.toFixed(0)}%</span>
+                        <span>{a.tradeCount}회</span>
+                        <span className="alpha-mdd">MDD {a.mdd.toFixed(1)}%</span>
+                      </div>
+                    </div>
+                    <span className={`alpha-chevron${isOpen ? " alpha-chevron--open" : ""}`}>&#9662;</span>
                   </div>
-                  <div className="alpha-item-metrics">
-                    <span className={a.totalReturn >= 0 ? "positive" : "negative"}>
-                      총 {a.totalReturn >= 0 ? "+" : ""}{a.totalReturn.toFixed(1)}%
-                    </span>
-                    <span>연 {a.cagr.toFixed(1)}%</span>
-                    <span>승률 {a.winRate.toFixed(0)}%</span>
-                    <span>{a.tradeCount}회</span>
-                    <span className="alpha-mdd">MDD {a.mdd.toFixed(1)}%</span>
-                  </div>
+                  {isOpen && a.trades && result.prices && (
+                    <div className="alpha-chart-panel">
+                      <BacktestChart prices={result.prices} trades={a.trades} />
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <AdBanner className="ad-banner-inline" />

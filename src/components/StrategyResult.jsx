@@ -44,6 +44,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   const [revealed, setRevealed] = useState(isBasic());
   const [showShare, setShowShare] = useState(false);
   const [has10yr, setHas10yr] = useState(false);
+  const [chartIdx, setChartIdx] = useState(0);
   const basic = isBasic();
   const autoRanRef = useRef(false);
   const streak = getStreakInfo();
@@ -94,6 +95,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
 
       allResults.sort((a, b) => b.totalReturn - a.totalReturn);
       const benchmark = allResults.find((r) => r.strategy === "monthly-25") ?? null;
+      setChartIdx(0);
       setResults({ list: allResults, benchmark });
     } catch (e) {
       setError(e.message);
@@ -216,25 +218,25 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
           </h2>
           <span className="tx-fee-badge">💰 거래 비용 0.35% 반영</span>
 
-          {results.list[0] && (() => {
-            const best = results.list[0];
+          {results.list[chartIdx] && (() => {
+            const selected = results.list[chartIdx];
             const bm = results.benchmark;
             const toReturnPct = (pv) =>
               pv.map((d) => d.invested > 0 ? (d.value / d.invested - 1) * 100 : 0);
             return (
               <LineChart
-                labels={best.portfolioValues.map((d) => d.date)}
+                labels={selected.portfolioValues.map((d) => d.date)}
                 datasets={[
                   {
-                    label: revealed ? STRATEGY_LABELS[best.strategy] : "최고 수익 전략",
-                    data: toReturnPct(best.portfolioValues),
+                    label: revealed ? STRATEGY_LABELS[selected.strategy] : "최고 수익 전략",
+                    data: toReturnPct(selected.portfolioValues),
                     borderColor: "#3182F6",
                     backgroundColor: "rgba(49,130,246,0.1)",
                     fill: true,
                     tension: 0.3,
                     pointRadius: 0,
                   },
-                  ...(bm && bm.strategy !== best.strategy ? [{
+                  ...(bm && bm.strategy !== selected.strategy ? [{
                     label: "월급날(25일) 기준",
                     data: toReturnPct(bm.portfolioValues),
                     borderColor: "rgba(150,150,150,0.6)",
@@ -273,7 +275,8 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                 return (
                   <div
                     key={r.strategy}
-                    className={`strategy-row${isBest ? " best" : ""}${isWorst ? " worst" : ""}${isBenchmark ? " benchmark" : ""}`}
+                    className={`strategy-row${isBest ? " best" : ""}${isWorst ? " worst" : ""}${isBenchmark ? " benchmark" : ""}${idx === chartIdx ? " strategy-row--selected" : ""}`}
+                    onClick={() => setChartIdx(idx)}
                   >
                     <div className="strategy-rank">
                       {isBenchmark ? "📅" : isBest ? "🥇" : `${idx + 1}`}

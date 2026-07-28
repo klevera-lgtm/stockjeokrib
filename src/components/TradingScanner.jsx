@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import AdBanner from "./AdBanner.jsx";
+import IndicatorChart from "./IndicatorChart.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
 import { isBasic } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
@@ -36,12 +37,22 @@ const FREE_LIMIT = 3;
 
 const scanCache = new Map();
 
+function parseStratId(id) {
+  if (id.startsWith("ma-")) return { type: "ma", period: parseInt(id.split("-")[1]) };
+  if (id.startsWith("rsi-")) { const v = parseInt(id.split("-")[1]); return { type: "rsi", buyBelow: v, sellAbove: v === 20 ? 80 : 70 }; }
+  if (id.startsWith("dualma-")) { const p = id.split("-"); return { type: "dualma", short: parseInt(p[1]), long: parseInt(p[2]) }; }
+  if (id === "macd") return { type: "macd" };
+  if (id.startsWith("bollinger-")) return { type: "bollinger", period: 20, stdMult: parseFloat(id.split("-")[1]) };
+  return null;
+}
+
 export default function TradingScanner({ onNavigate }) {
   const [strategy, setStrategy] = useState(SCAN_STRATEGIES[0]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [expanded, setExpanded] = useState(null);
   const basic = isBasic();
 
   const scan = useCallback(async (strat) => {
@@ -162,33 +173,45 @@ export default function TradingScanner({ onNavigate }) {
           </div>
 
           <div className="scanner-list">
-            {displayResults.map((r) => (
-              <div key={r.ticker} className="scanner-item" onClick={() => {
-                onNavigate?.("trading", "trade-sim", { ticker: r.ticker });
-              }}>
-                <div className="scanner-item-left">
-                  <span className="scanner-ticker">{r.ticker}</span>
-                  <span className="scanner-name">{getTickerLabel(r.ticker)}</span>
-                </div>
-                <div className="scanner-item-right">
-                  <span className={`scanner-badge ${
-                    r.status === "조건 진입" ? "buy" :
-                    r.status === "조건 이탈" ? "sell" :
-                    r.status === "조건 유지 중" ? "hold" : "wait"
-                  }`}>
-                    {r.status}
-                  </span>
-                  {r.proximity !== undefined && (
-                    <span className="scanner-prox">
-                      {r.maShort ? `단기 $${r.maShort.toFixed(0)} / 장기 $${r.maLong.toFixed(0)} (${r.proximity > 0 ? "+" : ""}${r.proximity.toFixed(1)}%)` :
-                       r.maValue ? `MA $${r.maValue.toFixed(0)} · 현재 $${r.price.toFixed(0)}` :
-                       r.rsi ? `RSI ${r.rsi.toFixed(1)}` :
-                       r.lower ? `$${r.lower.toFixed(0)}~$${r.upper.toFixed(0)} · $${r.price.toFixed(0)}` :
-                       r.macd !== undefined ? `MACD ${r.histogram.toFixed(2)}` : ""}
-                    </span>
+            {displayResults.map((r, idx) => (
+              <React.Fragment key={r.ticker}>
+                {idx === 5 && <AdBanner className="ad-banner-inline" />}
+                <div className={`scanner-item${expanded === r.ticker ? " scanner-item--open" : ""}`}>
+                  <div className="scanner-item-header" onClick={() => setExpanded(expanded === r.ticker ? null : r.ticker)}>
+                    <div className="scanner-item-left">
+                      <span className="scanner-ticker">{r.ticker}</span>
+                      <span className="scanner-name">{getTickerLabel(r.ticker)}</span>
+                    </div>
+                    <div className="scanner-item-right">
+                      <span className={`scanner-badge ${
+                        r.status === "조건 진입" ? "buy" :
+                        r.status === "조건 이탈" ? "sell" :
+                        r.status === "조건 유지 중" ? "hold" : "wait"
+                      }`}>
+                        {r.status}
+                      </span>
+                      {r.proximity !== undefined && (
+                        <span className="scanner-prox">
+                          {r.maShort ? `단기 $${r.maShort.toFixed(0)} / 장기 $${r.maLong.toFixed(0)} (${r.proximity > 0 ? "+" : ""}${r.proximity.toFixed(1)}%)` :
+                           r.maValue ? `MA $${r.maValue.toFixed(0)} · 현재 $${r.price.toFixed(0)}` :
+                           r.rsi ? `RSI ${r.rsi.toFixed(1)}` :
+                           r.lower ? `$${r.lower.toFixed(0)}~$${r.upper.toFixed(0)} · $${r.price.toFixed(0)}` :
+                           r.macd !== undefined ? `MACD ${r.histogram.toFixed(2)}` : ""}
+                        </span>
+                      )}
+                      <span className={`scanner-chevron${expanded === r.ticker ? " scanner-chevron--open" : ""}`}>&#9662;</span>
+                    </div>
+                  </div>
+                  {expanded === r.ticker && (
+                    <div className="scanner-item-detail">
+                      <IndicatorChart ticker={r.ticker} indicator={parseStratId(strategy.id)} size="medium" />
+                      <button className="scanner-sim-link" onClick={() => onNavigate?.("trading", "trade-sim", { ticker: r.ticker })}>
+                        📊 {r.ticker} 백테스트 하기
+                      </button>
+                    </div>
                   )}
                 </div>
-              </div>
+              </React.Fragment>
             ))}
           </div>
 

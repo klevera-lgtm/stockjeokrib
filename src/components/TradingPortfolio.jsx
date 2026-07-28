@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import TickerSearch from "./TickerSearch.jsx";
 import AdBanner from "./AdBanner.jsx";
+import IndicatorChart from "./IndicatorChart.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
 import { getTickerLabel } from "../utils/tickers.js";
 import { isBasic } from "../utils/premium.js";
@@ -216,6 +217,20 @@ export default function TradingPortfolio({ onCoinsChanged, onNavigate }) {
                         </>
                       )}
                     </div>
+                  </div>
+                  <div className="pf-card-chart">
+                    <IndicatorChart
+                      ticker={entry.ticker}
+                      indicator={{
+                        type: entry.strategy.type,
+                        ...(entry.strategy.type === "ma" ? { period: entry.strategy.params.period } :
+                            entry.strategy.type === "rsi" ? { buyBelow: entry.strategy.params.buyBelow, sellAbove: entry.strategy.params.sellAbove } :
+                            entry.strategy.type === "dualma" ? { short: entry.strategy.params.short, long: entry.strategy.params.long } :
+                            entry.strategy.type === "bollinger" ? { period: entry.strategy.params.period || 20, stdMult: entry.strategy.params.stdMult || 2 } :
+                            {})
+                      }}
+                      size="small"
+                    />
                   </div>
                 </div>
               );

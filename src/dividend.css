@@ -68,6 +68,8 @@
 .cat-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
 .freq-badge { font-size: 10px; font-weight: 600; color: var(--text-tertiary); background: var(--bg); padding: 2px 7px; border-radius: 4px; }
 .warn-badge { font-size: 10px; font-weight: 700; color: #DC2626; background: #FEE2E2; padding: 2px 7px; border-radius: 4px; }
+.ranking-spark { flex-shrink: 0; }
+.ranking-spark-ph { width: 48px; height: 20px; }
 .ranking-stats { text-align: right; display: flex; flex-direction: column; gap: 2px; min-width: 70px; }
 .ranking-yield .stat-value,
 .ranking-growth .stat-value,
