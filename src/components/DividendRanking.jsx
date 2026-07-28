@@ -141,7 +141,7 @@ export default function DividendRanking({ onTickerSelect, onNavigate }) {
                   </div>
                 ) : (
                   <div className="ranking-price">
-                    <span className="stat-value">{formatPrice(item.latestPrice)}</span>
+                    <span className="stat-value">{formatPrice(item.latestPrice, item.ticker)}</span>
                     <span className="stat-label">현재가</span>
                   </div>
                 )}

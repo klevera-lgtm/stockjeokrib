@@ -104,8 +104,11 @@ export function formatYield(v) {
   return (v * 100).toFixed(2) + "%";
 }
 
-export function formatPrice(v) {
+export function formatPrice(v, ticker) {
   if (v == null) return "-";
+  if (ticker && /^\d+$/.test(ticker)) {
+    return "₩" + Math.round(v).toLocaleString("ko-KR");
+  }
   return "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 

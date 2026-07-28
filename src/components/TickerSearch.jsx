@@ -1,31 +1,21 @@
 import { useState, useMemo } from "react";
 import { TICKER_CATEGORIES, SUPPORTED_TICKERS, getTickerLabel } from "../utils/tickers.js";
 
-const ALL_CATS = ["전체", ...Object.keys(TICKER_CATEGORIES)];
+const POPULAR = ["TSLA", "NVDA", "AAPL", "QQQ", "SPY", "MSFT"];
+const CAT_KEYS = Object.keys(TICKER_CATEGORIES);
 
-export default function TickerSearch({ onSelect, multi = false, selected = [] }) {
+export default function TickerSearch({ onSelect, multi = false, selected = [], compact = false }) {
   const [query, setQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("전체");
+  const [openCat, setOpenCat] = useState(null);
 
-  const candidates = useMemo(() => {
-    const q = query.trim().toUpperCase();
-
-    // 검색어가 있으면 SUPPORTED_TICKERS 전체에서 검색
-    if (q) {
-      return [...SUPPORTED_TICKERS].filter(
-        (t) => t.toUpperCase().includes(q) || getTickerLabel(t).includes(query.trim())
-      ).sort();
-    }
-
-    if (activeCategory !== "전체") {
-      return [...new Set(TICKER_CATEGORIES[activeCategory] ?? [])];
-    }
-
-    // 전체: TICKER_CATEGORIES 순서 유지 후 나머지 SUPPORTED_TICKERS 알파벳 추가
-    const catTickers = [...new Set(Object.values(TICKER_CATEGORIES).flat())];
-    const extra = [...SUPPORTED_TICKERS].filter((t) => !catTickers.includes(t)).sort();
-    return [...catTickers, ...extra];
-  }, [query, activeCategory]);
+  const searchResults = useMemo(() => {
+    const q = query.trim();
+    if (!q) return null;
+    const upper = q.toUpperCase();
+    return [...SUPPORTED_TICKERS]
+      .filter((t) => t.toUpperCase().includes(upper) || getTickerLabel(t).toLowerCase().includes(q.toLowerCase()))
+      .sort();
+  }, [query]);
 
   function toggle(ticker) {
     if (!multi) {
@@ -40,51 +30,89 @@ export default function TickerSearch({ onSelect, multi = false, selected = [] })
     }
   }
 
+  function renderChip(ticker) {
+    const isSelected = multi ? selected.includes(ticker) : selected === ticker;
+    const isKR = TICKER_CATEGORIES["국내 자산"]?.includes(ticker);
+    return (
+      <button
+        key={ticker}
+        className={`ticker-chip${isSelected ? " selected" : ""}${isKR ? " ticker-chip--kr" : ""}`}
+        onClick={() => toggle(ticker)}
+      >
+        {isKR ? (
+          <>
+            <span className="ticker-name ticker-name--primary">{getTickerLabel(ticker)}</span>
+            <span className="ticker-sym ticker-sym--secondary">{ticker}</span>
+          </>
+        ) : (
+          <span className="ticker-sym">{ticker}</span>
+        )}
+      </button>
+    );
+  }
+
+  const isSearching = query.trim().length > 0;
+
   return (
     <div className="ticker-search">
       <input
         className="search-input"
-        placeholder="티커 또는 종목명 검색..."
+        placeholder="TSLA, 테슬라, tesla..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
-      <div className="category-chips">
-        {ALL_CATS.map((cat) => (
-          <button
-            key={cat}
-            className={`chip${activeCategory === cat ? " active" : ""}`}
-            onClick={() => setActiveCategory(cat)}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-      <div className="ticker-grid">
-        {candidates.map((ticker) => {
-          const isSelected = multi
-            ? selected.includes(ticker)
-            : selected === ticker;
-          return (
-            <button
-              key={ticker}
-              className={`ticker-chip${isSelected ? " selected" : ""}${TICKER_CATEGORIES["국내 자산"]?.includes(ticker) ? " ticker-chip--kr" : ""}`}
-              onClick={() => toggle(ticker)}
-            >
-              {TICKER_CATEGORIES["국내 자산"]?.includes(ticker) ? (
-                <>
-                  <span className="ticker-name ticker-name--primary">{getTickerLabel(ticker)}</span>
-                  <span className="ticker-sym ticker-sym--secondary">{ticker}</span>
-                </>
-              ) : (
-                <span className="ticker-sym">{ticker}</span>
-              )}
-            </button>
-          );
-        })}
-        {candidates.length === 0 && (
-          <p className="empty-state">검색 결과가 없습니다.</p>
-        )}
-      </div>
+
+      {isSearching ? (
+        <div className="ts-search-results">
+          {searchResults && searchResults.length > 0 ? (
+            <div className="ticker-grid">{searchResults.map(renderChip)}</div>
+          ) : (
+            <div className="ts-no-result">
+              <p className="ts-no-result-msg">이 종목은 아직 지원하지 않아요</p>
+              <p className="ts-no-result-hint">인기 종목으로 시작해보세요</p>
+              <div className="ticker-grid">{POPULAR.map(renderChip)}</div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
+          {!compact && (
+            <div className="ts-popular">
+              <p className="ts-section-label">🔥 인기 종목</p>
+              <div className="ticker-grid">
+                {POPULAR.map(renderChip)}
+              </div>
+            </div>
+          )}
+
+          <div className="ts-categories">
+            <p className="ts-section-label">📂 카테고리별 탐색</p>
+            {CAT_KEYS.map((cat) => {
+              const tickers = TICKER_CATEGORIES[cat];
+              const isOpen = openCat === cat;
+              return (
+                <div key={cat} className={`ts-cat${isOpen ? " ts-cat--open" : ""}`}>
+                  <button
+                    className="ts-cat-header"
+                    onClick={() => setOpenCat(isOpen ? null : cat)}
+                  >
+                    <span className="ts-cat-name">{cat}</span>
+                    <span className="ts-cat-meta">
+                      <span className="ts-cat-count">{tickers.length}</span>
+                      <span className={`ts-cat-arrow${isOpen ? " open" : ""}`}>▼</span>
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <div className="ts-cat-body">
+                      <div className="ticker-grid">{tickers.map(renderChip)}</div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }

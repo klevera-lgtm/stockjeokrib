@@ -159,6 +159,13 @@ export default function TradingPortfolio({ onCoinsChanged, onNavigate }) {
           <button className="pf-add-btn primary" onClick={() => setShowAdd(true)}>
             + 종목 추가
           </button>
+          <button
+            className="alpha-accumulate-btn"
+            style={{ marginTop: 10, background: 'var(--surface)', color: 'var(--primary)', border: '1.5px solid var(--primary)' }}
+            onClick={() => onNavigate?.("trading", "trade-scanner")}
+          >
+            📡 스캐너에서 종목 찾아보기
+          </button>
         </div>
       )}
 

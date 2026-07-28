@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { loadWhatOthersBuy } from "../utils/dataLoader.js";
 import { isBasic } from "../utils/premium.js";
-import { SUPPORTED_TICKERS, SUPPORTED_TICKERS_URL } from "../utils/tickers.js";
+import { SUPPORTED_TICKERS, SUPPORTED_TICKERS_URL, getTickerLabel } from "../utils/tickers.js";
 import UpgradeModal from "./UpgradeModal.jsx";
 import ShareSheet from "./ShareSheet.jsx";
 import { APP_LINK } from "../utils/share.js";
@@ -88,7 +88,7 @@ export default function WhatOthersBuy({ onTickerSelect }) {
                       ? <div className="others-ticker">{ticker}</div>
                       : <div className="others-ticker others-ticker--name">{item.name}</div>
                     }
-                    {ticker && <div className="others-name">{item.name}</div>}
+                    {ticker && <div className="others-name">{getTickerLabel(ticker) !== ticker ? getTickerLabel(ticker) : item.name}</div>}
                   </div>
 
                   <div className="others-amount">

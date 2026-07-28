@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import AdBanner from "./AdBanner.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
 import { isBasic } from "../utils/premium.js";
@@ -34,6 +34,8 @@ const SCAN_STRATEGIES = [
 
 const FREE_LIMIT = 3;
 
+const scanCache = new Map();
+
 export default function TradingScanner({ onNavigate }) {
   const [strategy, setStrategy] = useState(SCAN_STRATEGIES[0]);
   const [results, setResults] = useState([]);
@@ -43,6 +45,12 @@ export default function TradingScanner({ onNavigate }) {
   const basic = isBasic();
 
   const scan = useCallback(async (strat) => {
+    if (scanCache.has(strat.id)) {
+      setResults(scanCache.get(strat.id));
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setResults([]);
     setProgress(0);
@@ -66,6 +74,7 @@ export default function TradingScanner({ onNavigate }) {
       return (order[a.status] ?? 9) - (order[b.status] ?? 9);
     });
 
+    scanCache.set(strat.id, out);
     setResults(out);
     setLoading(false);
     logClick("trade_scanner_run", { strategy: strat.id, count: out.length });

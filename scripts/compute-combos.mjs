@@ -196,7 +196,8 @@ function runStrategy(allPrices, strategy, monthlyAmount, startDate, endDate) {
   const finalValue = shares * filtered[filtered.length - 1].close;
   const years = (filtered[filtered.length - 1].date - filtered[0].date) / (365.25 * 24 * 3600 * 1000);
   const cagr = calcCAGR(totalInvested, finalValue, years);
-  return isFinite(cagr) ? { strategy, cagr, finalValue, totalInvested } : null;
+  const simpleReturn = finalValue / totalInvested - 1;
+  return isFinite(cagr) ? { strategy, cagr, simpleReturn, finalValue, totalInvested } : null;
 }
 
 function findBestForPeriod(allPrices, startDate, endDate) {
@@ -294,7 +295,7 @@ function main() {
       const scored = [];
       for (const [ticker, prices] of eligible) {
         const best = findBestForPeriod(prices, startDate, now);
-        if (best) scored.push({ ticker, strategy: best.strategy, cagr: best.cagr });
+        if (best) scored.push({ ticker, strategy: best.strategy, cagr: best.cagr, simpleReturn: best.simpleReturn });
       }
 
       scored.sort((a, b) => b.cagr - a.cagr);
@@ -302,12 +303,19 @@ function main() {
       const combined = top5.length > 0
         ? top5.reduce((s, r) => s + r.cagr, 0) / top5.length
         : 0;
+      const combinedSimple = top5.length > 0
+        ? top5.reduce((s, r) => s + r.simpleReturn, 0) / top5.length
+        : 0;
+
+      const capCagr = (v) => Math.round(Math.min(Math.max(v, -1), 99.99) * 10000) / 10000;
 
       result.combos[key][lKey] = {
         tickers: top5.map(r => r.ticker),
         strategies: top5.map(r => r.strategy),
-        cagrs: top5.map(r => Math.round(r.cagr * 10000) / 10000),
-        combinedCagr: Math.round(combined * 10000) / 10000,
+        cagrs: top5.map(r => capCagr(r.cagr)),
+        simpleReturns: top5.map(r => Math.round(r.simpleReturn * 10000) / 10000),
+        combinedCagr: capCagr(combined),
+        combinedSimpleReturn: Math.round(combinedSimple * 10000) / 10000,
       };
     }
 

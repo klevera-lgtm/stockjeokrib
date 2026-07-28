@@ -96,8 +96,18 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
     const locked = isLocked(periodKey);
     const combo = data.combos[periodKey]?.[lKey];
     if (!combo || combo.tickers.length === 0) return null;
-    const pct = combo.combinedCagr * 100;
+    const useSimple = (periodKey === "1mo" || periodKey === "3mo") && combo.combinedSimpleReturn != null;
     const isShort = SHORT_PERIODS.has(periodKey);
+
+    let pct, capped;
+    if (useSimple) {
+      pct = combo.combinedSimpleReturn * 100;
+      capped = false;
+    } else {
+      const rawPct = combo.combinedCagr * 100;
+      pct = Math.min(Math.max(rawPct, -100), 9999);
+      capped = Math.abs(rawPct) > 9999;
+    }
 
     return (
       <div className={`fc-card${locked ? " fc-card--locked" : ""}`}>
@@ -106,21 +116,32 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
           {locked && <span className="fc-badge">🔒 코인</span>}
         </div>
         <div className="fc-cagr">
-          <span className="fc-cagr-num">{pct >= 0 ? "+" : ""}{pct.toFixed(1)}%</span>
-          <span className="fc-cagr-hint">연환산{isShort ? " · 단기 변동 큼" : ""}</span>
+          <span className="fc-cagr-num">{pct >= 0 ? "+" : ""}{pct.toFixed(1)}%{capped ? "+" : ""}</span>
+          <span className="fc-cagr-hint">{useSimple ? "기간 수익률" : "연환산"}{isShort ? " · 단기 변동 큼" : ""}</span>
         </div>
         <div className="fc-rows">
-          {combo.tickers.map((ticker, i) => (
+          {combo.tickers.map((ticker, i) => {
+            let rowPct, rowCapped;
+            if (useSimple && combo.simpleReturns?.[i] != null) {
+              rowPct = combo.simpleReturns[i] * 100;
+              rowCapped = false;
+            } else {
+              const rowRaw = combo.cagrs[i] * 100;
+              rowPct = Math.min(Math.max(rowRaw, -100), 9999);
+              rowCapped = Math.abs(rowRaw) > 9999;
+            }
+            return (
             <div key={ticker} className="fc-row">
               <span className={`fc-row-ticker${locked ? " name--blur" : ""}`}>
                 {getTickerLabel(ticker)}
               </span>
               <span className="fc-row-strategy">{STRATEGY_LABELS[combo.strategies[i]] ?? combo.strategies[i]}</span>
               <span className="fc-row-cagr">
-                {(combo.cagrs[i] * 100) >= 0 ? "+" : ""}{(combo.cagrs[i] * 100).toFixed(1)}%
+                {rowPct >= 0 ? "+" : ""}{rowPct.toFixed(1)}%{rowCapped ? "+" : ""}
               </span>
             </div>
-          ))}
+            );
+          })}
         </div>
         {locked && (
           <button className="btn-primary fc-reveal-btn" onClick={() => handleReveal(periodKey)}>

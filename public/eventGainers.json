@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-26",
+  "updatedAt": "2026-07-28",
   "events": {
     "dotcom": {
       "topGainers": [
@@ -261,7 +261,7 @@
         },
         {
           "ticker": "CRWD",
-          "returnPct": 1139.8
+          "returnPct": 1140.8
         }
       ]
     },
