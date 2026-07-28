@@ -68,6 +68,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
               type: s.type, params: s.params,
               label: strategyLabel(s.type, s.params),
               totalReturn: r.totalReturn, cagr, excess,
+              totalExcess: r.totalReturn - bh.returnPct,
               winRate: r.winRate, mdd: r.mdd, tradeCount: r.tradeCount,
             });
           }
@@ -177,7 +178,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
                 {result.alphas.length}개 알파 전략 발견!
               </h3>
               <p className="alpha-teaser-subtitle">
-                {getTickerLabel(ticker)}에서 바이앤홀드(연 {result.bhCAGR.toFixed(1)}%)를 연 {ALPHA_THRESHOLD}%+ 이기는 전략
+                {getTickerLabel(ticker)}에서 바이앤홀드(연 {result.bhCAGR.toFixed(1)}%)를 <span className="alpha-highlight">연 {ALPHA_THRESHOLD}%+ 이기는 전략</span>
               </p>
             </div>
           </div>
@@ -190,7 +191,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
                 <span className="alpha-preview-label alpha-blur">
                   {a.label.slice(0, 6)}{'••••••'}
                 </span>
-                <span className="alpha-preview-excess positive alpha-blur">+{a.excess.toFixed(1)}%p/년</span>
+                <span className="alpha-preview-excess positive alpha-blur">+{a.totalExcess.toFixed(1)}%p</span>
               </div>
             ))}
             {result.alphas.length > 3 && (
@@ -212,7 +213,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
             <div>
               <h3 className="alpha-results-title">{getTickerLabel(ticker)} 알파 전략</h3>
               <p className="alpha-results-subtitle">
-                바이앤홀드(연 {result.bhCAGR.toFixed(1)}%) 대비 연 {ALPHA_THRESHOLD}%+ 초과수익
+                바이앤홀드(연 {result.bhCAGR.toFixed(1)}%) 대비 <span className="alpha-highlight">연 {ALPHA_THRESHOLD}%+ 초과수익</span>
               </p>
             </div>
           </div>
@@ -233,7 +234,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
                 <div className="alpha-item-body">
                   <div className="alpha-item-top">
                     <span className="alpha-item-label">{a.label}</span>
-                    <span className="alpha-excess-badge">+{a.excess.toFixed(1)}%p/년</span>
+                    <span className="alpha-excess-badge">+{a.totalExcess.toFixed(1)}%p</span>
                   </div>
                   <div className="alpha-item-metrics">
                     <span className={a.totalReturn >= 0 ? "positive" : "negative"}>
