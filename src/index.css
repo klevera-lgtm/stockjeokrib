@@ -3719,48 +3719,51 @@ input, select {
 .rank-item.bh-winner { border-left: 3px solid #f59e0b; }
 .rank-bh-badge { display: inline-block; font-size: 10px; font-weight: 700; color: #f59e0b; background: rgba(245,158,11,0.12); padding: 1px 5px; border-radius: 4px; margin-right: 4px; vertical-align: middle; }
 
-/* B&H Beater highlight section */
-.rank-bh-section { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1px solid #fcd34d; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
-.rank-bh-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
-.rank-bh-trophy { font-size: 28px; line-height: 1; }
-.rank-bh-title { font-size: 15px; font-weight: 800; color: #92400e; margin-bottom: 2px; }
-.rank-bh-subtitle { font-size: 12px; color: #b45309; line-height: 1.4; }
-.rank-bh-winners { display: flex; flex-direction: column; gap: 6px; }
-.rank-bh-winner { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(255,255,255,0.7); border-radius: 8px; font-size: 12px; }
-.rank-bh-winner-rank { font-weight: 800; color: #92400e; min-width: 28px; font-variant-numeric: tabular-nums; }
-.rank-bh-winner-name { flex: 1; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rank-bh-winner-ret { font-weight: 700; white-space: nowrap; }
-.rank-bh-winner-gap { font-size: 11px; font-weight: 600; color: #059669; background: rgba(5,150,105,0.1); padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
-.rank-bh-more { font-size: 11px; color: #b45309; text-align: center; padding-top: 4px; }
+/* ── Alpha Strategy ────────────────────────────────────── */
+.alpha-empty { text-align: center; padding: 32px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 16px; }
+.alpha-empty-icon { font-size: 36px; margin-bottom: 10px; }
+.alpha-empty-title { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+.alpha-empty-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 14px; }
 
-/* Cross-ticker scan section */
-.rank-scan-section { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
-.rank-scan-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
-.rank-scan-fire { font-size: 24px; line-height: 1; }
-.rank-scan-title { font-size: 15px; font-weight: 800; margin-bottom: 2px; }
-.rank-scan-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+.alpha-bh-card { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 16px; background: var(--bg); border-radius: 10px; font-size: 13px; }
+.alpha-bh-card.compact { justify-content: flex-start; margin-bottom: 14px; }
+.alpha-bh-label { font-weight: 600; color: var(--text-secondary); }
+.alpha-bh-value { font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums; }
+.alpha-bh-cagr { font-size: 12px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.alpha-bh-mdd { font-size: 11px; color: var(--text-tertiary); }
 
-.rank-scan-results { margin-top: 12px; }
-.rank-scan-summary { font-size: 14px; font-weight: 700; color: #059669; margin-bottom: 10px; text-align: center; }
-.rank-scan-list { display: flex; flex-direction: column; gap: 4px; max-height: 400px; overflow-y: auto; }
-.rank-scan-item { padding: 10px 12px; background: var(--bg); border-radius: 8px; }
-.rank-scan-item-top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
-.rank-scan-ticker { font-size: 13px; font-weight: 800; color: var(--primary); min-width: 40px; }
-.rank-scan-strat { font-size: 12px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rank-scan-item-bot { display: flex; gap: 8px; font-size: 11px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
-.rank-scan-vs { color: var(--text-tertiary); }
-.rank-scan-gap { font-weight: 600; color: #059669; }
-.rank-scan-list-more { font-size: 11px; color: var(--text-tertiary); text-align: center; padding-top: 8px; }
+.alpha-teaser { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 1px solid #fcd34d; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+.alpha-teaser-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+.alpha-teaser-icon { font-size: 28px; line-height: 1; }
+.alpha-teaser-title { font-size: 16px; font-weight: 800; color: #92400e; margin-bottom: 2px; }
+.alpha-teaser-subtitle { font-size: 12px; color: #b45309; line-height: 1.5; }
 
-/* Blurred preview teasing */
-.rank-scan-preview { position: relative; display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
-.rank-scan-item.preview-item { opacity: 0.75; }
-.scan-blur { filter: blur(5px); user-select: none; pointer-events: none; }
-.rank-scan-fade { position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: linear-gradient(transparent, var(--surface)); pointer-events: none; border-radius: 0 0 8px 8px; }
+.alpha-preview-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.alpha-preview-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(255,255,255,0.6); border-radius: 8px; font-size: 13px; }
+.alpha-preview-rank { font-weight: 800; color: #92400e; min-width: 20px; }
+.alpha-preview-label { flex: 1; font-weight: 600; }
+.alpha-preview-excess { font-weight: 700; white-space: nowrap; }
+.alpha-preview-more { font-size: 12px; color: #b45309; text-align: center; padding: 4px 0; }
+.alpha-blur { filter: blur(5px); user-select: none; pointer-events: none; }
 
-.rank-scan-cta { text-align: center; }
-.rank-scan-btn { width: 100%; padding: 12px 20px; font-size: 14px; font-weight: 700; border-radius: 10px; background: var(--primary); color: #fff; border: none; cursor: pointer; }
-.rank-scan-hint { font-size: 11px; color: var(--text-tertiary); margin-top: 8px; }
+.alpha-reveal-btn { width: 100%; padding: 14px 20px; font-size: 15px; font-weight: 700; border-radius: 10px; background: #92400e; color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.alpha-cost { font-size: 13px; opacity: 0.9; }
+
+.alpha-results { margin-bottom: 16px; }
+.alpha-results-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+.alpha-results-icon { font-size: 28px; line-height: 1; }
+.alpha-results-title { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
+.alpha-results-subtitle { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+.alpha-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.alpha-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+.alpha-item-rank { font-size: 14px; font-weight: 800; color: var(--primary); min-width: 22px; padding-top: 1px; font-variant-numeric: tabular-nums; }
+.alpha-item-body { flex: 1; min-width: 0; }
+.alpha-item-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+.alpha-item-label { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alpha-excess-badge { font-size: 11px; font-weight: 700; color: #059669; background: rgba(5,150,105,0.12); padding: 3px 8px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+.alpha-item-metrics { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 11px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.alpha-mdd { color: var(--text-tertiary); }
 
 /* ── Portfolio ─────────────────────────────────────────────── */
 .trade-portfolio { padding: 0 16px 120px; }

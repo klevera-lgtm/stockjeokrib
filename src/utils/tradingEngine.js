@@ -307,6 +307,82 @@ export function backtestMACD(prices) {
   return summarizeTrades(executeTrades(signals), prices);
 }
 
+// ── Strategy: Bollinger Band ───────────────────────────────────────────────
+
+export const BOLLINGER_COMBOS = [
+  { period: 20, stdMult: 2, exitAt: "middle", stopLoss: -5 },
+  { period: 20, stdMult: 2, exitAt: "middle", stopLoss: -10 },
+  { period: 20, stdMult: 2, exitAt: "upper", stopLoss: -5 },
+  { period: 20, stdMult: 2, exitAt: "upper", stopLoss: -10 },
+  { period: 20, stdMult: 2.5, exitAt: "middle", stopLoss: -10 },
+  { period: 20, stdMult: 2.5, exitAt: "upper", stopLoss: -10 },
+];
+
+export function backtestBollinger(prices, { period = 20, stdMult = 2, exitAt = "middle", stopLoss = -10 } = {}) {
+  const signals = [];
+  let inPosition = false;
+  let entryPrice = 0;
+
+  for (let i = period - 1; i < prices.length; i++) {
+    let sum = 0;
+    for (let j = i - period + 1; j <= i; j++) sum += prices[j].close;
+    const mean = sum / period;
+    let sqSum = 0;
+    for (let j = i - period + 1; j <= i; j++) sqSum += (prices[j].close - mean) ** 2;
+    const std = Math.sqrt(sqSum / period);
+    const lower = mean - stdMult * std;
+    const upper = mean + stdMult * std;
+    const price = prices[i].close;
+
+    if (!inPosition && price <= lower) {
+      signals.push({ date: prices[i].date, price, action: "buy" });
+      inPosition = true;
+      entryPrice = price;
+    } else if (inPosition) {
+      const pctChange = ((price - entryPrice) / entryPrice) * 100;
+      if (pctChange <= stopLoss) {
+        signals.push({ date: prices[i].date, price, action: "stop" });
+        inPosition = false;
+      } else if (exitAt === "upper" ? price >= upper : price >= mean) {
+        signals.push({ date: prices[i].date, price, action: "sell" });
+        inPosition = false;
+      }
+    }
+  }
+
+  return summarizeTrades(executeTrades(signals), prices);
+}
+
+export function currentBollingerSignal(prices, { period = 20, stdMult = 2 } = {}) {
+  if (prices.length < period) return { status: "unknown", proximity: 0 };
+  const last = prices.length - 1;
+  let sum = 0;
+  for (let j = last - period + 1; j <= last; j++) sum += prices[j].close;
+  const mean = sum / period;
+  let sqSum = 0;
+  for (let j = last - period + 1; j <= last; j++) sqSum += (prices[j].close - mean) ** 2;
+  const std = Math.sqrt(sqSum / period);
+  const lower = mean - stdMult * std;
+  const upper = mean + stdMult * std;
+  const price = prices[last].close;
+  const bandwidth = upper - lower;
+  const position = bandwidth > 0 ? ((price - lower) / bandwidth) * 100 : 50;
+
+  let status = "대기";
+  if (price <= lower) status = "조건 진입";
+  else if (price >= upper) status = "조건 이탈";
+  else if (position < 30) status = "하단 접근";
+
+  return { status, proximity: position, lower, upper, mean, price };
+}
+
+// ── CAGR helper ───────────────────────────────────────────────────────────
+
+export function calcCAGR(totalReturnPct, years) {
+  if (years <= 0) return 0;
+  return (Math.pow(1 + totalReturnPct / 100, 1 / years) - 1) * 100;
+}
+
 // ── Strategy: VIX ───────────────────────────────────────────────────────────
 
 export function backtestVIX(stockPrices, vixPrices, { buyAbove = 30, sellBelow = 20, stopLoss = -10 } = {}) {
@@ -570,7 +646,8 @@ export function strategyLabel(type, params) {
     case "ma":    return `${params.period}일 이동평균선`;
     case "rsi":   return `RSI ${params.buyBelow}/${params.sellAbove} (손절 ${params.stopLoss}%)`;
     case "dualma": return `${params.short}/${params.long} 이중이평선`;
-    case "macd":  return "MACD 시그널 교차";
+    case "macd":  return "MACD 골든크로스";
+    case "bollinger": return `볼린저밴드 ${params.stdMult}σ (${params.exitAt === "middle" ? "중심선" : "상단"} 청산, 손절 ${params.stopLoss}%)`;
     case "combo": return params._comboLabel || "조합 전략";
     case "vix":   return `VIX ${params.buyAbove}↑ 매수 / ${params.sellBelow}↓ 매도 (손절 ${params.stopLoss}%)`;
     default:      return type;
@@ -615,6 +692,14 @@ export function rankAllStrategies(prices, count = 10) {
       const r = backtestDualMA(prices, d.short, d.long);
       results.push({ type: "dualma", params: { short: d.short, long: d.long }, score: scoreResult(r),
         label: strategyLabel("dualma", { short: d.short, long: d.long }),
+        totalReturn: r.totalReturn, winRate: r.winRate, mdd: r.mdd, tradeCount: r.tradeCount });
+    } catch {}
+  }
+  for (const b of BOLLINGER_COMBOS) {
+    try {
+      const r = backtestBollinger(prices, b);
+      results.push({ type: "bollinger", params: b, score: scoreResult(r),
+        label: strategyLabel("bollinger", b),
         totalReturn: r.totalReturn, winRate: r.winRate, mdd: r.mdd, tradeCount: r.tradeCount });
     } catch {}
   }

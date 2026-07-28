@@ -39,7 +39,7 @@ export const DIVIDEND_TABS = [
 export const TRADING_TABS = [
   { id: "trade-breadth",   label: "시장온도",   Icon: IconActivityHeartbeat },
   { id: "trade-scanner",   label: "스캐너",     Icon: IconRadar2 },
-  { id: "trade-ranking",   label: "랭킹",       Icon: IconTrophy },
+  { id: "trade-ranking",   label: "알파",        Icon: IconTrophy },
   { id: "trade-sim",       label: "시뮬레이션", Icon: IconChartCandle },
   { id: "trade-portfolio", label: "포트폴리오", Icon: IconBriefcase },
 ];
