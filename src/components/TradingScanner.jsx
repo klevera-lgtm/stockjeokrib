@@ -6,6 +6,7 @@ import { logClick } from "../utils/analytics.js";
 import { getTickerLabel, TICKER_CATEGORIES } from "../utils/tickers.js";
 import {
   currentMASignal, currentRSISignal, currentDualMASignal,
+  currentMACDSignal, currentBollingerSignal,
   MA_PERIODS,
 } from "../utils/tradingEngine.js";
 
@@ -26,6 +27,9 @@ const SCAN_STRATEGIES = [
   { id: "rsi-20", label: "RSI 20 이하", fn: (p) => currentRSISignal(p, { buyBelow: 20, sellAbove: 80 }) },
   { id: "dualma-50-200", label: "골든크로스 (50/200)", fn: (p) => currentDualMASignal(p, 50, 200) },
   { id: "dualma-10-50",  label: "10/50 교차", fn: (p) => currentDualMASignal(p, 10, 50) },
+  { id: "macd",          label: "MACD 골든크로스", fn: (p) => currentMACDSignal(p) },
+  { id: "bollinger-2",   label: "볼린저밴드 2σ", fn: (p) => currentBollingerSignal(p, { period: 20, stdMult: 2 }) },
+  { id: "bollinger-2.5", label: "볼린저밴드 2.5σ", fn: (p) => currentBollingerSignal(p, { period: 20, stdMult: 2.5 }) },
 ];
 
 const FREE_LIMIT = 3;
@@ -111,12 +115,14 @@ export default function TradingScanner({ onNavigate }) {
                 <br />MA: 가격이 이동평균선 위로 올라감
                 <br />RSI: 과매도 구간(설정값 이하) 진입
                 <br />MACD: 히스토그램이 양수로 전환
+                <br />볼린저: 가격이 하단밴드 이하로 진입
               </dd>
               <dt><span className="scanner-badge sell">조건 이탈</span></dt>
               <dd>마지막 거래일에 전략 조건에서 벗어났어요.
                 <br />MA: 가격이 이동평균선 아래로 내려감
                 <br />RSI: 과매수 구간(설정값 이상) 진입
                 <br />MACD: 히스토그램이 음수로 전환
+                <br />볼린저: 가격이 상단밴드 이상으로 이탈
               </dd>
               <dt><span className="scanner-badge hold">조건 유지 중</span></dt>
               <dd>이전에 조건 진입 후 아직 그 상태가 유지되고 있어요.</dd>
@@ -167,7 +173,9 @@ export default function TradingScanner({ onNavigate }) {
                     <span className="scanner-prox">
                       {r.maShort ? `단기 $${r.maShort.toFixed(0)} / 장기 $${r.maLong.toFixed(0)} (${r.proximity > 0 ? "+" : ""}${r.proximity.toFixed(1)}%)` :
                        r.maValue ? `MA $${r.maValue.toFixed(0)} · 현재 $${r.price.toFixed(0)}` :
-                       r.rsi ? `RSI ${r.rsi.toFixed(1)}` : ""}
+                       r.rsi ? `RSI ${r.rsi.toFixed(1)}` :
+                       r.lower ? `$${r.lower.toFixed(0)}~$${r.upper.toFixed(0)} · $${r.price.toFixed(0)}` :
+                       r.macd !== undefined ? `MACD ${r.histogram.toFixed(2)}` : ""}
                     </span>
                   )}
                 </div>
