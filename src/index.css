@@ -2852,6 +2852,31 @@ input, select {
   overflow: hidden;
 }
 
+/* ── 오늘의 인사이트 카드 ── */
+.insight-card {
+  margin: 0 16px 12px; border-radius: 14px; overflow: hidden;
+  background: linear-gradient(135deg, #0f1b3d 0%, #1a2f6e 50%, #2b4299 100%);
+  box-shadow: 0 2px 12px rgba(15,27,61,0.25);
+}
+.insight-row {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 13px 16px; border: none;
+  background: none; color: #fff; cursor: pointer;
+  text-align: left; font-family: inherit;
+}
+.insight-row + .insight-row {
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+.insight-row:active { background: rgba(255,255,255,0.06); }
+.insight-content { flex: 1; min-width: 0; }
+.insight-label {
+  display: block; font-size: 11px; font-weight: 600;
+  color: rgba(255,255,255,0.55); margin-bottom: 3px;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.insight-text { display: block; font-size: 14px; font-weight: 500; line-height: 1.4; }
+.insight-arrow { font-size: 20px; color: rgba(255,255,255,0.4); flex-shrink: 0; }
+
 /* ── 코인 칩 바 (콘텐츠 최상단, 네비바 아래) ── */
 .coin-chip-bar {
   display: flex;

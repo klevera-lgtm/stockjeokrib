@@ -54,6 +54,32 @@ function findZones(arr) {
   return zones;
 }
 
+const BREADTH_KEYS = ["pct_above_20", "pct_above_50", "pct_above_100", "pct_above_200"];
+
+function cleanBreadthIndex(idx) {
+  if (!idx?.dates?.length || !idx.breadth) return idx;
+  let end = idx.dates.length;
+  while (end > 0) {
+    const allBad = BREADTH_KEYS.every((k) => (idx.breadth[k]?.[end - 1] ?? 0) < 2);
+    if (!allBad) break;
+    end--;
+  }
+  if (end === 0 || !BREADTH_KEYS.some((k) => (idx.breadth[k]?.[end - 1] ?? 0) > 10)) return idx;
+  if (end === idx.dates.length) return idx;
+  const trimmed = {
+    ...idx,
+    dates: idx.dates.slice(0, end),
+    prices: idx.prices?.slice(0, end),
+    breadth: Object.fromEntries(BREADTH_KEYS.map((k) => [k, idx.breadth[k]?.slice(0, end) ?? []])),
+    current: { ...idx.current },
+  };
+  BREADTH_KEYS.forEach((k) => {
+    const arr = trimmed.breadth[k];
+    if (arr?.length) trimmed.current[k] = arr[arr.length - 1];
+  });
+  return trimmed;
+}
+
 const zoneBgPlugin = {
   id: "zoneBg",
   beforeDraw(chart) {
@@ -97,7 +123,11 @@ export default function MarketBreadth({ onCoinsChanged }) {
       .then((r) => r.json())
       .then((json) => {
         if (cancelled) return;
-        const indices = json.indices ?? json;
+        const raw = json.indices ?? json;
+        const indices = {};
+        for (const key of Object.keys(raw)) {
+          indices[key] = cleanBreadthIndex(raw[key]);
+        }
         setData(indices);
         setLoading(false);
       })
