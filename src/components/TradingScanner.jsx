@@ -213,7 +213,7 @@ export default function TradingScanner({ onNavigate, onCoinsChanged }) {
           <div className="scanner-list">
             {displayResults.map((r, idx) => (
               <React.Fragment key={r.ticker}>
-                {idx === 5 && <AdBanner className="ad-banner-inline" />}
+                {(idx === 5 || idx === 15 || idx === 25 || idx === 35 || idx === 45) && <AdBanner className="ad-banner-inline" />}
                 <div className={`scanner-item${expanded === r.ticker ? " scanner-item--open" : ""}`}>
                   <div className="scanner-item-header" onClick={() => setExpanded(expanded === r.ticker ? null : r.ticker)}>
                     <div className="scanner-item-left">

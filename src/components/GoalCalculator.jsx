@@ -241,7 +241,9 @@ export default function GoalCalculator({ onNavigate }) {
           {rankRows.slice(0, 10).map((row, i) => {
             const locked = !revealedRankPeriods.has(rankPeriod) && !basic;
             return (
-              <div key={row.ticker} className="goal-rank-row">
+              <React.Fragment key={row.ticker}>
+              {i === 5 && <AdBanner className="ad-banner-inline" />}
+              <div className="goal-rank-row">
                 <span className="goal-rank-num">{i + 1}</span>
                 <div className="goal-rank-ticker">
                   <span className={`goal-rank-name${locked ? " name--blur" : ""}`}>
@@ -261,6 +263,7 @@ export default function GoalCalculator({ onNavigate }) {
                   </button>
                 )}
               </div>
+              </React.Fragment>
             );
           })}
           {rankRows.length === 0 && (

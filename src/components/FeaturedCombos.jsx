@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { STRATEGY_LABELS } from "../utils/calculator.js";
 import { getTickerLabel } from "../utils/tickers.js";
 import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
 import QueryGateModal from "./QueryGateModal.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
+import AdBanner from "./AdBanner.jsx";
 
 const COIN_SHORT = ["1mo", "3mo", "6mo"];
 const COIN_MID = ["1yr", "2yr", "3yr", "4yr", "5yr"];
@@ -188,14 +189,28 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
         {COIN_SHORT.map((k) => <ComboCard key={k} periodKey={k} />)}
       </div>
 
+      <AdBanner className="ad-banner-inline" />
+
       <div className="fc-section" id="fc-section-mid">
         <p className="fc-section-title">중기 랭킹</p>
-        {COIN_MID.map((k) => <ComboCard key={k} periodKey={k} />)}
+        {COIN_MID.map((k, i) => (
+          <React.Fragment key={k}>
+            {i === 3 && <AdBanner className="ad-banner-inline" />}
+            <ComboCard periodKey={k} />
+          </React.Fragment>
+        ))}
       </div>
+
+      <AdBanner className="ad-banner-inline" />
 
       <div className="fc-section" id="fc-section-long">
         <p className="fc-section-title fc-section-title--main">기간별 최고 조합</p>
-        {FREE_LONG.map((k) => <ComboCard key={k} periodKey={k} />)}
+        {FREE_LONG.map((k, i) => (
+          <React.Fragment key={k}>
+            {i === 3 && <AdBanner className="ad-banner-inline" />}
+            <ComboCard periodKey={k} />
+          </React.Fragment>
+        ))}
       </div>
 
       <p className="fc-updated">기준일: {data.updatedAt} · 매주 업데이트</p>

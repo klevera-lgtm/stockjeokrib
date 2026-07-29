@@ -90,7 +90,7 @@ export default function WhatOthersBuy({ onTickerSelect }) {
 
               return (
                 <React.Fragment key={item.isin ?? idx}>
-                {(idx === 7 || idx === 20) && <AdBanner className="ad-banner-inline" />}
+                {(idx === 7 || idx === 15 || idx === 25 || idx === 35 || idx === 45) && <AdBanner className="ad-banner-inline" />}
                 <div className="others-row">
                   <div className="others-bar" style={{ width: `${barPct.toFixed(1)}%` }} />
 
