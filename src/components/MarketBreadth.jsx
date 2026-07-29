@@ -307,12 +307,14 @@ export default function MarketBreadth({ onCoinsChanged }) {
   useEffect(() => { drawChart(); return () => chartRef.current?.destroy(); }, [drawChart]);
 
   const coldStats = useMemo(() => {
-    if (!data) return null;
-    const idx = data[activeIndex];
-    if (!idx) return null;
-    const breadthArr = idx.breadth?.[activePeriod] ?? [];
-    const pricesArr = idx.prices ?? [];
-    return computeColdStats(breadthArr, pricesArr);
+    try {
+      if (!data) return null;
+      const idx = data[activeIndex];
+      if (!idx) return null;
+      const breadthArr = idx.breadth?.[activePeriod] ?? [];
+      const pricesArr = idx.prices ?? [];
+      return computeColdStats(breadthArr, pricesArr);
+    } catch (e) { return null; }
   }, [data, activeIndex, activePeriod]);
 
   function handleUnlock(periodKey) {
@@ -511,7 +513,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
       </div>
 
       {/* Cold zone historical stats */}
-      {coldStats && (
+      {coldStats?.horizons && (
         <div className="breadth-cold-stats">
           <h3 className="breadth-cold-title">
             📊 {PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일"} 이평선 20% 이하 진입 후 통계
@@ -521,7 +523,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
           </p>
           <div className="breadth-cold-grid">
             {coldStats.horizons.map((h) => (
-              h.count > 0 && (
+              h.count > 0 && h.avg != null && h.winRate != null && (
                 <div key={h.days} className="breadth-cold-row">
                   <span className="breadth-cold-label">{h.days}일 후</span>
                   <span className={`breadth-cold-avg ${h.avg >= 0 ? "pos" : "neg"}`}>
