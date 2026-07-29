@@ -44,6 +44,7 @@ export default function App() {
     return s === "dividend" ? "ranking" : s === "trading" ? "trade-breadth" : "strategy";
   });
   const [jumpTicker, setJumpTicker] = useState(null);
+  const [simTicker, setSimTicker] = useState(null);
   const [showOnboard, setShowOnboard] = useState(() => !isOnboardDone());
   const [showTest, setShowTest] = useState(false);
   const [comboFocus, setComboFocus] = useState(null);
@@ -70,6 +71,9 @@ export default function App() {
     setActiveTab(targetTab);
     if (targetSection === "accumulation" && data?.ticker) {
       setJumpTicker(data.ticker);
+    }
+    if (targetTab === "trade-sim" && data?.ticker) {
+      setSimTicker(data.ticker);
     }
     window.scrollTo(0, 0);
   }, []);
@@ -149,7 +153,7 @@ export default function App() {
     if (section === "trading") {
       switch (activeTab) {
         case "trade-breadth":   return <MarketBreadth onCoinsChanged={refreshCoins} />;
-        case "trade-sim":       return <TradingSimulation onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+        case "trade-sim":       return <TradingSimulation key={simTicker} initialTicker={simTicker} onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
         case "trade-scanner":   return <TradingScanner onNavigate={handleNavigate} onCoinsChanged={refreshCoins} />;
         case "trade-ranking":   return <TradingRanking onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
         case "trade-portfolio": return <TradingPortfolio onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;

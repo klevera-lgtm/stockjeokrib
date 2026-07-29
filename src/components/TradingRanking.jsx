@@ -175,6 +175,13 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
           >
             💰 {ticker} 적립 시뮬레이션 해보기
           </button>
+          <button
+            className="alpha-accumulate-btn"
+            style={{ marginTop: 8, background: 'var(--surface)', color: 'var(--primary)', border: '1.5px solid var(--primary)' }}
+            onClick={() => onNavigate?.("trading", "trade-sim", { ticker })}
+          >
+            📊 {ticker} 거래 백테스트 하기
+          </button>
         </div>
       )}
 

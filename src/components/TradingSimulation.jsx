@@ -143,9 +143,9 @@ function TradeChart({ prices, trades, ticker }) {
   );
 }
 
-export default function TradingSimulation({ onCoinsChanged }) {
-  const [step, setStep] = useState("ticker");
-  const [ticker, setTicker] = useState(null);
+export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
+  const [step, setStep] = useState(initialTicker ? "timeframe" : "ticker");
+  const [ticker, setTicker] = useState(initialTicker || null);
   const [timeframe, setTimeframe] = useState("daily");
   const [strategyType, setStrategyType] = useState(null);
   const [strategyParams, setStrategyParams] = useState(null);

@@ -232,6 +232,9 @@ export default function TradingPortfolio({ onCoinsChanged, onNavigate }) {
                       size="small"
                     />
                   </div>
+                  <button className="scanner-sim-link" style={{ marginTop: 6 }} onClick={() => onNavigate?.("trading", "trade-sim", { ticker: entry.ticker })}>
+                    📊 {getTickerLabel(entry.ticker).split("(")[0]} 백테스트 하기
+                  </button>
                 </div>
               );
             })}
