@@ -3753,6 +3753,42 @@ input, select {
 }
 .breadth-locked-overlay span:first-child { font-size: 24px; }
 
+.breadth-cold-stats {
+  background: var(--card-bg); border-radius: var(--radius);
+  padding: 16px; margin: 16px 0;
+  border: 1px solid var(--border);
+}
+.breadth-cold-title {
+  font-size: 14px; font-weight: 700; margin: 0 0 4px;
+}
+.breadth-cold-subtitle {
+  font-size: 12px; color: var(--text-secondary); margin: 0 0 12px;
+}
+.breadth-cold-grid {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.breadth-cold-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-variant-numeric: tabular-nums;
+}
+.breadth-cold-label {
+  font-weight: 600; min-width: 52px;
+}
+.breadth-cold-avg {
+  font-weight: 700; min-width: 80px;
+}
+.breadth-cold-avg.pos { color: #ff3b30; }
+.breadth-cold-avg.neg { color: #3182f6; }
+.breadth-cold-winrate {
+  color: var(--text-secondary); min-width: 60px;
+}
+.breadth-cold-count {
+  color: var(--text-tertiary); font-size: 11px;
+}
+.breadth-cold-note {
+  font-size: 11px; color: var(--text-tertiary);
+  margin: 10px 0 0; text-align: center;
+}
 .breadth-disclaimer {
   font-size: 11px; color: var(--text-tertiary); text-align: center;
   padding: 8px 0 16px; line-height: 1.5;

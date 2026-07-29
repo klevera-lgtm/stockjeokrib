@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Chart } from "chart.js/auto";
 import AdBanner from "./AdBanner.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
@@ -52,6 +52,31 @@ function findZones(arr) {
   }
   if (cur) zones.push(cur);
   return zones;
+}
+
+const COLD_HORIZONS = [10, 30, 60, 90];
+
+function computeColdStats(breadthArr, pricesArr) {
+  if (!breadthArr?.length || !pricesArr?.length) return null;
+  const entries = [];
+  for (let i = 1; i < breadthArr.length; i++) {
+    if (breadthArr[i] < 20 && breadthArr[i - 1] >= 20) entries.push(i);
+  }
+  if (entries.length === 0) return null;
+  const horizons = COLD_HORIZONS.map((d) => {
+    const returns = [];
+    for (const ei of entries) {
+      if (ei + d >= pricesArr.length) continue;
+      const p0 = pricesArr[ei];
+      if (!p0) continue;
+      returns.push(((pricesArr[ei + d] - p0) / p0) * 100);
+    }
+    if (returns.length === 0) return { days: d, avg: null, winRate: null, count: 0 };
+    const avg = returns.reduce((a, b) => a + b, 0) / returns.length;
+    const wins = returns.filter((r) => r > 0).length;
+    return { days: d, avg, winRate: (wins / returns.length) * 100, count: returns.length };
+  });
+  return { total: entries.length, horizons };
 }
 
 const BREADTH_KEYS = ["pct_above_20", "pct_above_50", "pct_above_100", "pct_above_200"];
@@ -281,6 +306,15 @@ export default function MarketBreadth({ onCoinsChanged }) {
 
   useEffect(() => { drawChart(); return () => chartRef.current?.destroy(); }, [drawChart]);
 
+  const coldStats = useMemo(() => {
+    if (!data) return null;
+    const idx = data[activeIndex];
+    if (!idx) return null;
+    const breadthArr = idx.breadth?.[activePeriod] ?? [];
+    const pricesArr = idx.prices ?? [];
+    return computeColdStats(breadthArr, pricesArr);
+  }, [data, activeIndex, activePeriod]);
+
   function handleUnlock(periodKey) {
     if (basic || unlockedPeriods[periodKey]) return;
     logClick("breadth_unlock", { period: periodKey });
@@ -475,6 +509,35 @@ export default function MarketBreadth({ onCoinsChanged }) {
           <canvas ref={canvasRef} />
         </div>
       </div>
+
+      {/* Cold zone historical stats */}
+      {coldStats && (
+        <div className="breadth-cold-stats">
+          <h3 className="breadth-cold-title">
+            📊 {PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일"} 이평선 20% 이하 진입 후 통계
+          </h3>
+          <p className="breadth-cold-subtitle">
+            과거 {coldStats.total}회 · {INDEX_NAMES[activeIndex]} 기준
+          </p>
+          <div className="breadth-cold-grid">
+            {coldStats.horizons.map((h) => (
+              h.count > 0 && (
+                <div key={h.days} className="breadth-cold-row">
+                  <span className="breadth-cold-label">{h.days}일 후</span>
+                  <span className={`breadth-cold-avg ${h.avg >= 0 ? "pos" : "neg"}`}>
+                    평균 {h.avg >= 0 ? "+" : ""}{h.avg.toFixed(1)}%
+                  </span>
+                  <span className="breadth-cold-winrate">
+                    상승 {h.winRate.toFixed(0)}%
+                  </span>
+                  <span className="breadth-cold-count">({h.count}회)</span>
+                </div>
+              )
+            ))}
+          </div>
+          <p className="breadth-cold-note">과거 통계이며 미래 수익을 보장하지 않습니다</p>
+        </div>
+      )}
 
       {/* Banner Ad #2 */}
       <AdBanner className="breadth-ad" />
