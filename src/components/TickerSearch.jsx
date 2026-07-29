@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { TICKER_CATEGORIES, SUPPORTED_TICKERS, getTickerLabel } from "../utils/tickers.js";
+import AdBanner from "./AdBanner.jsx";
 
 const POPULAR = ["TSLA", "NVDA", "AAPL", "QQQ", "SPY", "MSFT"];
 const CAT_KEYS = Object.keys(TICKER_CATEGORIES);
@@ -87,11 +88,13 @@ export default function TickerSearch({ onSelect, multi = false, selected = [], c
 
           <div className="ts-categories">
             <p className="ts-section-label">📂 카테고리별 탐색</p>
-            {CAT_KEYS.map((cat) => {
+            {CAT_KEYS.map((cat, catIdx) => {
               const tickers = TICKER_CATEGORIES[cat];
               const isOpen = openCat === cat;
               return (
-                <div key={cat} className={`ts-cat${isOpen ? " ts-cat--open" : ""}`}>
+                <React.Fragment key={cat}>
+                {(catIdx === 5 || catIdx === 12) && <AdBanner className="ad-banner-inline" />}
+                <div className={`ts-cat${isOpen ? " ts-cat--open" : ""}`}>
                   <button
                     className="ts-cat-header"
                     onClick={() => setOpenCat(isOpen ? null : cat)}
@@ -108,6 +111,7 @@ export default function TickerSearch({ onSelect, multi = false, selected = [], c
                     </div>
                   )}
                 </div>
+                </React.Fragment>
               );
             })}
           </div>
