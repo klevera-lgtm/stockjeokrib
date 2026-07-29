@@ -135,7 +135,7 @@ export default function DividendRanking({ onTickerSelect, onNavigate }) {
       <div className="ranking-list">
         {items.map((item, idx) => (
           <React.Fragment key={item.ticker}>
-            {(idx === 7 || idx === 20) && <AdBanner className="ad-banner-inline" />}
+            {(idx === 7 || idx === 15 || idx === 25 || idx === 35) && <AdBanner className="ad-banner-inline" />}
             <button
               className="ranking-row"
               onClick={() => {
