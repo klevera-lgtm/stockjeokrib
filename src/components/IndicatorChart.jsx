@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { loadPrices } from "../utils/dataLoader.js";
+import { isKrTicker } from "../utils/tickers.js";
 
 const DISPLAY = 90;
 
@@ -53,7 +54,12 @@ function calcMACD(closes) {
   return ml.map((m, i) => m !== null && sl[i] !== null ? m - sl[i] : null);
 }
 
-function fmtP(v) {
+function fmtP(v, kr) {
+  if (kr) {
+    if (v >= 1000000) return (v / 10000).toFixed(0) + "만";
+    if (v >= 10000) return (v / 10000).toFixed(1) + "만";
+    return Math.round(v).toLocaleString("ko-KR");
+  }
   if (v >= 10000) return (v / 1000).toFixed(0) + "K";
   if (v >= 1000) return (v / 1000).toFixed(1) + "K";
   if (v >= 1) return v.toFixed(1);
@@ -149,7 +155,7 @@ export default function IndicatorChart({ ticker, indicator, size = "medium" }) {
       ctx.fillStyle = "rgba(156,163,175,0.10)";
       ctx.fillRect(pad.left, y, cw, 0.5);
       ctx.fillStyle = "#9ca3af";
-      ctx.fillText(fmtP(v), pad.left - 4, y + 3);
+      ctx.fillText(fmtP(v, isKrTicker(ticker)), pad.left - 4, y + 3);
     }
 
     if (dBU && dBL) {

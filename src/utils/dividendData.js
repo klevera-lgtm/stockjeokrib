@@ -104,9 +104,11 @@ export function formatYield(v) {
   return (v * 100).toFixed(2) + "%";
 }
 
+const KR_CODES = new Set(["KS11","KQ11","005930","000660","069500","360750","088980","458730"]);
 export function formatPrice(v, ticker) {
   if (v == null) return "-";
-  if (ticker && /^\d+$/.test(ticker)) {
+  if (ticker && (/^\d+$/.test(ticker) || KR_CODES.has(ticker))) {
+    if (ticker === "KS11" || ticker === "KQ11") return v.toLocaleString("ko-KR", { maximumFractionDigits: 0 });
     return "₩" + Math.round(v).toLocaleString("ko-KR");
   }
   return "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });

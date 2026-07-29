@@ -6,7 +6,7 @@ import ShareSheet from "./ShareSheet.jsx";
 import { consumeQuery, consumeQueries, getQueryBalance, isBasic } from "../utils/premium.js";
 import { loadPrices } from "../utils/dataLoader.js";
 import { logClick } from "../utils/analytics.js";
-import { getTickerLabel } from "../utils/tickers.js";
+import { getTickerLabel, fmtPrice, isKrTicker } from "../utils/tickers.js";
 import {
   backtestMA, backtestRSI, backtestMACD, backtestCombo, backtestDualMA,
   filterByPeriod, toWeekly, buyAndHold, scoreResult, scoreBreakdown, rankAllStrategies,
@@ -32,7 +32,7 @@ function fmt(n, d = 1) {
   return n.toFixed(d);
 }
 
-function TradeChart({ prices, trades }) {
+function TradeChart({ prices, trades, ticker }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
@@ -108,8 +108,8 @@ function TradeChart({ prices, trades }) {
           tooltip: {
             callbacks: {
               label: (ctx) => {
-                if (ctx.dataset.label === "주가") return `$${ctx.raw.toFixed(2)}`;
-                return `${ctx.dataset.label} $${ctx.raw.y.toFixed(2)}`;
+                if (ctx.dataset.label === "주가") return fmtPrice(ctx.raw, ticker);
+                return `${ctx.dataset.label} ${fmtPrice(ctx.raw.y, ticker)}`;
               },
             },
           },
@@ -127,7 +127,7 @@ function TradeChart({ prices, trades }) {
             grid: { display: false },
           },
           y: {
-            ticks: { callback: (v) => `$${v.toFixed(0)}` },
+            ticks: { callback: (v) => fmtPrice(v, ticker) },
           },
         },
       },
@@ -728,7 +728,7 @@ export default function TradingSimulation({ onCoinsChanged }) {
 
               {/* Trade chart */}
               {chartPrices && result.trades.length > 0 && (
-                <TradeChart prices={chartPrices} trades={result.trades} />
+                <TradeChart prices={chartPrices} trades={result.trades} ticker={ticker} />
               )}
 
               {/* Summary grid */}
@@ -786,9 +786,9 @@ export default function TradingSimulation({ onCoinsChanged }) {
                         {result.trades.map((t, i) => (
                           <tr key={i}>
                             <td>{t.entryDate.toISOString().slice(2, 10)}</td>
-                            <td>${fmt(t.entryPrice, 2)}</td>
+                            <td>{fmtPrice(t.entryPrice, ticker)}</td>
                             <td>{t.exitDate.toISOString().slice(2, 10)}</td>
-                            <td>${fmt(t.exitPrice, 2)}</td>
+                            <td>{fmtPrice(t.exitPrice, ticker)}</td>
                             <td className={t.returnPct >= 0 ? "up" : "down"}>
                               {t.returnPct >= 0 ? "+" : ""}{fmt(t.returnPct)}%
                             </td>

@@ -5,7 +5,7 @@ import QueryGateModal from "./QueryGateModal.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
 import { isBasic, consumeQueries, getQueryBalance } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
-import { getTickerLabel, TICKER_CATEGORIES } from "../utils/tickers.js";
+import { getTickerLabel, TICKER_CATEGORIES, fmtPrice } from "../utils/tickers.js";
 import {
   currentMASignal, currentRSISignal, currentDualMASignal,
   currentMACDSignal, currentBollingerSignal,
@@ -230,10 +230,10 @@ export default function TradingScanner({ onNavigate, onCoinsChanged }) {
                       </span>
                       {r.proximity !== undefined && (
                         <span className="scanner-prox">
-                          {r.maShort ? `단기 $${r.maShort.toFixed(0)} / 장기 $${r.maLong.toFixed(0)} (${r.proximity > 0 ? "+" : ""}${r.proximity.toFixed(1)}%)` :
-                           r.maValue ? `MA $${r.maValue.toFixed(0)} · 현재 $${r.price.toFixed(0)}` :
+                          {r.maShort ? `단기 ${fmtPrice(r.maShort, r.ticker)} / 장기 ${fmtPrice(r.maLong, r.ticker)} (${r.proximity > 0 ? "+" : ""}${r.proximity.toFixed(1)}%)` :
+                           r.maValue ? `MA ${fmtPrice(r.maValue, r.ticker)} · 현재 ${fmtPrice(r.price, r.ticker)}` :
                            r.rsi ? `RSI ${r.rsi.toFixed(1)}` :
-                           r.lower ? `$${r.lower.toFixed(0)}~$${r.upper.toFixed(0)} · $${r.price.toFixed(0)}` :
+                           r.lower ? `${fmtPrice(r.lower, r.ticker)}~${fmtPrice(r.upper, r.ticker)} · ${fmtPrice(r.price, r.ticker)}` :
                            r.macd !== undefined ? `MACD ${r.histogram.toFixed(2)}` : ""}
                         </span>
                       )}

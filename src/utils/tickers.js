@@ -314,6 +314,17 @@ export function getTickerLabel(ticker) {
   return `${label}(${ticker})`;
 }
 
+const KR_TICKERS = new Set(TICKER_CATEGORIES["국내 자산"]);
+export function isKrTicker(ticker) { return KR_TICKERS.has(ticker); }
+
+export function fmtPrice(value, ticker) {
+  if (isKrTicker(ticker)) {
+    if (ticker === "KS11" || ticker === "KQ11") return value.toLocaleString("ko-KR", { maximumFractionDigits: 0 });
+    return `₩${Math.round(value).toLocaleString("ko-KR")}`;
+  }
+  return `$${value >= 1000 ? Math.round(value).toLocaleString() : value.toFixed(2)}`;
+}
+
 export const BASE_URL =
   "https://raw.githubusercontent.com/klevera-lgtm/stockjeokrib/main/data/prices/";
 
