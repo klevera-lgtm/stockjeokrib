@@ -57,6 +57,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   const [chartIdx, setChartIdx] = useState(0);
   const basic = isBasic();
   const autoRanRef = useRef(false);
+  const formRef = useRef(null);
   const streak = getStreakInfo();
 
   useEffect(() => {
@@ -157,7 +158,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
         </button>
       )}
 
-      <TickerSearch onSelect={(t) => { setTicker(t); setResults(null); setRevealed(basic); }} selected={ticker} />
+      <TickerSearch onSelect={(t) => { setTicker(t); setResults(null); setRevealed(basic); setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} selected={ticker} />
 
       {(() => {
         const recent = loadRecent().filter(t => t !== ticker);
@@ -176,7 +177,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
       {ticker && <TickerInfoCard ticker={ticker} />}
 
       {ticker && (
-        <div className="form-section">
+        <div className="form-section" ref={formRef}>
           <label className="form-label">월 납입금</label>
           <div className="amount-row">
             {[100000, 300000, 500000, 1000000].map((v) => (

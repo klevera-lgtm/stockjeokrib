@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import TickerSearch from "./TickerSearch.jsx";
 import BacktestChart from "./BacktestChart.jsx";
 import AdBanner from "./AdBanner.jsx";
@@ -41,6 +41,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
   const [revealed, setRevealed] = useState(false);
   const [expandedIdx, setExpandedIdx] = useState(0);
   const [showGate, setShowGate] = useState(false);
+  const configRef = useRef(null);
   const basic = isBasic();
 
   const findAlpha = useCallback(async (t, p) => {
@@ -104,6 +105,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
     setTicker(t);
     setResult(null);
     setRevealed(false);
+    setTimeout(() => configRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
   }
 
   const hasAlpha = result && result.alphas.length > 0;
@@ -117,7 +119,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
 
       {ticker && (
         <>
-          <div className="rank-config">
+          <div className="rank-config" ref={configRef}>
             <div className="rank-config-row">
               <span className="rank-config-label">분석 기간</span>
               <div className="rank-period-chips">
