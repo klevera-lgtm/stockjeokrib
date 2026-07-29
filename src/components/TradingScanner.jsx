@@ -5,7 +5,7 @@ import QueryGateModal from "./QueryGateModal.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
 import { isBasic, consumeQueries, getQueryBalance } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
-import { getTickerLabel, TICKER_CATEGORIES, fmtPrice } from "../utils/tickers.js";
+import { getTickerLabel, TICKER_CATEGORIES, fmtPrice, isKrTicker, TICKER_LABELS } from "../utils/tickers.js";
 import {
   currentMASignal, currentRSISignal, currentDualMASignal,
   currentMACDSignal, currentBollingerSignal,
@@ -217,8 +217,8 @@ export default function TradingScanner({ onNavigate, onCoinsChanged }) {
                 <div className={`scanner-item${expanded === r.ticker ? " scanner-item--open" : ""}`}>
                   <div className="scanner-item-header" onClick={() => setExpanded(expanded === r.ticker ? null : r.ticker)}>
                     <div className="scanner-item-left">
-                      <span className="scanner-ticker">{r.ticker}</span>
-                      <span className="scanner-name">{getTickerLabel(r.ticker)}</span>
+                      <span className="scanner-ticker">{isKrTicker(r.ticker) ? (TICKER_LABELS[r.ticker] || r.ticker) : r.ticker}</span>
+                      <span className="scanner-name">{isKrTicker(r.ticker) ? r.ticker : getTickerLabel(r.ticker)}</span>
                     </div>
                     <div className="scanner-item-right">
                       <span className={`scanner-badge ${
@@ -244,7 +244,7 @@ export default function TradingScanner({ onNavigate, onCoinsChanged }) {
                     <div className="scanner-item-detail">
                       <IndicatorChart ticker={r.ticker} indicator={parseStratId(strategy.id)} size="medium" />
                       <button className="scanner-sim-link" onClick={() => onNavigate?.("trading", "trade-sim", { ticker: r.ticker })}>
-                        📊 {r.ticker} 백테스트 하기
+                        📊 {TICKER_LABELS[r.ticker] || r.ticker} 백테스트 하기
                       </button>
                     </div>
                   )}
