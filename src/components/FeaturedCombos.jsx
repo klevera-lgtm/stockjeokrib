@@ -87,7 +87,17 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
     }
   }
 
-  if (loading) return <p className="loading-state" style={{ padding: "24px 0" }}>추천 조합 불러오는 중...</p>;
+  if (loading) return (
+    <div style={{padding:'8px 0'}}>
+      {[1,2,3].map(i => (
+        <div key={i} className="skel-card">
+          <div className="skel skel-line skel-line--mid" />
+          <div className="skel skel-line" />
+          <div className="skel skel-line skel-line--short" />
+        </div>
+      ))}
+    </div>
+  );
   if (!data) return null;
 
   const lKey = withLeverage ? "with" : "without";

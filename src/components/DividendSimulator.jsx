@@ -117,7 +117,16 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
     };
   }, [result]);
 
-  if (!meta) return <div className="loading-msg">배당 데이터 로딩 중...</div>;
+  if (!meta) return (
+    <div className="page">
+      <div className="page-header">
+        <h1 className="page-title">배당 시뮬레이션</h1>
+        <p className="page-subtitle">매일 꾸준히 적립하면 배당금이 얼마나 불어날까요?</p>
+      </div>
+      <div className="skel-card"><div className="skel skel-line" /><div className="skel skel-line skel-line--mid" /><div className="skel skel-line skel-line--short" /></div>
+      <div className="skel skel-block" style={{height:120,borderRadius:'var(--radius)',margin:'8px 0'}} />
+    </div>
+  );
 
   return (
     <div className="page sim-page">

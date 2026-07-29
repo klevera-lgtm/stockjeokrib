@@ -51,7 +51,20 @@ export default function WhatOthersBuy({ onTickerSelect }) {
         <p className="page-subtitle">이번 주 한국인이 가장 많이 순매수한 미국 주식</p>
       </div>
 
-      {loading && <div className="loading-state">데이터 불러오는 중...</div>}
+      {loading && (
+        <div className="others-list">
+          {[1,2,3,4,5,6,7].map(i => (
+            <div key={i} className="skel-row">
+              <div className="skel skel-circle" />
+              <div style={{flex:1,display:'flex',flexDirection:'column',gap:6}}>
+                <div className="skel skel-line skel-line--mid" />
+                <div className="skel skel-line skel-line--short" />
+              </div>
+              <div className="skel skel-line skel-line--short" />
+            </div>
+          ))}
+        </div>
+      )}
       {error && <div className="error-msg">데이터를 불러올 수 없습니다. ({error})</div>}
       {data && data.length === 0 && (
         <div className="empty-state">현재 표시할 데이터가 없습니다.</div>

@@ -51,8 +51,35 @@ export default function DividendRanking({ onTickerSelect, onNavigate }) {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="page"><div className="loading-msg">배당 데이터 불러오는 중...</div></div>;
-  if (!meta) return <div className="page"><div className="error-msg">데이터를 불러올 수 없습니다.</div></div>;
+  if (loading) return (
+    <div className="page">
+      <div className="page-header">
+        <h1 className="page-title">배당 랭킹</h1>
+        <p className="page-subtitle">배당률·성장률·연속배당으로 종목을 비교해요</p>
+      </div>
+      <div className="skel-chips">
+        {[1,2,3,4,5].map(i => <div key={i} className="skel skel-chip" />)}
+      </div>
+      <div className="ranking-list">
+        {[1,2,3,4,5,6].map(i => (
+          <div key={i} className="skel-row">
+            <div className="skel skel-circle" />
+            <div style={{flex:1,display:'flex',flexDirection:'column',gap:6}}>
+              <div className="skel skel-line skel-line--mid" />
+              <div className="skel skel-line skel-line--short" />
+            </div>
+            <div className="skel skel-line skel-line--short" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+  if (!meta) return (
+    <div className="page">
+      <div className="error-msg">데이터를 불러올 수 없습니다.</div>
+      <button className="retry-btn" onClick={() => { setLoading(true); loadDividendMeta().then(setMeta).finally(() => setLoading(false)); }}>다시 시도</button>
+    </div>
+  );
 
   let items = Object.values(meta);
 

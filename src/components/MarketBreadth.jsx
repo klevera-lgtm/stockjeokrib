@@ -116,13 +116,12 @@ export default function MarketBreadth({ onCoinsChanged }) {
   const canvasRef = useRef(null);
   const basic = isBasic();
 
-  useEffect(() => {
-    let cancelled = false;
+  function fetchBreadth() {
     setLoading(true);
+    setError(null);
     fetch(BREADTH_URL)
       .then((r) => r.json())
       .then((json) => {
-        if (cancelled) return;
         const raw = json.indices ?? json;
         const indices = {};
         for (const key of Object.keys(raw)) {
@@ -131,11 +130,10 @@ export default function MarketBreadth({ onCoinsChanged }) {
         setData(indices);
         setLoading(false);
       })
-      .catch((e) => {
-        if (!cancelled) { setError(e.message); setLoading(false); }
-      });
-    return () => { cancelled = true; };
-  }, []);
+      .catch((e) => { setError(e.message); setLoading(false); });
+  }
+
+  useEffect(() => { fetchBreadth(); }, []);
 
   useEffect(() => { setZoomedRange(null); }, [activeIndex, range, activePeriod]);
 
@@ -300,7 +298,15 @@ export default function MarketBreadth({ onCoinsChanged }) {
   if (loading) {
     return (
       <div className="breadth-page">
-        <div className="breadth-loading">시장 데이터 불러오는 중...</div>
+        <h2 className="section-title">마켓 브레쓰</h2>
+        <div className="skel-chips" style={{justifyContent:'center'}}>
+          {[1,2,3].map(i => <div key={i} className="skel skel-chip" style={{width:80}} />)}
+        </div>
+        <div className="skel skel-gauge" />
+        <div className="skel skel-block" style={{height:180,borderRadius:'var(--radius)',margin:'16px 0'}} />
+        <div className="skel-chips" style={{justifyContent:'center'}}>
+          {[1,2,3,4].map(i => <div key={i} className="skel skel-chip" />)}
+        </div>
       </div>
     );
   }
@@ -308,7 +314,8 @@ export default function MarketBreadth({ onCoinsChanged }) {
   if (error || !data) {
     return (
       <div className="breadth-page">
-        <div className="breadth-loading">데이터를 불러올 수 없어요. 잠시 후 다시 시도해 주세요.</div>
+        <div className="breadth-loading">데이터를 불러올 수 없어요.</div>
+        <button className="retry-btn" onClick={fetchBreadth}>다시 시도</button>
       </div>
     );
   }

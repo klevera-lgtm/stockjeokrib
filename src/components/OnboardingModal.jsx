@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { logClick } from "../utils/analytics.js";
 
 const ONBOARD_KEY = "ait_onboard_done";
@@ -28,8 +28,16 @@ export function isOnboardDone() {
 
 export default function OnboardingModal({ onClose, onStartTest }) {
   const [idx, setIdx] = useState(0);
+  const [dir, setDir] = useState(1);
+  const touchRef = useRef(null);
   const slide = SLIDES[idx];
   const isLast = idx === SLIDES.length - 1;
+
+  function go(next) {
+    if (next < 0 || next >= SLIDES.length) return;
+    setDir(next > idx ? 1 : -1);
+    setIdx(next);
+  }
 
   function finish() {
     logClick("onboard_done", { last_slide: idx, skipped: !isLast });
@@ -37,16 +45,27 @@ export default function OnboardingModal({ onClose, onStartTest }) {
     onClose();
   }
 
+  function onTouchStart(e) { touchRef.current = e.touches[0].clientX; }
+  function onTouchEnd(e) {
+    if (touchRef.current == null) return;
+    const diff = e.changedTouches[0].clientX - touchRef.current;
+    touchRef.current = null;
+    if (diff < -40) go(idx + 1);
+    else if (diff > 40) go(idx - 1);
+  }
+
   return (
     <div className="modal-overlay">
-      <div className="modal-card onboard-card" onClick={(e) => e.stopPropagation()}>
-        <div className="onboard-emoji">{slide.emoji}</div>
-        <h2 className="modal-title onboard-title">{slide.title}</h2>
-        <p className="modal-desc onboard-desc">
-          {slide.desc.split("\n").map((line, i) => (
-            <span key={i}>{line}<br /></span>
-          ))}
-        </p>
+      <div className="modal-card onboard-card" onClick={(e) => e.stopPropagation()} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+        <div className="onboard-slide" key={idx} style={{ animation: `slideIn${dir > 0 ? 'Right' : 'Left'} 0.25s ease-out` }}>
+          <div className="onboard-emoji">{slide.emoji}</div>
+          <h2 className="modal-title onboard-title">{slide.title}</h2>
+          <p className="modal-desc onboard-desc">
+            {slide.desc.split("\n").map((line, i) => (
+              <span key={i}>{line}<br /></span>
+            ))}
+          </p>
+        </div>
 
         <div className="onboard-dots">
           {SLIDES.map((_, i) => (

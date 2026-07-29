@@ -10,6 +10,16 @@ import {
 import { isBasic, consumeQuery, getQueryBalance, getStreakInfo, STREAK_BONUS } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import TickerSearch from "./TickerSearch.jsx";
+import { getTickerLabel } from "../utils/tickers.js";
+
+const RECENT_KEY = "ait_recent_tickers";
+const MAX_RECENT = 5;
+function loadRecent() { try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch { return []; } }
+function saveRecent(ticker) {
+  const list = loadRecent().filter(t => t !== ticker);
+  list.unshift(ticker);
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, MAX_RECENT))); } catch {}
+}
 import LineChart from "./LineChart.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
@@ -74,6 +84,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   const run = useCallback(async () => {
     if (!ticker) return;
     logClick("sim_run", { ticker, amount: monthlyAmount });
+    saveRecent(ticker);
     setLoading(true);
     setError(null);
     setRevealed(basic);
@@ -147,6 +158,20 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
       )}
 
       <TickerSearch onSelect={(t) => { setTicker(t); setResults(null); setRevealed(basic); }} selected={ticker} />
+
+      {(() => {
+        const recent = loadRecent().filter(t => t !== ticker);
+        return recent.length > 0 && (
+          <div className="recent-tickers">
+            <span className="recent-label">최근 분석</span>
+            {recent.map(t => (
+              <button key={t} className="recent-chip" onClick={() => { setTicker(t); setResults(null); setRevealed(basic); }}>
+                {t} <span className="recent-chip-name">{getTickerLabel(t) !== t ? getTickerLabel(t) : ""}</span>
+              </button>
+            ))}
+          </div>
+        );
+      })()}
 
       {ticker && <TickerInfoCard ticker={ticker} />}
 

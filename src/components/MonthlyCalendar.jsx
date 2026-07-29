@@ -68,7 +68,17 @@ export default function MonthlyCalendar({ onCoinsChanged }) {
     logScreen("calendar_combo_result");
   }
 
-  if (!meta || !calendarData) return <div className="loading-msg">배당 데이터 로딩 중...</div>;
+  if (!meta || !calendarData) return (
+    <div className="page">
+      <div className="page-header">
+        <h1 className="page-title">월배당 캘린더</h1>
+        <p className="page-subtitle">매월 배당 받는 포트폴리오를 만들어보세요</p>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8,padding:'0 16px'}}>
+        {[...Array(12)].map((_,i) => <div key={i} className="skel" style={{height:60,borderRadius:'var(--radius)'}} />)}
+      </div>
+    </div>
+  );
 
   return (
     <div className="page cal-page">

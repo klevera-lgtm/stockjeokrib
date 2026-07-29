@@ -123,6 +123,13 @@ input, select {
   padding-bottom: 120px;
   overflow-y: auto;
 }
+@keyframes viewFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.view-transition {
+  animation: viewFadeIn 0.2s ease-out;
+}
 
 /* ── Page structure ──────────────────────────── */
 .page {
@@ -1007,6 +1014,8 @@ input, select {
 }
 
 /* ── Modal ───────────────────────────────────── */
+@keyframes modalBgIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalSlideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -1015,6 +1024,7 @@ input, select {
   align-items: flex-end;
   justify-content: center;
   z-index: 200;
+  animation: modalBgIn 0.2s ease-out;
 }
 .modal-card {
   background: var(--surface);
@@ -1025,6 +1035,7 @@ input, select {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  animation: modalSlideUp 0.25s ease-out;
 }
 .modal-badge {
   display: inline-block;
@@ -1099,6 +1110,45 @@ input, select {
   display: block;
   margin: 16px 16px 0;
   width: calc(100% - 32px);
+}
+
+/* ── Recent Tickers ─────────────────────────── */
+.recent-tickers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 16px 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.recent-tickers::-webkit-scrollbar { display: none; }
+.recent-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.recent-chip {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.recent-chip:active { transform: scale(0.96); }
+.recent-chip-name {
+  font-weight: 400;
+  color: var(--text-secondary);
+  font-size: 11px;
 }
 
 /* ── Ticker Info Card ────────────────────────── */
@@ -1544,7 +1594,9 @@ input, select {
 }
 
 /* ── Onboarding ──────────────────────────────── */
-.onboard-card { text-align: center; }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+.onboard-card { text-align: center; overflow: hidden; }
 .onboard-emoji {
   font-size: 52px;
   margin-bottom: 12px;
@@ -2387,6 +2439,68 @@ input, select {
   padding: 12px 20px;
   font-weight: 600;
 }
+.retry-btn {
+  display: block;
+  margin: 8px auto;
+  padding: 8px 24px;
+  border-radius: 99px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.retry-btn:active { opacity: 0.7; }
+
+/* ── Skeleton Loading ───────────────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skel {
+  background: linear-gradient(90deg, var(--border) 25%, #e8ecf3 37%, var(--border) 63%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 6px;
+}
+:root[data-theme="dark"] .skel,
+@media (prefers-color-scheme: dark) { .skel {
+  background: linear-gradient(90deg, #2a3040 25%, #353d4f 37%, #2a3040 63%);
+  background-size: 800px 100%;
+}}
+.skel-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+}
+.skel-circle { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; }
+.skel-line { height: 14px; flex: 1; }
+.skel-line--short { max-width: 80px; }
+.skel-line--mid { max-width: 120px; }
+.skel-line--long { max-width: 180px; }
+.skel-block { height: 56px; width: 100%; }
+.skel-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 8px;
+}
+.skel-card .skel-line { margin-bottom: 10px; }
+.skel-card .skel-line:last-child { margin-bottom: 0; }
+.skel-gauge {
+  width: 120px; height: 120px; border-radius: 50%;
+  margin: 20px auto;
+}
+.skel-chips {
+  display: flex; gap: 8px; padding: 0 16px; margin-bottom: 12px;
+}
+.skel-chip { width: 60px; height: 30px; border-radius: 15px; }
 
 /* ── Goal Ranking ─────────────────────────────────────── */
 .goal-ranking-section {
@@ -2942,8 +3056,16 @@ input, select {
 /* ── 코인 칩 바 (콘텐츠 최상단, 네비바 아래) ── */
 .coin-chip-bar {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 8px;
   padding: 6px 16px 0;
+}
+.streak-global {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
 }
 .coin-chip {
   display: inline-flex;

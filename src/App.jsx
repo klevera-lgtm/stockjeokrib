@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import TabBar, { ACCUMULATION_TABS, DIVIDEND_TABS, TRADING_TABS } from "./components/TabBar.jsx";
 import Disclaimer from "./components/Disclaimer.jsx";
 import StrategyResult from "./components/StrategyResult.jsx";
@@ -27,7 +27,7 @@ import { loadPrices, prefetchTickers } from "./utils/dataLoader.js";
 import { precomputeFeaturedCombos } from "./utils/comboResultCache.js";
 import { logScreen, logClick } from "./utils/analytics.js";
 import { initPaidCoins } from "./utils/coinsApi.js";
-import { getQueryBalance, isBasic } from "./utils/premium.js";
+import { getQueryBalance, isBasic, getStreakInfo, STREAK_BONUS } from "./utils/premium.js";
 import "./App.css";
 
 const PREFETCH_SEEDS = ["SPY", "QQQ", "NVDA", "AAPL", "TSLA", "VOO", "IVV", "TQQQ", "SOXL", "TLT"];
@@ -213,11 +213,23 @@ export default function App() {
               {coinBalance === Infinity ? "∞" : coinBalance}
               <span className="coin-chip-plus">+</span>
             </button>
+            {(() => {
+              const s = getStreakInfo();
+              return s.count >= 2 && (
+                <span className="streak-global">
+                  {s.bonusToday
+                    ? `🔥 ${s.count}일 연속 · 보너스 +${STREAK_BONUS} 받음!`
+                    : `🔥 ${s.count}일 연속 · ${s.daysToBonus}일 후 +${STREAK_BONUS}`}
+                </span>
+              );
+            })()}
           </div>
         )}
         {!basic && <RewardedAdBanner onEarned={refreshCoins} />}
         <InsightCard onNavigate={handleNavigate} />
-        {renderContent()}
+        <div className="view-transition" key={`${section}-${activeTab}`}>
+          {renderContent()}
+        </div>
         <Disclaimer />
       </div>
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} tabs={currentTabs} />
