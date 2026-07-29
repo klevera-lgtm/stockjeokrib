@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import TickerSearch from "./TickerSearch.jsx";
 import AdBanner from "./AdBanner.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
@@ -638,7 +638,9 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
             return (
               <div className="top10-list">
                 {list.map((s, i) => (
-                  <button key={i} className="top10-card" onClick={() => handleTop10Select(s)}>
+                  <React.Fragment key={i}>
+                  {i === 5 && <AdBanner className="ad-banner-inline" />}
+                  <button className="top10-card" onClick={() => handleTop10Select(s)}>
                     <span className={`top10-rank${i < 3 ? ` medal-${i + 1}` : ""}`}>{i + 1}</span>
                     <div className="top10-info">
                       <span className="top10-name">{s.label}</span>
@@ -655,6 +657,7 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
                       </span>
                     </div>
                   </button>
+                  </React.Fragment>
                 ))}
               </div>
             );

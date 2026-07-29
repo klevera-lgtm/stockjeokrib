@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { loadPrices } from "../utils/dataLoader.js";
 import {
   runStrategy,
@@ -58,6 +58,8 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   const basic = isBasic();
   const autoRanRef = useRef(false);
   const formRef = useRef(null);
+  const chartRef = useRef(null);
+  const [chartFlash, setChartFlash] = useState(false);
   const streak = getStreakInfo();
 
   useEffect(() => {
@@ -250,6 +252,8 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             const toReturnPct = (pv) =>
               pv.map((d) => d.invested > 0 ? (d.value / d.invested - 1) * 100 : 0);
             return (
+              <div ref={chartRef} className={`chart-highlight-wrap${chartFlash ? " chart-flash" : ""}`}>
+              {revealed && <div className="chart-selected-label">📊 {STRATEGY_LABELS[selected.strategy]}</div>}
               <LineChart
                 labels={selected.portfolioValues.map((d) => d.date)}
                 datasets={[
@@ -275,6 +279,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                 ]}
                 yType="pct"
               />
+              </div>
             );
           })()}
 
@@ -299,10 +304,11 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                   : null;
 
                 return (
+                  <React.Fragment key={r.strategy}>
+                  {(idx === 5 || idx === 10) && <AdBanner className="ad-banner-inline" />}
                   <div
-                    key={r.strategy}
                     className={`strategy-row${isBest ? " best" : ""}${isWorst ? " worst" : ""}${isBenchmark ? " benchmark" : ""}${idx === chartIdx ? " strategy-row--selected" : ""}`}
-                    onClick={() => setChartIdx(idx)}
+                    onClick={() => { setChartIdx(idx); setChartFlash(true); setTimeout(() => setChartFlash(false), 600); chartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
                   >
                     <div className="strategy-rank">
                       {isBenchmark ? "📅" : isBest ? "🥇" : `${idx + 1}`}
@@ -329,6 +335,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                       }
                     </div>
                   </div>
+                  </React.Fragment>
                 );
               })}
             </div>

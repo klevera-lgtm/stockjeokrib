@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { loadWhatOthersBuy } from "../utils/dataLoader.js";
 import { isBasic } from "../utils/premium.js";
 import { SUPPORTED_TICKERS, SUPPORTED_TICKERS_URL, getTickerLabel } from "../utils/tickers.js";
@@ -89,7 +89,9 @@ export default function WhatOthersBuy({ onTickerSelect }) {
               const barPct = maxAmount > 0 ? (item.net_buy_amount / maxAmount) * 100 : 0;
 
               return (
-                <div key={item.isin ?? idx} className="others-row">
+                <React.Fragment key={item.isin ?? idx}>
+                {(idx === 7 || idx === 20) && <AdBanner className="ad-banner-inline" />}
+                <div className="others-row">
                   <div className="others-bar" style={{ width: `${barPct.toFixed(1)}%` }} />
 
                   <div className="others-rank">
@@ -122,6 +124,7 @@ export default function WhatOthersBuy({ onTickerSelect }) {
                       : <span className="others-no-data">분석 불가</span>
                   )}
                 </div>
+                </React.Fragment>
               );
             })}
 

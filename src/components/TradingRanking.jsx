@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import TickerSearch from "./TickerSearch.jsx";
 import BacktestChart from "./BacktestChart.jsx";
 import AdBanner from "./AdBanner.jsx";
@@ -250,7 +250,9 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
             {result.alphas.map((a, i) => {
               const isOpen = expandedIdx === i;
               return (
-                <div className={`alpha-item${isOpen ? " alpha-item--open" : ""}`} key={i}>
+                <React.Fragment key={i}>
+                {(i === 5 || i === 15) && <AdBanner className="ad-banner-inline" />}
+                <div className={`alpha-item${isOpen ? " alpha-item--open" : ""}`}>
                   <div
                     className="alpha-item-header"
                     onClick={() => setExpandedIdx(isOpen ? null : i)}
@@ -279,6 +281,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
                     </div>
                   )}
                 </div>
+                </React.Fragment>
               );
             })}
           </div>

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { loadPrices, prefetchTickers } from "../utils/dataLoader.js";
 import { runStrategy, formatKRW, formatPct } from "../utils/calculator.js";
 import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
@@ -188,7 +188,9 @@ export default function EventExplorer() {
           </p>
           <div className="gainers-list">
             {topGainers.map((g, i) => (
-              <div key={g.ticker} className="gainer-row">
+              <React.Fragment key={g.ticker}>
+              {i === 5 && <AdBanner className="ad-banner-inline" />}
+              <div className="gainer-row">
                 <span className="gainer-rank">{i + 1}</span>
                 <span className={`gainer-ticker${!gainersRevealed ? " name--blur" : ""}`}>
                   {getTickerLabel(g.ticker)}
@@ -208,6 +210,7 @@ export default function EventExplorer() {
                   </button>
                 )}
               </div>
+              </React.Fragment>
             ))}
           </div>
           {!gainersRevealed && (

@@ -546,6 +546,28 @@ input, select {
   vertical-align: middle;
 }
 
+/* ── Chart highlight ──────────────────────────── */
+.chart-highlight-wrap {
+  position: relative;
+  border-radius: 12px;
+  transition: box-shadow 0.3s ease;
+}
+.chart-highlight-wrap.chart-flash {
+  animation: chartPulse 0.6s ease;
+}
+@keyframes chartPulse {
+  0% { box-shadow: 0 0 0 0 rgba(49,130,246,0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(49,130,246,0.15); }
+  100% { box-shadow: 0 0 0 0 rgba(49,130,246,0); }
+}
+.chart-selected-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 4px;
+  padding: 4px 0;
+}
+
 /* ── Blur overlay ─────────────────────────────── */
 .blurred {
   pointer-events: none;

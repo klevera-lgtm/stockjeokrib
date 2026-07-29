@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { loadPrices } from "../utils/dataLoader.js";
 import { runStrategy, ALL_STRATEGIES, STRATEGY_LABELS, formatKRW, formatPct } from "../utils/calculator.js";
 import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
@@ -353,7 +353,9 @@ export default function GoalCalculator({ onNavigate }) {
           )}
 
           {results.map((r, idx) => (
-            <div key={r.strategy} className={`strategy-row${idx === 0 ? " best" : ""}`}>
+            <React.Fragment key={r.strategy}>
+            {(idx === 5 || idx === 10) && <AdBanner className="ad-banner-inline" />}
+            <div className={`strategy-row${idx === 0 ? " best" : ""}`}>
               <div className="strategy-rank">{idx === 0 ? "🥇" : idx + 1}</div>
               <div className="strategy-info">
                 <div className={`strategy-name${!revealed ? " strategy-name--hidden" : ""}`}>
@@ -366,6 +368,7 @@ export default function GoalCalculator({ onNavigate }) {
                 <div className="return-pct pos">{formatKRW(r.requiredMonthly)}</div>
               </div>
             </div>
+            </React.Fragment>
           ))}
 
           {results[0] && (
