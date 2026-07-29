@@ -85,17 +85,22 @@ export default function TradingScanner({ onNavigate, onCoinsChanged }) {
     setProgress(0);
 
     const out = [];
-    for (let i = 0; i < UNIQUE_TICKERS.length; i++) {
-      const ticker = UNIQUE_TICKERS[i];
-      try {
-        const prices = await loadPrices(ticker);
-        if (prices.length < 200) continue;
-        const signal = strat.fn(prices);
-        if (signal.status !== "unknown") {
-          out.push({ ticker, ...signal });
-        }
-      } catch {}
-      setProgress(Math.round(((i + 1) / UNIQUE_TICKERS.length) * 100));
+    const BATCH = 10;
+    for (let i = 0; i < UNIQUE_TICKERS.length; i += BATCH) {
+      const batch = UNIQUE_TICKERS.slice(i, i + BATCH);
+      const batchResults = await Promise.allSettled(
+        batch.map(async (ticker) => {
+          const prices = await loadPrices(ticker);
+          if (prices.length < 200) return null;
+          const signal = strat.fn(prices);
+          if (signal.status === "unknown") return null;
+          return { ticker, ...signal };
+        })
+      );
+      for (const r of batchResults) {
+        if (r.status === "fulfilled" && r.value) out.push(r.value);
+      }
+      setProgress(Math.round(Math.min(i + BATCH, UNIQUE_TICKERS.length) / UNIQUE_TICKERS.length * 100));
     }
 
     out.sort((a, b) => {
