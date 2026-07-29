@@ -131,6 +131,7 @@ export default function StrategyScorecard({
         .map((s, i) => ({ ...s, rank: i + 1 }));
 
       setResults(finalRanking);
+      setExpanded(finalRanking.length > 0 ? finalRanking[0].strategy : null);
     } catch (e) {
       console.error(e);
     } finally {

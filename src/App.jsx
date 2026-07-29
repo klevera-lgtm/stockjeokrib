@@ -150,7 +150,7 @@ export default function App() {
       switch (activeTab) {
         case "trade-breadth":   return <MarketBreadth onCoinsChanged={refreshCoins} />;
         case "trade-sim":       return <TradingSimulation onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-        case "trade-scanner":   return <TradingScanner onNavigate={handleNavigate} />;
+        case "trade-scanner":   return <TradingScanner onNavigate={handleNavigate} onCoinsChanged={refreshCoins} />;
         case "trade-ranking":   return <TradingRanking onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
         case "trade-portfolio": return <TradingPortfolio onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
         default:                return <MarketBreadth onCoinsChanged={refreshCoins} />;

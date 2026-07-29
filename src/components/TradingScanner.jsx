@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import AdBanner from "./AdBanner.jsx";
 import IndicatorChart from "./IndicatorChart.jsx";
+import QueryGateModal from "./QueryGateModal.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
-import { isBasic } from "../utils/premium.js";
+import { isBasic, consumeQueries, getQueryBalance } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import { getTickerLabel, TICKER_CATEGORIES } from "../utils/tickers.js";
 import {
@@ -12,10 +13,22 @@ import {
 } from "../utils/tradingEngine.js";
 
 const SCAN_TICKERS = [
-  ...TICKER_CATEGORIES["미국 개별주식"].slice(0, 20),
-  ...TICKER_CATEGORIES["미국 인덱스 ETF"].slice(0, 6),
-  ...TICKER_CATEGORIES["레버리지 ETF"].slice(0, 6),
-  ...TICKER_CATEGORIES["배당주·리츠"].slice(0, 6),
+  ...TICKER_CATEGORIES["미국 개별주식"],
+  ...TICKER_CATEGORIES["미국 인덱스 ETF"],
+  ...TICKER_CATEGORIES["반도체 ETF"],
+  ...TICKER_CATEGORIES["테크 섹터 ETF"],
+  ...TICKER_CATEGORIES["AI·로보틱스 ETF"],
+  ...TICKER_CATEGORIES["크립토 ETF"],
+  ...TICKER_CATEGORIES["원자력·우라늄 ETF"],
+  ...TICKER_CATEGORIES["방산 ETF"],
+  ...TICKER_CATEGORIES["레버리지 ETF"],
+  ...TICKER_CATEGORIES["GICS 11섹터 ETF"],
+  ...TICKER_CATEGORIES["테마 섹터 ETF"],
+  ...["GLD", "SLV"],
+  ...TICKER_CATEGORIES["아시아 국가 ETF"],
+  ...TICKER_CATEGORIES["유럽 국가 ETF"],
+  ...TICKER_CATEGORIES["기타 국가 ETF"],
+  ...TICKER_CATEGORIES["국내 자산"],
 ];
 const UNIQUE_TICKERS = [...new Set(SCAN_TICKERS)];
 
@@ -34,6 +47,7 @@ const SCAN_STRATEGIES = [
 ];
 
 const FREE_LIMIT = 3;
+const UNLOCK_COST = 2;
 
 const scanCache = new Map();
 
@@ -46,18 +60,22 @@ function parseStratId(id) {
   return null;
 }
 
-export default function TradingScanner({ onNavigate }) {
+export default function TradingScanner({ onNavigate, onCoinsChanged }) {
   const [strategy, setStrategy] = useState(SCAN_STRATEGIES[0]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [helpOpen, setHelpOpen] = useState(false);
   const [expanded, setExpanded] = useState(null);
+  const [revealed, setRevealed] = useState(false);
+  const [showGate, setShowGate] = useState(false);
   const basic = isBasic();
 
   const scan = useCallback(async (strat) => {
     if (scanCache.has(strat.id)) {
-      setResults(scanCache.get(strat.id));
+      const cached = scanCache.get(strat.id);
+      setResults(cached);
+      setExpanded(cached.length > 0 ? cached[0].ticker : null);
       setLoading(false);
       return;
     }
@@ -87,6 +105,7 @@ export default function TradingScanner({ onNavigate }) {
 
     scanCache.set(strat.id, out);
     setResults(out);
+    setExpanded(out.length > 0 ? out[0].ticker : null);
     setLoading(false);
     logClick("trade_scanner_run", { strategy: strat.id, count: out.length });
   }, []);
@@ -95,11 +114,25 @@ export default function TradingScanner({ onNavigate }) {
 
   function handleStrategyChange(strat) {
     setStrategy(strat);
+    setRevealed(false);
     scan(strat);
   }
 
-  const displayResults = basic ? results : results.slice(0, FREE_LIMIT);
-  const hasMore = !basic && results.length > FREE_LIMIT;
+  function handleUnlock() {
+    if (basic) return;
+    if (getQueryBalance() < UNLOCK_COST) {
+      setShowGate(true);
+      return;
+    }
+    consumeQueries(UNLOCK_COST);
+    onCoinsChanged?.();
+    setRevealed(true);
+    logClick("scanner_unlock", { strategy: strategy.id, cost: UNLOCK_COST });
+  }
+
+  const unlocked = basic || revealed;
+  const displayResults = unlocked ? results : results.slice(0, FREE_LIMIT);
+  const hasMore = !unlocked && results.length > FREE_LIMIT;
 
   return (
     <div className="trade-scanner">
@@ -217,7 +250,9 @@ export default function TradingScanner({ onNavigate }) {
 
           {hasMore && (
             <div className="scanner-paywall">
-              <p>🔒 나머지 {results.length - FREE_LIMIT}개 종목은 베이직에서 확인할 수 있어요</p>
+              <button className="btn-primary scanner-unlock-btn" onClick={handleUnlock}>
+                🪙 {UNLOCK_COST}코인으로 나머지 {results.length - FREE_LIMIT}개 종목 보기
+              </button>
             </div>
           )}
 
@@ -228,6 +263,13 @@ export default function TradingScanner({ onNavigate }) {
       <div className="trade-disclaimer">
         ⚠️ 스캔 결과는 기계적 조건 충족 여부만 표시하며, 투자 권유가 아닙니다.
       </div>
+
+      {showGate && (
+        <QueryGateModal
+          onClose={() => setShowGate(false)}
+          onPurchased={() => { setShowGate(false); onCoinsChanged?.(); }}
+        />
+      )}
     </div>
   );
 }

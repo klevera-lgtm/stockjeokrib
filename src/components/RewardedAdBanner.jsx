@@ -40,7 +40,7 @@ export default function RewardedAdBanner({ onEarned }) {
         ? `✓ 코인 +${AD_REWARD_QUERIES}개 충전 완료!`
         : loading
           ? "광고 로딩 중..."
-          : `📺 광고 보고 코인 +${AD_REWARD_QUERIES} 받기`}
+          : `🎁 무료 코인 +${AD_REWARD_QUERIES} 받기`}
     </button>
   );
 }
