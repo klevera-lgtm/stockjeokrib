@@ -6,12 +6,13 @@ export const TICKER_CATEGORIES = {
     "ARM","AMAT","LRCX","ASML","BE","SMCI",
     "AAOI","CRWV","DDOG","GH","IREN","JPM","MSTR","NTRA","OKTA","SMR","UCTT",
     "HOOD","SOFI","RIVN","NIO","PANW","CRM",
+    "MARA","RIOT","CLSK","CORZ",
   ],
   "미국 인덱스 ETF": ["VOO","SPY","IVV","QQQM","QQQ","VTI","DIA","IWM","VB","SCHG","VUG","RSP","COWZ"],
   "반도체 ETF": ["SMH","SOXX"],
   "테크 섹터 ETF": ["XLK","VGT","IGV","HACK","WCLD","BOTZ"],
   "AI·로보틱스 ETF": ["AIQ","CHAT","ROBO"],
-  "크립토 ETF": ["BITO","BITX"],
+  "크립토 ETF": ["IBIT","FBTC","ETHA","BSOL","BITO","BITX"],
   "원자력·우라늄 ETF": ["URA","URNM","NLR"],
   "방산 ETF": ["XAR","PPA"],
   "레버리지 ETF": [
@@ -211,7 +212,17 @@ export const TICKER_LABELS = {
   "CHAT": "생성AI ETF",
   "ROBO": "로보틱스 자동화 ETF",
 
+  // 크립토 관련
+  "MARA": "마라톤 디지털",
+  "RIOT": "라이엇 플랫폼즈",
+  "CLSK": "클린스파크",
+  "CORZ": "코어 사이언티픽",
+
   // 크립토 ETF
+  "IBIT": "비트코인 현물 ETF",
+  "FBTC": "비트코인 현물 ETF (Fidelity)",
+  "ETHA": "이더리움 현물 ETF",
+  "BSOL": "솔라나 ETF",
   "BITO": "비트코인 선물 ETF",
 
   // 원자력·우라늄 ETF
@@ -304,6 +315,8 @@ export const SUPPORTED_TICKERS = new Set([
   "JNJ","PG","PEP","MCD","ABBV","XOM","CVX","T","VZ","MO","MMM","IBM",
   // 커버드콜·초고배당 + 신규 배당
   "ARCC","MSTY","TSLY","YMAX","NVDY","SPYI","DGRW","GPIQ",
+  // 크립토 관련
+  "IBIT","FBTC","ETHA","BSOL","MARA","RIOT","CLSK","CORZ",
   // 한국 배당 자산
   "088980","458730",
 ]);
