@@ -18,6 +18,7 @@ import TradingScanner from "./components/TradingScanner.jsx";
 import TradingRanking from "./components/TradingRanking.jsx";
 import TradingPortfolio from "./components/TradingPortfolio.jsx";
 import MarketBreadth from "./components/MarketBreadth.jsx";
+import InsiderTrading from "./components/InsiderTrading.jsx";
 import OnboardingModal, { isOnboardDone } from "./components/OnboardingModal.jsx";
 import InvestTypeTest from "./components/InvestTypeTest.jsx";
 import CoinShopModal from "./components/CoinShopModal.jsx";
@@ -157,6 +158,7 @@ export default function App() {
         case "trade-scanner":   return <TradingScanner onNavigate={handleNavigate} onCoinsChanged={refreshCoins} />;
         case "trade-ranking":   return <TradingRanking onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
         case "trade-portfolio": return <TradingPortfolio onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+        case "trade-insider":  return <InsiderTrading onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
         default:                return <MarketBreadth onCoinsChanged={refreshCoins} />;
       }
     }

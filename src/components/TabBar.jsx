@@ -16,6 +16,7 @@ import {
   IconChartCandle,
   IconBriefcase,
   IconActivityHeartbeat,
+  IconUserStar,
 } from "@tabler/icons-react";
 
 export const ACCUMULATION_TABS = [
@@ -42,6 +43,7 @@ export const TRADING_TABS = [
   { id: "trade-ranking",   label: "알파",        Icon: IconTrophy },
   { id: "trade-sim",       label: "시뮬레이션", Icon: IconChartCandle },
   { id: "trade-portfolio", label: "포트폴리오", Icon: IconBriefcase },
+  { id: "trade-insider",  label: "내부자",     Icon: IconUserStar },
 ];
 
 export default function TabBar({ activeTab, onTabChange, tabs = ACCUMULATION_TABS }) {

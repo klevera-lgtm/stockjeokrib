@@ -4147,3 +4147,139 @@ input, select {
 .pf-picker-ret.negative { color: #ff3b30; }
 
 .coming-soon { display: flex; align-items: center; justify-content: center; min-height: 300px; font-size: 16px; font-weight: 700; color: var(--text-tertiary); }
+
+/* ── Insider Trading ── */
+.insider-page { padding: 0 0 24px; }
+.insider-summary {
+  background: var(--card-bg); border-radius: var(--radius); padding: 16px;
+  margin: 12px 0; border: 1px solid var(--border);
+}
+.insider-summary-row {
+  display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px;
+}
+.insider-summary-buy, .insider-summary-sell {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.insider-summary-label { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+.insider-summary-val { font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.insider-summary-amt { font-size: 12px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.insider-ratio-bar {
+  height: 6px; border-radius: 3px; background: #3182f6; overflow: hidden;
+}
+.insider-ratio-buy { height: 100%; background: #ff3b30; border-radius: 3px; min-width: 4px; }
+.insider-ratio-text { font-size: 11px; color: var(--text-tertiary); text-align: center; margin-top: 6px; }
+.insider-updated { font-size: 11px; color: var(--text-tertiary); text-align: center; margin-top: 2px; }
+
+.insider-section { margin: 16px 0; }
+.insider-section-title {
+  font-size: 15px; font-weight: 700; margin: 0 0 4px; display: flex; align-items: center; gap: 6px;
+}
+.insider-section-hint { font-size: 12px; color: var(--text-secondary); margin: 0 0 10px; }
+.insider-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.insider-dot--buy { background: #ff3b30; }
+.insider-dot--sell { background: #3182f6; }
+.insider-dot--form144 { background: #f59e0b; }
+.insider-empty { font-size: 13px; color: var(--text-tertiary); text-align: center; padding: 20px 0; }
+
+.insider-stock-card {
+  position: relative; background: var(--card-bg); border-radius: var(--radius);
+  margin-bottom: 8px; border: 1px solid var(--border); overflow: hidden;
+}
+.insider-stock-card--sell { overflow: hidden; }
+.insider-sell-bar {
+  position: absolute; top: 0; left: 0; height: 100%;
+  background: rgba(49,130,246,0.06); pointer-events: none; z-index: 0;
+}
+.insider-stock-header {
+  display: flex; align-items: center; gap: 8px; padding: 12px;
+  cursor: pointer; position: relative; z-index: 1;
+}
+.insider-rank {
+  font-size: 13px; font-weight: 700; color: var(--text-tertiary);
+  min-width: 20px; text-align: center;
+}
+.insider-stock-info { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.insider-ticker { font-size: 14px; font-weight: 700; }
+.insider-name { font-size: 11px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.insider-stock-right { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.insider-amount { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.insider-count { font-size: 11px; color: var(--text-tertiary); }
+.insider-chevron {
+  font-size: 12px; color: var(--text-tertiary); transition: transform 0.2s;
+}
+.insider-chevron.open { transform: rotate(180deg); }
+
+.insider-stock-detail { padding: 0 12px 12px; position: relative; z-index: 1; }
+.insider-chart-wrap { height: 160px; margin-bottom: 10px; }
+.insider-chart-wrap canvas { width: 100% !important; height: 100% !important; }
+.insider-chart-legend {
+  display: flex; gap: 12px; justify-content: center; font-size: 11px; color: var(--text-secondary); margin-top: 4px;
+}
+.insider-legend-buy { color: #ff3b30; }
+.insider-legend-sell { color: #3182f6; }
+
+.insider-person {
+  display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 0;
+  flex-wrap: wrap;
+}
+.insider-person-name { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
+.insider-person-amt { font-weight: 700; font-variant-numeric: tabular-nums; }
+.insider-tx-date { font-size: 10px; color: var(--text-tertiary); }
+
+.insider-stock-actions { display: flex; gap: 8px; margin-top: 8px; }
+.insider-action-btn { flex: 1; font-size: 12px !important; padding: 8px 0 !important; }
+
+.insider-paywall {
+  text-align: center; padding: 16px 0;
+}
+.insider-unlock-btn { width: 100%; }
+
+.insider-form144-stats {
+  display: flex; gap: 16px; font-size: 13px; color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+.insider-form144-stats strong { font-weight: 700; color: var(--text-primary); }
+.insider-form144-row {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+  background: var(--card-bg); border-radius: var(--radius); margin-bottom: 6px;
+  border: 1px solid var(--border);
+}
+.insider-mini-btn {
+  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text-secondary);
+  cursor: pointer; white-space: nowrap;
+}
+.insider-mini-btn:active { background: var(--border); }
+
+.insider-filter-chips { display: flex; gap: 6px; margin-bottom: 10px; }
+.insider-filter-chip {
+  padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--border); background: var(--card-bg);
+  color: var(--text-secondary); cursor: pointer;
+}
+.insider-filter-chip.active {
+  background: var(--accent, #3182f6); color: #fff; border-color: transparent;
+}
+
+.insider-timeline-row {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+  background: var(--card-bg); border-radius: var(--radius); margin-bottom: 6px;
+  border: 1px solid var(--border); font-size: 13px;
+}
+.insider-timeline-badge {
+  font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+  white-space: nowrap;
+}
+.insider-timeline-badge.buy { background: rgba(255,59,48,0.12); color: #ff3b30; }
+.insider-timeline-badge.sell { background: rgba(49,130,246,0.12); color: #3182f6; }
+.insider-timeline-info { flex: 1; display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.insider-timeline-sym { font-weight: 700; font-size: 13px; }
+.insider-timeline-name { font-size: 11px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.insider-timeline-right { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-variant-numeric: tabular-nums; }
+.insider-timeline-price { font-size: 11px; color: var(--text-tertiary); }
+.insider-timeline-date { font-size: 11px; color: var(--text-tertiary); min-width: 40px; text-align: right; }
+
+.insider-disclaimer {
+  font-size: 11px; color: var(--text-tertiary); text-align: center;
+  padding: 8px 0 16px; line-height: 1.5;
+}
