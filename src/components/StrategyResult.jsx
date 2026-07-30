@@ -108,9 +108,10 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
       ).filter(Boolean);
 
       allResults.sort((a, b) => b.totalReturn - a.totalReturn);
-      const benchmark = allResults.find((r) => r.strategy === "monthly-25") ?? null;
+      const benchmark = allResults.find((r) => r.strategy === "daily") ?? null;
       setChartIdx(0);
       setResults({ list: allResults, benchmark });
+      setTimeout(() => chartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -225,6 +226,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
           </button>
 
           <StrategyScorecard
+            key={ticker}
             tickers={[ticker]}
             weights={{ [ticker]: 100 }}
             monthlyAmount={monthlyAmount}
@@ -267,7 +269,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                     pointRadius: 0,
                   },
                   ...(bm && bm.strategy !== selected.strategy ? [{
-                    label: "월급날(25일) 기준",
+                    label: "매일 적립 기준",
                     data: toReturnPct(bm.portfolioValues),
                     borderColor: "rgba(150,150,150,0.6)",
                     borderDash: [5, 4],
@@ -298,7 +300,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
               {results.list.map((r, idx) => {
                 const isBest = idx === 0;
                 const isWorst = idx === results.list.length - 1;
-                const isBenchmark = r.strategy === "monthly-25";
+                const isBenchmark = r.strategy === "daily";
                 const delta = results.benchmark && !isBenchmark
                   ? r.totalReturn - results.benchmark.totalReturn
                   : null;
@@ -316,7 +318,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                     <div className="strategy-info">
                       <div className="strategy-name">
                         {STRATEGY_LABELS[r.strategy]}
-                        {isBenchmark && <span className="benchmark-badge">월급날 기준</span>}
+                        {isBenchmark && <span className="benchmark-badge">매일 적립</span>}
                       </div>
                       <div className="strategy-meta">
                         납입 {formatKRW(r.totalInvested)} →&nbsp;
@@ -329,7 +331,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                       </div>
                       {delta !== null
                         ? <div className={`vs-benchmark ${delta >= 0 ? "pos" : "neg"}`}>
-                            월급날 대비 {delta >= 0 ? "+" : ""}{(delta * 100).toFixed(1)}%p
+                            매일 적립 대비 {delta >= 0 ? "+" : ""}{(delta * 100).toFixed(1)}%p
                           </div>
                         : <div className="cagr">연 {formatPct(r.cagr)}</div>
                       }
