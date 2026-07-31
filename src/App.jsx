@@ -3,6 +3,7 @@ import {
   IconHome, IconCompass, IconBriefcase, IconArrowLeft,
   IconActivityHeartbeat, IconRadar2, IconTrophy, IconUserStar,
   IconList, IconCalendar, IconCirclesRelation, IconNews, IconUsers,
+  IconTarget, IconUmbrella, IconScale,
 } from "@tabler/icons-react";
 import Disclaimer from "./components/Disclaimer.jsx";
 import Home from "./components/Home.jsx";
@@ -43,17 +44,27 @@ const NAV_TABS = [
   { id: "my",       label: "내 종목", Icon: IconBriefcase },
 ];
 
-const DISCOVER_FEATURES = [
-  { id: "breadth",     label: "시장 온도",   desc: "오늘 시장이 강세인지 약세인지",     Icon: IconActivityHeartbeat },
-  { id: "scanner",     label: "스캐너",      desc: "조건을 충족한 종목 탐색",         Icon: IconRadar2 },
-  { id: "alpha",       label: "알파 전략",   desc: "바이앤홀드를 이긴 전략 찾기",     Icon: IconTrophy },
-  { id: "insider",     label: "내부자 거래", desc: "기업 임원의 자사주 매매 공시",     Icon: IconUserStar },
-  { id: "div-ranking", label: "배당 랭킹",   desc: "배당 수익률 순위",               Icon: IconList },
-  { id: "calendar",    label: "월배당 캘린더", desc: "달마다 배당 주는 종목",         Icon: IconCalendar },
-  { id: "combo",       label: "조합 탐색",   desc: "종목을 섞은 최적 적립 조합",       Icon: IconCirclesRelation },
-  { id: "event",       label: "이벤트",      desc: "급락·신고가 등 이벤트 탐색",       Icon: IconNews },
-  { id: "others",      label: "남들은?",     desc: "다른 사람들이 많이 본 종목",       Icon: IconUsers },
+const DISCOVER_GROUPS = [
+  { title: "종목 발굴", items: [
+    { id: "div-ranking", label: "배당 랭킹",   desc: "배당 수익률 순위",           Icon: IconList },
+    { id: "scanner",     label: "스캐너",      desc: "조건을 충족한 종목 탐색",     Icon: IconRadar2 },
+    { id: "combo",       label: "조합 탐색",   desc: "종목을 섞은 최적 적립 조합",   Icon: IconCirclesRelation },
+    { id: "alpha",       label: "알파 전략",   desc: "바이앤홀드를 이긴 전략 찾기", Icon: IconTrophy },
+  ] },
+  { title: "시장·신호", items: [
+    { id: "breadth",     label: "시장 온도",   desc: "오늘 시장이 강세인지 약세인지", Icon: IconActivityHeartbeat },
+    { id: "insider",     label: "내부자 거래", desc: "기업 임원의 자사주 매매 공시",   Icon: IconUserStar },
+    { id: "event",       label: "이벤트",      desc: "급락·신고가 등 이벤트 탐색",     Icon: IconNews },
+    { id: "others",      label: "남들은?",     desc: "다른 사람들이 많이 본 종목",     Icon: IconUsers },
+  ] },
+  { title: "계산기·도구", items: [
+    { id: "goal",        label: "목표 계산",    desc: "목표 금액까지 얼마나 적립할까", Icon: IconTarget },
+    { id: "retirement",  label: "은퇴 계산",    desc: "배당으로 만드는 은퇴 현금흐름", Icon: IconUmbrella },
+    { id: "vs-growth",   label: "배당 vs 성장", desc: "배당주와 성장주 수익 비교",     Icon: IconScale },
+    { id: "calendar",    label: "월배당 캘린더", desc: "달마다 배당 주는 종목",        Icon: IconCalendar },
+  ] },
 ];
+const DISCOVER_FEATURES = DISCOVER_GROUPS.flatMap((g) => g.items);
 
 export default function App() {
   const [view, setView] = useState("home");              // home | detail | discover | my
@@ -159,6 +170,9 @@ export default function App() {
       case "combo":       return <ComboBacktest focus={comboFocus} onNavigate={handleNavigate} />;
       case "event":       return <EventExplorer />;
       case "others":      return <WhatOthersBuy onTickerSelect={(t) => openDetail(t, "acc")} />;
+      case "goal":        return <GoalCalculator onNavigate={handleNavigate} />;
+      case "retirement":  return <RetirementCalc onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+      case "vs-growth":   return <DividendVsGrowth onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
       default:            return null;
     }
   }
@@ -195,19 +209,24 @@ export default function App() {
         <div className="discover">
           <div className="home-hero">
             <h1 className="home-title">발견</h1>
-            <p className="home-sub">종목에 얽매이지 않는 시장·랭킹·신호 도구예요</p>
+            <p className="home-sub">종목 찾기·시장 신호·계산기를 한곳에</p>
           </div>
-          <div className="discover-grid">
-            {DISCOVER_FEATURES.map(({ id, label, desc, Icon }) => (
-              <button key={id} className="discover-card" onClick={() => { logClick("discover_open", { feature: id }); setDiscoverFeature(id); window.scrollTo(0, 0); }}>
-                <span className="discover-card-icon"><Icon size={24} stroke={1.6} /></span>
-                <span className="discover-card-text">
-                  <strong>{label}</strong>
-                  <span>{desc}</span>
-                </span>
-              </button>
-            ))}
-          </div>
+          {DISCOVER_GROUPS.map((group) => (
+            <div className="discover-group" key={group.title}>
+              <p className="discover-group-title">{group.title}</p>
+              <div className="discover-grid">
+                {group.items.map(({ id, label, desc, Icon }) => (
+                  <button key={id} className="discover-card" onClick={() => { logClick("discover_open", { feature: id }); setDiscoverFeature(id); window.scrollTo(0, 0); }}>
+                    <span className="discover-card-icon"><Icon size={24} stroke={1.6} /></span>
+                    <span className="discover-card-text">
+                      <strong>{label}</strong>
+                      <span>{desc}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       );
     }

@@ -4331,6 +4331,11 @@ input, select {
 
 /* ── Discover (발견) ─────────────────────────── */
 .discover { padding: 4px 0 8px; }
+.discover-group { margin-bottom: 8px; }
+.discover-group-title {
+  font-size: 13px; font-weight: 700; color: var(--text-tertiary);
+  padding: 12px 20px 2px; letter-spacing: 0.3px;
+}
 .discover-grid { display: flex; flex-direction: column; gap: 8px; padding: 8px 16px 0; }
 .discover-card {
   display: flex; align-items: center; gap: 14px; text-align: left;
