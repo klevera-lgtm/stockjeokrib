@@ -649,7 +649,7 @@ export function strategyLabel(type, params) {
     case "macd":  return "MACD 골든크로스";
     case "bollinger": return `볼린저밴드 ${params.stdMult}σ (${params.exitAt === "middle" ? "중심선" : "상단"} 청산, 손절 ${params.stopLoss}%)`;
     case "combo": return params._comboLabel || "조합 전략";
-    case "vix":   return `VIX ${params.buyAbove}↑ 매수 / ${params.sellBelow}↓ 매도 (손절 ${params.stopLoss}%)`;
+    case "vix":   return `VIX ${params.buyAbove}↑ 진입 / ${params.sellBelow}↓ 이탈 (손절 ${params.stopLoss}%)`;
     default:      return type;
   }
 }

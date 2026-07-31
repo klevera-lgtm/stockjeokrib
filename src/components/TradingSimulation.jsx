@@ -16,8 +16,8 @@ import {
 import { Chart } from "chart.js/auto";
 
 const STRATEGY_TYPES = [
-  { id: "ma", label: "이동평균선", desc: "이평선 돌파 매수, 이탈 매도", coin: 1 },
-  { id: "rsi", label: "RSI", desc: "과매도 매수, 과매수 매도", coin: 1 },
+  { id: "ma", label: "이동평균선", desc: "이평선 돌파 시 진입, 이탈 시 청산", coin: 1 },
+  { id: "rsi", label: "RSI", desc: "과매도 진입, 과매수 청산", coin: 1 },
   { id: "dualma", label: "이중 이평선", desc: "단기 MA가 장기 MA를 교차할 때 매매", coin: 1 },
   { id: "macd", label: "MACD", desc: "시그널선 교차 매매", coin: 1 },
   { id: "combo", label: "조합 전략", desc: "여러 지표를 결합해 테스트", coin: 2 },
@@ -73,7 +73,7 @@ function TradeChart({ prices, trades, ticker }) {
             order: 2,
           },
           {
-            label: "매수",
+            label: "진입",
             data: buyPoints.map(p => ({ x: p.x, y: p.y })),
             type: "scatter",
             pointRadius: 6,
@@ -84,7 +84,7 @@ function TradeChart({ prices, trades, ticker }) {
             order: 1,
           },
           {
-            label: "매도",
+            label: "이탈",
             data: sellPoints.map(p => ({ x: p.x, y: p.y })),
             type: "scatter",
             pointRadius: 6,
@@ -482,8 +482,8 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
           <div className="trade-rsi-list">
             {RSI_COMBOS.map((c, i) => (
               <button key={i} className="trade-rsi-btn" onClick={() => handleRSISelect(c)}>
-                <span>매수 RSI &lt; {c.buyBelow}</span>
-                <span>매도 RSI &gt; {c.sellAbove}</span>
+                <span>진입 RSI &lt; {c.buyBelow}</span>
+                <span>이탈 RSI &gt; {c.sellAbove}</span>
                 <span>손절 {c.stopLoss}%</span>
               </button>
             ))}
@@ -498,8 +498,8 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
           <details className="combo-accordion">
             <summary>조합 전략은 어떻게 작동하나요?</summary>
             <div className="combo-accordion-body">
-              <p><strong>진입 (AND)</strong> — 선택한 지표가 최근 5일 내에 모두 매수 조건을 충족해야 진입합니다. 조건이 까다로운 만큼 더 신중한 매수가 됩니다.</p>
-              <p><strong>청산 (OR)</strong> — 어떤 지표든 하나라도 매도 조건을 충족하면 즉시 청산합니다. 빠른 방어로 손실을 줄입니다.</p>
+              <p><strong>진입 (AND)</strong> — 선택한 지표가 최근 5일 내에 모두 진입 조건을 충족해야 진입합니다. 조건이 까다로운 만큼 더 신중한 진입이 됩니다.</p>
+              <p><strong>청산 (OR)</strong> — 어떤 지표든 하나라도 청산 조건을 충족하면 즉시 청산합니다. 빠른 방어로 손실을 줄입니다.</p>
               <p><strong>손절</strong> — 지표 조건과 무관하게 손절선에 도달하면 자동 청산합니다.</p>
             </div>
           </details>
@@ -535,14 +535,14 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
 
           {comboPreset.indicators.includes("rsi") && (
             <div className="combo-param-group">
-              <label className="combo-param-label">RSI 매수 기준</label>
+              <label className="combo-param-label">RSI 진입 기준</label>
               <div className="combo-param-chips">
                 {[20, 30].map((v) => (
                   <button key={v} className={`combo-param-chip${comboConfig.buyBelow === v ? " active" : ""}`}
                     onClick={() => setComboConfig(c => ({ ...c, buyBelow: v }))}>RSI &lt; {v}</button>
                 ))}
               </div>
-              <label className="combo-param-label">RSI 매도 기준</label>
+              <label className="combo-param-label">RSI 이탈 기준</label>
               <div className="combo-param-chips">
                 {[70, 80].map((v) => (
                   <button key={v} className={`combo-param-chip${comboConfig.sellAbove === v ? " active" : ""}`}
@@ -784,10 +784,10 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
                     <table className="trade-list-table">
                       <thead>
                         <tr>
-                          <th>매수일</th>
-                          <th>매수가</th>
-                          <th>매도일</th>
-                          <th>매도가</th>
+                          <th>진입일</th>
+                          <th>진입가</th>
+                          <th>이탈일</th>
+                          <th>이탈가</th>
                           <th>수익률</th>
                         </tr>
                       </thead>
