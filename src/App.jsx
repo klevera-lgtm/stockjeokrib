@@ -1,6 +1,12 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import TabBar, { ACCUMULATION_TABS, DIVIDEND_TABS, TRADING_TABS } from "./components/TabBar.jsx";
+import { useState, useEffect, useCallback } from "react";
+import {
+  IconHome, IconCompass, IconBriefcase, IconArrowLeft,
+  IconActivityHeartbeat, IconRadar2, IconTrophy, IconUserStar,
+  IconList, IconCalendar, IconCirclesRelation, IconNews, IconUsers,
+} from "@tabler/icons-react";
 import Disclaimer from "./components/Disclaimer.jsx";
+import Home from "./components/Home.jsx";
+import TickerDetail from "./components/TickerDetail.jsx";
 import StrategyResult from "./components/StrategyResult.jsx";
 import ComboBacktest from "./components/ComboBacktest.jsx";
 import GoalCalculator from "./components/GoalCalculator.jsx";
@@ -32,86 +38,109 @@ import { getQueryBalance, isBasic, getStreakInfo, STREAK_BONUS } from "./utils/p
 import "./App.css";
 
 const PREFETCH_SEEDS = ["SPY", "QQQ", "NVDA", "AAPL", "TSLA", "VOO", "IVV", "TQQQ", "SOXL", "TLT"];
-const SECTION_KEY = "ait_section";
 
-function loadSection() {
-  try { return localStorage.getItem(SECTION_KEY) || "accumulation"; } catch { return "accumulation"; }
-}
+const NAV_TABS = [
+  { id: "home",     label: "홈",     Icon: IconHome },
+  { id: "discover", label: "발견",   Icon: IconCompass },
+  { id: "my",       label: "내 종목", Icon: IconBriefcase },
+];
+
+const DISCOVER_FEATURES = [
+  { id: "breadth",     label: "시장 온도",   desc: "오늘 시장이 강세인지 약세인지",     Icon: IconActivityHeartbeat },
+  { id: "scanner",     label: "스캐너",      desc: "조건을 충족한 종목 탐색",         Icon: IconRadar2 },
+  { id: "alpha",       label: "알파 전략",   desc: "바이앤홀드를 이긴 전략 찾기",     Icon: IconTrophy },
+  { id: "insider",     label: "내부자 거래", desc: "기업 임원의 자사주 매매 공시",     Icon: IconUserStar },
+  { id: "div-ranking", label: "배당 랭킹",   desc: "배당 수익률 순위",               Icon: IconList },
+  { id: "calendar",    label: "월배당 캘린더", desc: "달마다 배당 주는 종목",         Icon: IconCalendar },
+  { id: "combo",       label: "조합 탐색",   desc: "종목을 섞은 최적 적립 조합",       Icon: IconCirclesRelation },
+  { id: "event",       label: "이벤트",      desc: "급락·신고가 등 이벤트 탐색",       Icon: IconNews },
+  { id: "others",      label: "남들은?",     desc: "다른 사람들이 많이 본 종목",       Icon: IconUsers },
+];
+
+const MY_TABS = [
+  { id: "acc",   label: "적립" },
+  { id: "div",   label: "배당" },
+  { id: "trade", label: "거래" },
+];
 
 export default function App() {
-  const [section, setSection] = useState(loadSection);
-  const [activeTab, setActiveTab] = useState(() => {
-    const s = loadSection();
-    return s === "dividend" ? "ranking" : s === "trading" ? "trade-breadth" : "strategy";
-  });
-  const [jumpTicker, setJumpTicker] = useState(null);
-  const [simTicker, setSimTicker] = useState(null);
+  const [view, setView] = useState("home");              // home | detail | discover | my
+  const [detailTicker, setDetailTicker] = useState(null);
+  const [detailTab, setDetailTab] = useState("acc");     // acc | trade | div
+  const [discoverFeature, setDiscoverFeature] = useState(null); // null = 발견 메뉴
+  const [myTab, setMyTab] = useState("acc");
+  const [comboFocus, setComboFocus] = useState(null);
+
   const [showOnboard, setShowOnboard] = useState(() => !isOnboardDone());
   const [showTest, setShowTest] = useState(false);
-  const [comboFocus, setComboFocus] = useState(null);
   const [showCoinShop, setShowCoinShop] = useState(false);
   const [coinBalance, setCoinBalance] = useState(() => getQueryBalance());
-  const [favToast, setFavToast] = useState(null);
   const basic = isBasic();
 
   const refreshCoins = useCallback(() => setCoinBalance(getQueryBalance()), []);
 
-  function switchSection(newSection) {
-    if (newSection === section) return;
-    logClick("section_switch", { to: newSection });
-    setSection(newSection);
-    try { localStorage.setItem(SECTION_KEY, newSection); } catch {}
-    const defaultTab = newSection === "dividend" ? "ranking" : newSection === "trading" ? "trade-breadth" : "strategy";
-    setActiveTab(defaultTab);
-  }
-
-  const handleNavigate = useCallback((targetSection, targetTab, data) => {
-    logClick("cross_nav", { to: `${targetSection}/${targetTab}` });
-    setSection(targetSection);
-    try { localStorage.setItem(SECTION_KEY, targetSection); } catch {}
-    setActiveTab(targetTab);
-    if (targetSection === "accumulation" && data?.ticker) {
-      setJumpTicker(data.ticker);
-    }
-    if (targetTab === "trade-sim" && data?.ticker) {
-      setSimTicker(data.ticker);
-    }
+  const openDetail = useCallback((ticker, tab = "acc") => {
+    if (!ticker) return;
+    logClick("open_detail", { ticker, tab });
+    setDetailTicker(ticker);
+    setDetailTab(tab);
+    setView("detail");
     window.scrollTo(0, 0);
   }, []);
 
-  const FAV_TOAST_KEY = "ait_fav_toast_shown";
-  function showFavToast() {
-    try { if (localStorage.getItem(FAV_TOAST_KEY)) return; } catch {}
-    try { localStorage.setItem(FAV_TOAST_KEY, "1"); } catch {}
-    setFavToast("⭐ 상단 ☆를 누르면 토스 홈에서 바로 열 수 있어요");
-    setTimeout(() => setFavToast(null), 4000);
+  const handleNavigate = useCallback((targetSection, targetTab, data) => {
+    logClick("cross_nav", { to: `${targetSection}/${targetTab}` });
+    if (data?.ticker) {
+      const tab = targetTab === "trade-sim" ? "trade" : targetSection === "dividend" ? "div" : "acc";
+      openDetail(data.ticker, tab);
+      return;
+    }
+    // 종목에 안 묶인 이동은 발견으로
+    const map = {
+      combo: "combo", event: "event", others: "others",
+      "trade-breadth": "breadth", "trade-scanner": "scanner", "trade-ranking": "alpha",
+      "trade-insider": "insider", ranking: "div-ranking", calendar: "calendar",
+    };
+    const feat = map[targetTab];
+    if (feat) {
+      if (targetTab === "combo") setComboFocus({ leverage: false, ts: Date.now() });
+      setDiscoverFeature(feat);
+      setView("discover");
+      window.scrollTo(0, 0);
+    }
+  }, [openDetail]);
+
+  function goNav(id) {
+    setView(id);
+    if (id === "discover") setDiscoverFeature(null);
+    window.scrollTo(0, 0);
+  }
+
+  function handleTestRoute(route) {
+    if (route.tab === "combo") {
+      setComboFocus({ leverage: !!route.leverage, ts: Date.now() });
+      setDiscoverFeature("combo");
+      setView("discover");
+    } else if (route.section === "dividend") {
+      setDiscoverFeature("div-ranking");
+      setView("discover");
+    } else if (route.section === "trading") {
+      setDiscoverFeature("breadth");
+      setView("discover");
+    } else {
+      setView("home");
+    }
+    window.scrollTo(0, 0);
   }
 
   useEffect(() => {
-    logScreen(`tab_${activeTab}`);
+    logScreen(`view_${view}${view === "discover" && discoverFeature ? `_${discoverFeature}` : ""}`);
     refreshCoins();
-  }, [activeTab, refreshCoins]);
-
-  function handleTestRoute(route) {
-    if (route.section === "dividend") {
-      switchSection("dividend");
-      return;
-    }
-    if (route.section === "trading") {
-      switchSection("trading");
-      return;
-    }
-    if (route.tab === "combo") {
-      setComboFocus({ leverage: !!route.leverage, section: route.section, ts: Date.now() });
-    }
-    setActiveTab(route.tab);
-  }
+  }, [view, discoverFeature, refreshCoins]);
 
   useEffect(() => {
     initPaidCoins();
-
     const timer = setTimeout(() => prefetchTickers(PREFETCH_SEEDS), 2000);
-
     fetch("/featuredCombos.json")
       .then((r) => r.json())
       .then(async (data) => {
@@ -120,101 +149,110 @@ export default function App() {
             Object.values(periodObj).flatMap((combo) => combo?.tickers ?? [])
           )
         )];
-
         await new Promise((r) => setTimeout(r, 1000));
         await Promise.all(allTickers.map((t) => loadPrices(t).catch(() => null)));
         await precomputeFeaturedCombos(data);
       })
       .catch(() => {});
-
     return () => clearTimeout(timer);
   }, []);
 
-  function handleOthersTickerSelect(ticker) {
-    setJumpTicker(ticker);
-    setActiveTab("strategy");
+  function renderDiscoverFeature(id) {
+    switch (id) {
+      case "breadth":     return <MarketBreadth onCoinsChanged={refreshCoins} />;
+      case "scanner":     return <TradingScanner onNavigate={handleNavigate} onCoinsChanged={refreshCoins} />;
+      case "alpha":       return <TradingRanking onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+      case "insider":     return <InsiderTrading onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+      case "div-ranking": return <DividendRanking onTickerSelect={(t) => openDetail(t, "div")} onNavigate={handleNavigate} />;
+      case "calendar":    return <MonthlyCalendar onCoinsChanged={refreshCoins} />;
+      case "combo":       return <ComboBacktest focus={comboFocus} onNavigate={handleNavigate} />;
+      case "event":       return <EventExplorer />;
+      case "others":      return <WhatOthersBuy onTickerSelect={(t) => openDetail(t, "acc")} />;
+      default:            return null;
+    }
   }
 
-  function handleDividendTickerSelect(ticker) {
-    handleNavigate("accumulation", "strategy", { ticker });
+  function renderMy() {
+    switch (myTab) {
+      case "div":   return <DividendPortfolio onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+      case "trade": return <TradingPortfolio onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
+      default:      return <MyPortfolio onNavigate={handleNavigate} />;
+    }
   }
 
   function renderContent() {
-    if (section === "dividend") {
-      switch (activeTab) {
-        case "ranking":       return <DividendRanking onTickerSelect={handleDividendTickerSelect} onNavigate={handleNavigate} />;
-        case "div-sim":       return <DividendSimulator onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-        case "calendar":      return <MonthlyCalendar onCoinsChanged={refreshCoins} />;
-        case "retirement":    return <RetirementCalc onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-        case "div-portfolio": return <DividendPortfolio onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-        case "div-compare":   return <DividendVsGrowth onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-        default:              return <DividendRanking onTickerSelect={handleDividendTickerSelect} onNavigate={handleNavigate} />;
+    if (view === "detail" && detailTicker) {
+      return (
+        <TickerDetail
+          key={detailTicker}
+          ticker={detailTicker}
+          initialTab={detailTab}
+          onBack={() => goNav("home")}
+          onCoinsChanged={refreshCoins}
+          onNavigate={handleNavigate}
+        />
+      );
+    }
+    if (view === "discover") {
+      if (discoverFeature) {
+        const feat = DISCOVER_FEATURES.find((f) => f.id === discoverFeature);
+        return (
+          <div className="discover-feature">
+            <div className="td-header">
+              <button className="td-back" onClick={() => { setDiscoverFeature(null); window.scrollTo(0, 0); }} aria-label="뒤로가기">
+                <IconArrowLeft size={22} stroke={1.8} />
+              </button>
+              <div className="td-title"><span className="td-title-sym">{feat?.label}</span></div>
+            </div>
+            {renderDiscoverFeature(discoverFeature)}
+          </div>
+        );
       }
+      return (
+        <div className="discover">
+          <div className="home-hero">
+            <h1 className="home-title">발견</h1>
+            <p className="home-sub">종목에 얽매이지 않는 시장·랭킹·신호 도구예요</p>
+          </div>
+          <div className="discover-grid">
+            {DISCOVER_FEATURES.map(({ id, label, desc, Icon }) => (
+              <button key={id} className="discover-card" onClick={() => { logClick("discover_open", { feature: id }); setDiscoverFeature(id); window.scrollTo(0, 0); }}>
+                <span className="discover-card-icon"><Icon size={24} stroke={1.6} /></span>
+                <span className="discover-card-text">
+                  <strong>{label}</strong>
+                  <span>{desc}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      );
     }
-    if (section === "trading") {
-      switch (activeTab) {
-        case "trade-breadth":   return <MarketBreadth onCoinsChanged={refreshCoins} />;
-        case "trade-sim":       return <TradingSimulation key={simTicker} initialTicker={simTicker} onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-        case "trade-scanner":   return <TradingScanner onNavigate={handleNavigate} onCoinsChanged={refreshCoins} />;
-        case "trade-ranking":   return <TradingRanking onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-        case "trade-portfolio": return <TradingPortfolio onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-        case "trade-insider":  return <InsiderTrading onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-        default:                return <MarketBreadth onCoinsChanged={refreshCoins} />;
-      }
+    if (view === "my") {
+      return (
+        <div className="my-section">
+          <div className="td-subtabs">
+            {MY_TABS.map((t) => (
+              <button key={t.id} className={`td-subtab${myTab === t.id ? " active" : ""}`} onClick={() => setMyTab(t.id)}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+          {renderMy()}
+        </div>
+      );
     }
-    switch (activeTab) {
-      case "strategy":
-        return <StrategyResult key={jumpTicker} initialTicker={jumpTicker} onOpenTest={() => setShowTest(true)} onNavigate={handleNavigate} />;
-      case "combo":
-        return <ComboBacktest focus={comboFocus} onNavigate={handleNavigate} />;
-      case "portfolio":
-        return <MyPortfolio onNavigate={handleNavigate} />;
-      case "goal":
-        return <GoalCalculator onNavigate={handleNavigate} />;
-      case "event":
-        return <EventExplorer />;
-      case "others":
-        return <WhatOthersBuy onTickerSelect={handleOthersTickerSelect} />;
-      default:
-        return null;
-    }
+    return <Home onSelectTicker={(t) => openDetail(t, "acc")} />;
   }
 
-  const currentTabs = section === "trading" ? TRADING_TABS : section === "dividend" ? DIVIDEND_TABS : ACCUMULATION_TABS;
+  const navActive = view === "detail" ? "home" : view;
 
   return (
     <div className="app">
-      {/* Section toggle */}
-      <div className="section-toggle-bar">
-        <div className="section-toggle">
-          <button
-            className={`section-btn${section === "trading" ? " active" : ""}`}
-            onClick={() => switchSection("trading")}
-          >
-            거래
-          </button>
-          <button
-            className={`section-btn${section === "accumulation" ? " active" : ""}`}
-            onClick={() => switchSection("accumulation")}
-          >
-            적립
-          </button>
-          <button
-            className={`section-btn${section === "dividend" ? " active" : ""}`}
-            onClick={() => switchSection("dividend")}
-          >
-            배당
-          </button>
-        </div>
-      </div>
-
       <div className="content-area">
         {!basic && (
           <div className="coin-chip-bar">
-            <button
-              className="coin-chip"
-              onClick={() => { logClick("coin_chip_open"); setShowCoinShop(true); }}
-            >
+            <button className="coin-chip" onClick={() => { logClick("coin_chip_open"); setShowCoinShop(true); }}>
               <span className="coin-chip-icon">🪙</span>
               {coinBalance === Infinity ? "∞" : coinBalance}
               <span className="coin-chip-plus">+</span>
@@ -232,17 +270,30 @@ export default function App() {
           </div>
         )}
         {!basic && <RewardedAdBanner onEarned={refreshCoins} />}
-        <InsightCard onNavigate={handleNavigate} />
-        <div className="view-transition" key={`${section}-${activeTab}`}>
+        {view === "home" && <InsightCard onNavigate={handleNavigate} />}
+        <div className="view-transition" key={`${view}-${detailTicker}-${discoverFeature}-${myTab}`}>
           {renderContent()}
         </div>
         <Disclaimer />
       </div>
-      <TabBar activeTab={activeTab} onTabChange={setActiveTab} tabs={currentTabs} />
+
+      <nav className="tabbar">
+        {NAV_TABS.map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            className={`tabbar-item${navActive === id ? " active" : ""}`}
+            onClick={() => goNav(id)}
+          >
+            <Icon size={22} stroke={1.5} className="tabbar-icon" aria-hidden="true" />
+            <span className="tabbar-label">{label}</span>
+          </button>
+        ))}
+      </nav>
+
       {showOnboard && (
         <OnboardingModal
-          onClose={() => { setShowOnboard(false); showFavToast(); }}
-          onStartTest={() => { setShowOnboard(false); setShowTest(true); showFavToast(); }}
+          onClose={() => setShowOnboard(false)}
+          onStartTest={() => { setShowOnboard(false); setShowTest(true); }}
         />
       )}
       {showTest && <InvestTypeTest onClose={() => setShowTest(false)} onRoute={handleTestRoute} />}
@@ -252,7 +303,6 @@ export default function App() {
           onPurchased={refreshCoins}
         />
       )}
-      {favToast && <div className="fav-toast">{favToast}</div>}
     </div>
   );
 }

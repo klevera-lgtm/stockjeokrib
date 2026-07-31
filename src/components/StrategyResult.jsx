@@ -41,7 +41,7 @@ function makeSimShareText(ticker, result, monthlyAmount) {
   return `👑 주식적립왕 시뮬 결과\n\n${ticker} · ${Math.round(result.years)}년\n월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립 →\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)}`;
 }
 
-export default function StrategyResult({ initialTicker = null, onOpenTest = null, onNavigate = null }) {
+export default function StrategyResult({ initialTicker = null, onOpenTest = null, onNavigate = null, embedded = false }) {
   const [ticker, setTicker] = useState(initialTicker);
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
   const [customStart, setCustomStart] = useState("");
@@ -133,22 +133,24 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
 
   return (
     <div className="page">
-      <div className="page-header">
-        <h1 className="page-title">적립 시뮬레이션</h1>
-        <p className="page-subtitle">과거 데이터로 적립 전략별 수익률을 비교해요</p>
-        {!basic && remaining !== Infinity && (
-          <div className="quota-badge">
-            남은 코인 {remaining}개
-            <span className="streak-chip">
-              {streak.bonusToday
-                ? `🔥 ${streak.count}일 연속 · 보너스 +${STREAK_BONUS} 받음!`
-                : streak.count >= 2
-                  ? `🔥 ${streak.count}일 연속 · ${streak.daysToBonus}일 후 +${STREAK_BONUS}`
-                  : `🔥 매일 오면 3일마다 +${STREAK_BONUS}`}
-            </span>
-          </div>
-        )}
-      </div>
+      {!embedded && (
+        <div className="page-header">
+          <h1 className="page-title">적립 시뮬레이션</h1>
+          <p className="page-subtitle">과거 데이터로 적립 전략별 수익률을 비교해요</p>
+          {!basic && remaining !== Infinity && (
+            <div className="quota-badge">
+              남은 코인 {remaining}개
+              <span className="streak-chip">
+                {streak.bonusToday
+                  ? `🔥 ${streak.count}일 연속 · 보너스 +${STREAK_BONUS} 받음!`
+                  : streak.count >= 2
+                    ? `🔥 ${streak.count}일 연속 · ${streak.daysToBonus}일 후 +${STREAK_BONUS}`
+                    : `🔥 매일 오면 3일마다 +${STREAK_BONUS}`}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       {onOpenTest && (
         <button className="itt-entry" onClick={() => { logClick("invtest_start", { from: "strategy_tab" }); onOpenTest(); }}>
@@ -161,9 +163,11 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
         </button>
       )}
 
-      <TickerSearch onSelect={(t) => { setTicker(t); setResults(null); setRevealed(basic); setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} selected={ticker} />
+      {!embedded && (
+        <TickerSearch onSelect={(t) => { setTicker(t); setResults(null); setRevealed(basic); setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150); }} selected={ticker} />
+      )}
 
-      {(() => {
+      {!embedded && (() => {
         const recent = loadRecent().filter(t => t !== ticker);
         return recent.length > 0 && (
           <div className="recent-tickers">
@@ -177,7 +181,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
         );
       })()}
 
-      {ticker && <TickerInfoCard ticker={ticker} />}
+      {ticker && !embedded && <TickerInfoCard ticker={ticker} />}
 
       {ticker && (
         <div className="form-section" ref={formRef}>

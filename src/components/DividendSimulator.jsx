@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { loadDividendMeta, getCategoryLabel, getCategoryColor, getFrequencyLabel, formatKRW } from "../utils/dividendData.js";
 import { runDividendSim } from "../utils/dividendCalc.js";
 import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
@@ -23,7 +23,7 @@ const PERIODS = [
   { label: "15년", years: 15 },
 ];
 
-export default function DividendSimulator({ initialTicker, onCoinsChanged, onNavigate }) {
+export default function DividendSimulator({ initialTicker, onCoinsChanged, onNavigate, embedded = false }) {
   const [meta, setMeta] = useState(null);
   const [ticker, setTicker] = useState(initialTicker || "");
   const [amount, setAmount] = useState(300000);
@@ -86,6 +86,14 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
     }
   }, [ticker, amount, periodYears, drip, meta, onCoinsChanged]);
 
+  const autoRanRef = useRef(false);
+  useEffect(() => {
+    if (embedded && meta && ticker && meta[ticker] && !autoRanRef.current) {
+      autoRanRef.current = true;
+      handleRun();
+    }
+  }, [embedded, meta, ticker, handleRun]);
+
   const chartData = useMemo(() => {
     if (!result) return null;
     const pts = result.portfolioValues;
@@ -130,29 +138,33 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
 
   return (
     <div className="page sim-page">
-      <div className="page-header">
-        <h1 className="page-title">배당 시뮬레이션</h1>
-        <p className="page-subtitle">매일 꾸준히 적립하면 배당금이 얼마나 불어날까요?</p>
-      </div>
+      {!embedded && (
+        <div className="page-header">
+          <h1 className="page-title">배당 시뮬레이션</h1>
+          <p className="page-subtitle">매일 꾸준히 적립하면 배당금이 얼마나 불어날까요?</p>
+        </div>
+      )}
 
       {/* Ticker Picker */}
-      <div className="sim-section">
-        <div className="sim-label">종목 선택</div>
-        <button className="sim-picker-btn" onClick={() => setPickerOpen(true)}>
-          {selected ? (
-            <span className="sim-picker-selected">
-              <strong>{selected.ticker}</strong>
-              <span className="sim-picker-name">{selected.name}</span>
-              <span className="sim-picker-yield" style={{ color: getCategoryColor(selected.category) }}>
-                {((selected.currentYield ?? 0) * 100).toFixed(2)}%
+      {!embedded && (
+        <div className="sim-section">
+          <div className="sim-label">종목 선택</div>
+          <button className="sim-picker-btn" onClick={() => setPickerOpen(true)}>
+            {selected ? (
+              <span className="sim-picker-selected">
+                <strong>{selected.ticker}</strong>
+                <span className="sim-picker-name">{selected.name}</span>
+                <span className="sim-picker-yield" style={{ color: getCategoryColor(selected.category) }}>
+                  {((selected.currentYield ?? 0) * 100).toFixed(2)}%
+                </span>
               </span>
-            </span>
-          ) : (
-            <span className="sim-picker-placeholder">종목을 선택하세요</span>
-          )}
-          <span className="sim-picker-arrow">▾</span>
-        </button>
-      </div>
+            ) : (
+              <span className="sim-picker-placeholder">종목을 선택하세요</span>
+            )}
+            <span className="sim-picker-arrow">▾</span>
+          </button>
+        </div>
+      )}
 
       {/* Ticker picker modal */}
       {pickerOpen && (
