@@ -145,7 +145,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                   ? `🔥 ${streak.count}일 연속 · 보너스 +${STREAK_BONUS} 받음!`
                   : streak.count >= 2
                     ? `🔥 ${streak.count}일 연속 · ${streak.daysToBonus}일 후 +${STREAK_BONUS}`
-                    : `🔥 매일 오면 3일마다 +${STREAK_BONUS}`}
+                    : `🔥 이틀마다 +1 · 7일 연속 +${STREAK_BONUS}`}
               </span>
             </div>
           )}

@@ -31,7 +31,7 @@ export default function UpgradeModal({ onClose }) {
         </p>
         <ul className="modal-features">
           <li>✓ 광고 없음</li>
-          <li>✓ 코인 무제한 (매일 충전 불필요)</li>
+          <li>✓ 코인 무제한 (모든 전략·상세 즉시 열람)</li>
           <li>✓ 월 납입금 자유 입력</li>
           <li>✓ 포트폴리오 최대 20개 저장 (무료 3개)</li>
         </ul>

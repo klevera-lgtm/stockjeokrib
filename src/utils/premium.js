@@ -6,11 +6,12 @@ const PLAN_KEY = "stockjeokrib_plan";
 const STREAK_KEY = "ait_streak_count";
 const STREAK_BONUS_DATE_KEY = "ait_streak_bonus_date";
 
-const WELCOME_QUERIES = 10;
-const DAILY_FREE_QUERIES = 3;
-export const AD_REWARD_QUERIES = 2;
-export const STREAK_INTERVAL = 3;   // N일 연속마다 보너스
-export const STREAK_BONUS = 3;      // 보너스 코인 수
+const WELCOME_QUERIES = 10;         // 첫 진입 웰컴 코인
+export const AD_REWARD_QUERIES = 2; // 리워드 광고 시청 보상
+const STREAK_COIN_EVERY = 2;        // 이틀 연속 방문마다 +1 코인
+const STREAK_COIN = 1;
+export const STREAK_MILESTONE = 7;  // 7일 연속 방문 마일스톤
+export const STREAK_BONUS = 3;      // 마일스톤 보너스 코인 수
 
 const DEV_MODE = false;
 
@@ -55,30 +56,33 @@ function yesterdayStr() {
   return d.toISOString().slice(0, 10);
 }
 
-function ensureDailyRefill() {
+function ensureVisitReward() {
   try {
     const today = todayStr();
     const welcomeDone = localStorage.getItem(WELCOME_KEY);
     if (!welcomeDone) {
+      // 첫 진입: 웰컴 코인 지급
       setStoredBalance(getStoredBalance() + WELCOME_QUERIES);
       localStorage.setItem(WELCOME_KEY, "1");
       localStorage.setItem(REFILL_KEY, today);
       localStorage.setItem(STREAK_KEY, "1");
       return;
     }
-    const lastRefill = localStorage.getItem(REFILL_KEY);
-    if (lastRefill !== today) {
-      // 연속 출석: 어제 방문했으면 +1, 아니면 리셋
+    const lastVisit = localStorage.getItem(REFILL_KEY);
+    if (lastVisit !== today) {
+      // 연속 방문: 어제 방문했으면 streak+1, 아니면 1로 리셋
       const prevStreak = parseInt(localStorage.getItem(STREAK_KEY) ?? "0", 10);
-      const streak = lastRefill === yesterdayStr() ? prevStreak + 1 : 1;
+      const streak = lastVisit === yesterdayStr() ? prevStreak + 1 : 1;
       localStorage.setItem(STREAK_KEY, String(streak));
 
-      let refill = DAILY_FREE_QUERIES;
-      if (streak > 0 && streak % STREAK_INTERVAL === 0) {
-        refill += STREAK_BONUS;
+      // 매일 지급 없음. 이틀 연속마다 +1, 7일 연속 마일스톤 +3
+      let reward = 0;
+      if (streak % STREAK_COIN_EVERY === 0) reward += STREAK_COIN;
+      if (streak % STREAK_MILESTONE === 0) {
+        reward += STREAK_BONUS;
         localStorage.setItem(STREAK_BONUS_DATE_KEY, today);
       }
-      setStoredBalance(getStoredBalance() + refill);
+      if (reward > 0) setStoredBalance(getStoredBalance() + reward);
       localStorage.setItem(REFILL_KEY, today);
     }
   } catch {}
@@ -87,13 +91,13 @@ function ensureDailyRefill() {
 // 연속 출석 정보: { count, bonusToday, daysToBonus }
 export function getStreakInfo() {
   try {
-    ensureDailyRefill();
+    ensureVisitReward();
     const count = parseInt(localStorage.getItem(STREAK_KEY) ?? "0", 10);
     const bonusToday = localStorage.getItem(STREAK_BONUS_DATE_KEY) === todayStr();
-    const daysToBonus = STREAK_INTERVAL - (count % STREAK_INTERVAL || STREAK_INTERVAL);
+    const daysToBonus = STREAK_MILESTONE - (count % STREAK_MILESTONE || STREAK_MILESTONE);
     return { count, bonusToday, daysToBonus };
   } catch {
-    return { count: 0, bonusToday: false, daysToBonus: STREAK_INTERVAL };
+    return { count: 0, bonusToday: false, daysToBonus: STREAK_MILESTONE };
   }
 }
 
@@ -114,13 +118,13 @@ export function isBasic() {
 
 export function getQueryBalance() {
   if (isBasic()) return Infinity;
-  ensureDailyRefill();
+  ensureVisitReward();
   return getStoredBalance() + getPaidBalance();
 }
 
 export function consumeQuery() {
   if (isBasic()) return true;
-  ensureDailyRefill();
+  ensureVisitReward();
   // 무료 코인 먼저 소비, 그다음 구매 코인
   const free = getStoredBalance();
   if (free > 0) {
@@ -137,7 +141,7 @@ export function consumeQuery() {
 
 export function consumeQueries(n) {
   if (isBasic()) return true;
-  ensureDailyRefill();
+  ensureVisitReward();
   if (getQueryBalance() < n) return false;
   for (let i = 0; i < n; i++) consumeQuery();
   return true;
