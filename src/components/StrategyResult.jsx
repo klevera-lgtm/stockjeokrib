@@ -259,12 +259,12 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
               pv.map((d) => d.invested > 0 ? (d.value / d.invested - 1) * 100 : 0);
             return (
               <div ref={chartRef} className={`chart-highlight-wrap${chartFlash ? " chart-flash" : ""}`}>
-              {revealed && <div className="chart-selected-label">📊 {STRATEGY_LABELS[selected.strategy]}</div>}
+              <div className="chart-selected-label">📊 {STRATEGY_LABELS[selected.strategy]}</div>
               <LineChart
                 labels={selected.portfolioValues.map((d) => d.date)}
                 datasets={[
                   {
-                    label: revealed ? STRATEGY_LABELS[selected.strategy] : "최고 수익 전략",
+                    label: STRATEGY_LABELS[selected.strategy],
                     data: toReturnPct(selected.portfolioValues),
                     borderColor: "#3182F6",
                     backgroundColor: "rgba(49,130,246,0.1)",
@@ -289,15 +289,37 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             );
           })()}
 
-          {!revealed && (
-            <div className="reveal-cta">
-              <p className="reveal-hint">어떤 전략이 가장 높은 수익률을 냈을까요?</p>
-              <button className="btn-primary reveal-btn" onClick={handleReveal}>
-                🔓 전략 순위 보기 (코인 1개)
-              </button>
-              <p className="reveal-balance">남은 코인 {remaining}개 · 광고 시청 시 +2개</p>
-            </div>
-          )}
+          {!revealed && (() => {
+            const top = results.list[0];
+            const bm = results.benchmark;
+            const delta = bm && top.strategy !== bm.strategy ? top.totalReturn - bm.totalReturn : null;
+            return (
+              <>
+                <div className="top-strategy-card">
+                  <span className="top-strategy-badge">🥇 이 종목 최고 적립 전략</span>
+                  <div className="top-strategy-name">{STRATEGY_LABELS[top.strategy]}</div>
+                  <div className={`top-strategy-return ${top.totalReturn >= 0 ? "pos" : "neg"}`}>
+                    {formatPct(top.totalReturn)}
+                  </div>
+                  <div className="top-strategy-meta">
+                    납입 {formatKRW(top.totalInvested)} → <strong>{formatKRW(top.finalValue)}</strong> · 연 {formatPct(top.cagr)}
+                  </div>
+                  {delta !== null && (
+                    <div className={`top-strategy-delta ${delta >= 0 ? "pos" : "neg"}`}>
+                      매일 적립 대비 {delta >= 0 ? "+" : ""}{(delta * 100).toFixed(1)}%p
+                    </div>
+                  )}
+                </div>
+                <div className="reveal-cta">
+                  <p className="reveal-hint">나머지 전략 순위도 궁금하다면?</p>
+                  <button className="btn-primary reveal-btn" onClick={handleReveal}>
+                    🔓 전체 순위 보기 (코인 1개)
+                  </button>
+                  <p className="reveal-balance">남은 코인 {remaining}개 · 광고 시청 시 +2개</p>
+                </div>
+              </>
+            );
+          })()}
 
           {revealed && (
             <div className="strategy-list">

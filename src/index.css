@@ -4349,3 +4349,22 @@ input, select {
 .discover-card-text span { font-size: 12px; color: var(--text-secondary); }
 .discover-feature { padding: 4px 0 8px; }
 .my-section { padding: 4px 0 8px; }
+
+/* ── 표면 무료: 최고 전략 카드 ───────────────── */
+.top-strategy-card {
+  margin: 12px 16px 0; padding: 16px;
+  background: var(--primary-light); border-radius: var(--radius);
+  border: 1px solid var(--border); text-align: center;
+}
+.top-strategy-badge {
+  display: inline-block; font-size: 12px; font-weight: 700;
+  color: var(--primary); margin-bottom: 8px;
+}
+.top-strategy-name { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+.top-strategy-return { font-size: 32px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.top-strategy-return.pos { color: var(--pos); }
+.top-strategy-return.neg { color: var(--neg); }
+.top-strategy-meta { font-size: 13px; color: var(--text-secondary); margin-top: 6px; }
+.top-strategy-delta { font-size: 13px; font-weight: 700; margin-top: 4px; }
+.top-strategy-delta.pos { color: var(--pos); }
+.top-strategy-delta.neg { color: var(--neg); }

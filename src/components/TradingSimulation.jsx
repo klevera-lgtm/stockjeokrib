@@ -344,10 +344,14 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
     runBacktest(years, strat.type, strat.params);
   }
 
+  const freeUsedRef = useRef(false);
   const coinCost = strategyType === "combo" ? 2 : 1;
+  const firstFree = !isBasic() && strategyType !== "combo" && !freeUsedRef.current;
 
   function handleReveal() {
     if (isBasic()) { setRevealed(true); return; }
+    // 표면 무료: 첫 단일전략 백테스트는 코인 없이
+    if (firstFree) { freeUsedRef.current = true; setRevealed(true); return; }
     if (getQueryBalance() < coinCost) { setShowGate(true); return; }
     for (let i = 0; i < coinCost; i++) {
       if (!consumeQuery()) { setShowGate(true); return; }
@@ -687,11 +691,13 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
 
           {!revealed ? (
             <div className="reveal-cta">
-              <p className="reveal-hint">백테스트 결과를 확인하려면 코인 {coinCost}개가 필요해요</p>
+              <p className="reveal-hint">
+                {firstFree ? "첫 백테스트 결과는 무료예요" : `백테스트 결과를 확인하려면 코인 ${coinCost}개가 필요해요`}
+              </p>
               <button className="btn-primary reveal-btn" onClick={handleReveal}>
-                🔓 결과 보기 (코인 {coinCost}개)
+                {firstFree ? "🔓 결과 보기 (무료)" : `🔓 결과 보기 (코인 ${coinCost}개)`}
               </button>
-              {!isBasic() && (
+              {!isBasic() && !firstFree && (
                 <p className="reveal-balance">남은 코인 {getQueryBalance()}개</p>
               )}
             </div>
