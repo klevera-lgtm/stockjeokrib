@@ -12,17 +12,15 @@ import ComboBacktest from "./components/ComboBacktest.jsx";
 import GoalCalculator from "./components/GoalCalculator.jsx";
 import EventExplorer from "./components/EventExplorer.jsx";
 import WhatOthersBuy from "./components/WhatOthersBuy.jsx";
-import MyPortfolio from "./components/MyPortfolio.jsx";
+import MyStocks from "./components/MyStocks.jsx";
 import DividendRanking from "./components/DividendRanking.jsx";
 import DividendSimulator from "./components/DividendSimulator.jsx";
 import MonthlyCalendar from "./components/MonthlyCalendar.jsx";
 import RetirementCalc from "./components/RetirementCalc.jsx";
-import DividendPortfolio from "./components/DividendPortfolio.jsx";
 import DividendVsGrowth from "./components/DividendVsGrowth.jsx";
 import TradingSimulation from "./components/TradingSimulation.jsx";
 import TradingScanner from "./components/TradingScanner.jsx";
 import TradingRanking from "./components/TradingRanking.jsx";
-import TradingPortfolio from "./components/TradingPortfolio.jsx";
 import MarketBreadth from "./components/MarketBreadth.jsx";
 import InsiderTrading from "./components/InsiderTrading.jsx";
 import OnboardingModal, { isOnboardDone } from "./components/OnboardingModal.jsx";
@@ -57,18 +55,11 @@ const DISCOVER_FEATURES = [
   { id: "others",      label: "남들은?",     desc: "다른 사람들이 많이 본 종목",       Icon: IconUsers },
 ];
 
-const MY_TABS = [
-  { id: "acc",   label: "적립" },
-  { id: "div",   label: "배당" },
-  { id: "trade", label: "거래" },
-];
-
 export default function App() {
   const [view, setView] = useState("home");              // home | detail | discover | my
   const [detailTicker, setDetailTicker] = useState(null);
   const [detailTab, setDetailTab] = useState("acc");     // acc | trade | div
   const [discoverFeature, setDiscoverFeature] = useState(null); // null = 발견 메뉴
-  const [myTab, setMyTab] = useState("acc");
   const [comboFocus, setComboFocus] = useState(null);
 
   const [showOnboard, setShowOnboard] = useState(() => !isOnboardDone());
@@ -172,14 +163,6 @@ export default function App() {
     }
   }
 
-  function renderMy() {
-    switch (myTab) {
-      case "div":   return <DividendPortfolio onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-      case "trade": return <TradingPortfolio onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
-      default:      return <MyPortfolio onNavigate={handleNavigate} />;
-    }
-  }
-
   function renderContent() {
     if (view === "detail" && detailTicker) {
       return (
@@ -229,18 +212,7 @@ export default function App() {
       );
     }
     if (view === "my") {
-      return (
-        <div className="my-section">
-          <div className="td-subtabs">
-            {MY_TABS.map((t) => (
-              <button key={t.id} className={`td-subtab${myTab === t.id ? " active" : ""}`} onClick={() => setMyTab(t.id)}>
-                {t.label}
-              </button>
-            ))}
-          </div>
-          {renderMy()}
-        </div>
-      );
+      return <MyStocks onOpenDetail={openDetail} onNavigate={handleNavigate} />;
     }
     return <Home onSelectTicker={(t) => openDetail(t, "acc")} />;
   }
@@ -271,7 +243,7 @@ export default function App() {
         )}
         {!basic && <RewardedAdBanner onEarned={refreshCoins} />}
         {view === "home" && <InsightCard onNavigate={handleNavigate} />}
-        <div className="view-transition" key={`${view}-${detailTicker}-${discoverFeature}-${myTab}`}>
+        <div className="view-transition" key={`${view}-${detailTicker}-${discoverFeature}`}>
           {renderContent()}
         </div>
         <Disclaimer />
