@@ -4516,3 +4516,56 @@ input, select {
 .top-strategy-delta { font-size: 13px; font-weight: 700; margin-top: 4px; }
 .top-strategy-delta.pos { color: var(--pos); }
 .top-strategy-delta.neg { color: var(--neg); }
+
+/* ── 평단 계산기 ─────────────────────────────── */
+.avg { padding: 4px 16px 10px; }
+.avg-sub { font-size: 13px; color: var(--text-secondary); padding: 2px 4px 12px; }
+.avg-sub strong { color: var(--text-primary); }
+.avg-modes { display: flex; gap: 4px; background: var(--bg); border-radius: var(--radius); padding: 4px; }
+.avg-mode {
+  flex: 1; padding: 9px 0; font-size: 14px; font-weight: 700; border-radius: var(--radius-sm);
+  color: var(--text-secondary); background: transparent;
+}
+.avg-mode.active { background: var(--surface); color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.avg-unit { display: flex; align-items: center; gap: 6px; margin-top: 12px; }
+.avg-unit-label { font-size: 12px; font-weight: 700; color: var(--text-tertiary); margin-right: 2px; }
+.avg-unit-btn {
+  min-width: 40px; padding: 5px 10px; font-size: 13px; font-weight: 700; border-radius: var(--radius-sm);
+  color: var(--text-secondary); background: var(--bg); border: 1px solid var(--border);
+}
+.avg-unit-btn.active { color: #fff; background: var(--primary); border-color: var(--primary); }
+.avg-form { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.avg-lot { display: flex; align-items: center; gap: 8px; }
+.avg-lot-n { flex-shrink: 0; width: 30px; font-size: 12px; font-weight: 700; color: var(--text-tertiary); }
+.avg-x { color: var(--text-tertiary); font-size: 13px; }
+.avg-in {
+  flex: 1; min-width: 0; width: 100%; height: 44px; padding: 0 12px;
+  font-size: 15px; font-weight: 600; color: var(--text-primary);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-variant-numeric: tabular-nums;
+}
+.avg-in:focus { outline: none; border-color: var(--primary); }
+.avg-rm, .avg-rm-sp { flex-shrink: 0; width: 26px; height: 26px; }
+.avg-rm { font-size: 18px; color: var(--text-tertiary); background: transparent; border-radius: 50%; }
+.avg-rm:active { background: var(--bg); }
+.avg-add {
+  align-self: flex-start; padding: 8px 14px; font-size: 13px; font-weight: 700;
+  color: var(--primary); background: var(--primary-light); border-radius: var(--radius-sm);
+}
+.avg-row2 { display: flex; gap: 10px; }
+.avg-field { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.avg-field > span { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.avg-result { margin-top: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.avg-result-main {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 18px 16px; background: var(--primary-light);
+}
+.avg-result-cap { font-size: 13px; font-weight: 700; color: var(--text-secondary); }
+.avg-result-big { font-size: 28px; font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; }
+.avg-result-rows { padding: 6px 16px 10px; }
+.avg-rrow { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; }
+.avg-rrow + .avg-rrow { border-top: 1px solid var(--border); }
+.avg-rrow > span:first-child { color: var(--text-secondary); }
+.avg-rrow > span:last-child { font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.avg-hint { margin-top: 6px; padding: 16px; text-align: center; font-size: 13px; color: var(--text-tertiary); background: var(--bg); border-radius: var(--radius); }
+.avg-warn { margin-top: 6px; padding: 14px 16px; font-size: 13px; font-weight: 600; color: var(--neg); background: rgba(229,62,62,0.08); border-radius: var(--radius); line-height: 1.5; }

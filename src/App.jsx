@@ -4,6 +4,7 @@ import {
   IconActivityHeartbeat, IconRadar2, IconTrophy, IconUserStar,
   IconList, IconCalendar, IconCirclesRelation, IconNews, IconUsers,
   IconTarget, IconUmbrella, IconScale, IconAward, IconSwords,
+  IconCalculator,
 } from "@tabler/icons-react";
 import Disclaimer from "./components/Disclaimer.jsx";
 import Home from "./components/Home.jsx";
@@ -12,6 +13,7 @@ import AccumChampions from "./components/AccumChampions.jsx";
 import AccumVersus from "./components/AccumVersus.jsx";
 import ComboBacktest from "./components/ComboBacktest.jsx";
 import GoalCalculator from "./components/GoalCalculator.jsx";
+import AvgCostCalculator from "./components/AvgCostCalculator.jsx";
 import EventExplorer from "./components/EventExplorer.jsx";
 import WhatOthersBuy from "./components/WhatOthersBuy.jsx";
 import MyStocks from "./components/MyStocks.jsx";
@@ -59,6 +61,7 @@ const DISCOVER_GROUPS = [
     { id: "others",      label: "남들은?",     desc: "다른 사람들이 많이 본 종목",     Icon: IconUsers },
   ] },
   { title: "계산기·도구", items: [
+    { id: "avgcost",     label: "평단 계산기",  desc: "물타기·불타기 평단 계산",       Icon: IconCalculator },
     { id: "goal",        label: "목표 계산",    desc: "목표 금액까지 얼마나 적립할까", Icon: IconTarget },
     { id: "retirement",  label: "은퇴 계산",    desc: "배당으로 만드는 은퇴 현금흐름", Icon: IconUmbrella },
     { id: "vs-growth",   label: "배당 vs 성장", desc: "배당주와 성장주 수익 비교",     Icon: IconScale },
@@ -173,6 +176,7 @@ export default function App() {
       case "combo":       return <ComboBacktest focus={comboFocus} onNavigate={handleNavigate} />;
       case "event":       return <EventExplorer />;
       case "others":      return <WhatOthersBuy onTickerSelect={(t) => openDetail(t, "acc")} />;
+      case "avgcost":     return <AvgCostCalculator />;
       case "goal":        return <GoalCalculator onNavigate={handleNavigate} />;
       case "retirement":  return <RetirementCalc onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
       case "vs-growth":   return <DividendVsGrowth onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
