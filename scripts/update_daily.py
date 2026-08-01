@@ -30,12 +30,21 @@ def get_last_date(ticker: str) -> date | None:
         return None
 
 
+def yf_symbol(ticker: str) -> str:
+    # 앱 티커 → yfinance 심볼 (국내 지수/종목 변환)
+    if ticker in ("KS11", "KQ11"):
+        return "^" + ticker
+    if ticker.isdigit():  # 6자리 국내 종목코드 → KRX(.KS)
+        return ticker + ".KS"
+    return ticker
+
+
 def fetch_new_data(ticker: str, start: date) -> pd.DataFrame | None:
     try:
         # start 다음날부터 오늘까지
         fetch_start = (start + timedelta(days=1)).isoformat()
         fetch_end = (date.today() + timedelta(days=1)).isoformat()
-        df = yf.download(ticker, start=fetch_start, end=fetch_end,
+        df = yf.download(yf_symbol(ticker), start=fetch_start, end=fetch_end,
                          auto_adjust=True, progress=False)
         if df.empty:
             return None
@@ -82,7 +91,7 @@ def main():
             df = fetch_new_data.__wrapped__(ticker) if hasattr(fetch_new_data, '__wrapped__') else None
             # fallback: fetch full history
             try:
-                df = yf.download(ticker, period="20y", auto_adjust=True, progress=False)
+                df = yf.download(yf_symbol(ticker), period="20y", auto_adjust=True, progress=False)
                 if not df.empty:
                     df.index.name = "date"
                     df.columns = [c.lower() if isinstance(c, str) else c[0].lower() for c in df.columns]
