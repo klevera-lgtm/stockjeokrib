@@ -344,6 +344,11 @@ export function getTickerLabel(ticker) {
 const KR_TICKERS = new Set(TICKER_CATEGORIES["국내 자산"]);
 export function isKrTicker(ticker) { return KR_TICKERS.has(ticker); }
 
+// 헤딩용 짧은 표시: 국내는 회사명(코드 없이), 그 외는 티커
+export function getTickerName(ticker) {
+  return isKrTicker(ticker) ? (TICKER_LABELS[ticker] || ticker) : ticker;
+}
+
 export function fmtPrice(value, ticker) {
   if (isKrTicker(ticker)) {
     if (ticker === "KS11" || ticker === "KQ11") return value.toLocaleString("ko-KR", { maximumFractionDigits: 0 });

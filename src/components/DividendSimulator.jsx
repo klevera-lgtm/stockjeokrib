@@ -8,6 +8,7 @@ import UpgradeModal from "./UpgradeModal.jsx";
 import ShareSheet from "./ShareSheet.jsx";
 import AdBanner from "./AdBanner.jsx";
 import LineChart from "./LineChart.jsx";
+import { getTickerName } from "../utils/tickers.js";
 
 const AMOUNTS = [
   { label: "10만원", value: 100000 },
@@ -388,9 +389,9 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
       )}
       {showShare && result && (
         <ShareSheet
-          text={`📊 ${ticker} 배당 적립 시뮬레이션 (${periodYears}년)\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${result.totalReturn >= 0 ? "+" : ""}${(result.totalReturn * 100).toFixed(1)}%\n월 배당금 ${formatKRW(result.monthlyDivKRW)} | 연 배당금 ${formatKRW(result.annualDivKRW)}`}
+          text={`📊 ${getTickerName(ticker)} 배당 적립 시뮬레이션 (${periodYears}년)\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${result.totalReturn >= 0 ? "+" : ""}${(result.totalReturn * 100).toFixed(1)}%\n월 배당금 ${formatKRW(result.monthlyDivKRW)} | 연 배당금 ${formatKRW(result.annualDivKRW)}`}
           card={{
-            title: `${ticker} 배당 적립 ${periodYears}년 시뮬레이션`,
+            title: `${getTickerName(ticker)} 배당 적립 ${periodYears}년 시뮬레이션`,
             subtitle: `월 ${formatKRW(amount)} · ${drip ? "DRIP 재투자" : "현금 수령"}`,
             stats: [
               { label: "투자 원금", value: formatKRW(result.totalInvested), color: "#ffffff" },
@@ -409,7 +410,7 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
         <button className="cross-link" onClick={() => onNavigate("accumulation", "strategy", { ticker })}>
           <span className="cross-link-icon">📈</span>
           <div className="cross-link-text">
-            <strong>{ticker} 적립 전략도 비교하기</strong>
+            <strong>{getTickerName(ticker)} 적립 전략도 비교하기</strong>
             <span>14가지 적립 전략별 수익률을 한눈에 비교해요</span>
           </div>
           <span className="cross-link-arrow">→</span>

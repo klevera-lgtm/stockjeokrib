@@ -10,7 +10,7 @@ import {
 import { isBasic, consumeQuery, getQueryBalance, getStreakInfo, STREAK_BONUS } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import TickerSearch from "./TickerSearch.jsx";
-import { getTickerLabel } from "../utils/tickers.js";
+import { getTickerLabel, getTickerName } from "../utils/tickers.js";
 
 const RECENT_KEY = "ait_recent_tickers";
 const MAX_RECENT = 5;
@@ -38,7 +38,7 @@ function getPeriodDates(yearsBack) {
 }
 
 function makeSimShareText(ticker, result, monthlyAmount) {
-  return `👑 주식적립왕 시뮬 결과\n\n${ticker} · ${Math.round(result.years)}년\n월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립 →\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)}`;
+  return `👑 주식적립왕 시뮬 결과\n\n${getTickerName(ticker)} · ${Math.round(result.years)}년\n월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립 →\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)}`;
 }
 
 export default function StrategyResult({ initialTicker = null, onOpenTest = null, onNavigate = null, embedded = false }) {
@@ -226,7 +226,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
           </div>
 
           <button className="btn-primary run-btn" onClick={run} disabled={loading}>
-            {loading ? "계산 중..." : `${ticker} 전략 분석하기`}
+            {loading ? "계산 중..." : `${getTickerName(ticker)} 전략 분석하기`}
           </button>
 
           <StrategyScorecard
@@ -245,7 +245,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
       {results && (
         <div className="results-section">
           <h2 className="section-title">
-            {ticker} 전략별 수익률 순위
+            {getTickerName(ticker)} 전략별 수익률 순위
             <span className="period-label">
               {customStart ? customStart + " ~ 현재" : "최근 5년"}
             </span>
@@ -414,7 +414,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
         <ShareSheet
           text={makeSimShareText(ticker, results.list[0], monthlyAmount)}
           card={{
-            title: `${ticker} · 월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립`,
+            title: `${getTickerName(ticker)} · 월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립`,
             period: `${Math.round(results.list[0].years)}년`,
             invested: results.list[0].totalInvested,
             finalValue: results.list[0].finalValue,
@@ -422,7 +422,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             mdd: results.list[0].mdd,
             series: results.list[0].portfolioValues.map((v) => v.value),
             strategies: revealed
-              ? [`${ticker} · ${STRATEGY_LABELS[results.list[0].strategy]}`]
+              ? [`${getTickerName(ticker)} · ${STRATEGY_LABELS[results.list[0].strategy]}`]
               : undefined,
           }}
           onClose={() => setShowShare(false)}

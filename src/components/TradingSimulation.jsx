@@ -6,7 +6,7 @@ import ShareSheet from "./ShareSheet.jsx";
 import { consumeQuery, consumeQueries, getQueryBalance, isBasic } from "../utils/premium.js";
 import { loadPrices } from "../utils/dataLoader.js";
 import { logClick } from "../utils/analytics.js";
-import { getTickerLabel, fmtPrice, isKrTicker } from "../utils/tickers.js";
+import { getTickerName, fmtPrice, isKrTicker } from "../utils/tickers.js";
 import {
   backtestMA, backtestRSI, backtestMACD, backtestCombo, backtestDualMA, backtestBollinger,
   filterByPeriod, toWeekly, buyAndHold, scoreResult, scoreBreakdown, rankAllStrategies,
@@ -397,7 +397,7 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
       {/* Step 2: Timeframe */}
       {step === "timeframe" && (
         <div className="trade-card">
-          <h3 className="trade-card-title">{ticker} — 타임프레임 선택</h3>
+          <h3 className="trade-card-title">{getTickerName(ticker)} — 타임프레임 선택</h3>
           <div className="trade-tf-grid">
             <button className="trade-tf-btn" onClick={() => handleTimeframe("daily")}>
               <span className="trade-tf-icon">📊</span>
@@ -416,7 +416,7 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
       {/* Step 3: Strategy type */}
       {step === "strategy" && (
         <div className="trade-card">
-          <h3 className="trade-card-title">{ticker} · {timeframe === "daily" ? "일봉" : "주봉"} — 전략 선택</h3>
+          <h3 className="trade-card-title">{getTickerName(ticker)} · {timeframe === "daily" ? "일봉" : "주봉"} — 전략 선택</h3>
           <div className="trade-strategy-list">
             {STRATEGY_TYPES.map((s) => (
               <button
@@ -442,7 +442,7 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
               <span>33개 전략 분석 중...</span>
             ) : (
               <>
-                <span className="top10-btn-label">🏆 {ticker} 최적 전략 TOP 10</span>
+                <span className="top10-btn-label">🏆 {getTickerName(ticker)} 최적 전략 TOP 10</span>
                 {isBasic() ? (
                   <span className="top10-basic-tag">Basic 무료</span>
                 ) : (
@@ -595,7 +595,7 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
       {/* Step 4: Period */}
       {step === "period" && (
         <div className="trade-card">
-          <h3 className="trade-card-title">{ticker} · {label} — 백테스트 기간</h3>
+          <h3 className="trade-card-title">{getTickerName(ticker)} · {label} — 백테스트 기간</h3>
           <div className="trade-period-grid">
             {BACKTEST_PERIODS.map((bp) => (
               <button
@@ -639,7 +639,7 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
       {/* TOP 10: Results */}
       {step === "top10-result" && top10Results && (
         <div className="trade-card">
-          <h3 className="trade-card-title">🏆 {ticker} 최적 전략 TOP 10</h3>
+          <h3 className="trade-card-title">🏆 {getTickerName(ticker)} 최적 전략 TOP 10</h3>
 
           {isBasic() ? (
             <div className="top10-tabs">
@@ -707,7 +707,7 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
       {step === "result" && result && (
         <div className="trade-card">
           <div className="trade-result-header">
-            <h3 className="trade-card-title">{ticker} · {label}</h3>
+            <h3 className="trade-card-title">{getTickerName(ticker)} · {label}</h3>
             <span className="trade-result-meta">
               {timeframe === "daily" ? "일봉" : "주봉"} · {period}년
             </span>
@@ -863,9 +863,9 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
 
       {showShare && step === "result" && result && revealed && (
         <ShareSheet
-          text={`📊 ${ticker} ${label} 백테스트 (${period}년)\n점수 ${result.score}점 · 수익률 ${result.totalReturn >= 0 ? "+" : ""}${fmt(result.totalReturn)}%\n승률 ${fmt(result.winRate)}% · ${result.tradeCount}회 거래 · MDD -${fmt(result.mdd)}%`}
+          text={`📊 ${getTickerName(ticker)} ${label} 백테스트 (${period}년)\n점수 ${result.score}점 · 수익률 ${result.totalReturn >= 0 ? "+" : ""}${fmt(result.totalReturn)}%\n승률 ${fmt(result.winRate)}% · ${result.tradeCount}회 거래 · MDD -${fmt(result.mdd)}%`}
           card={{
-            title: `${ticker} ${label} 백테스트`,
+            title: `${getTickerName(ticker)} ${label} 백테스트`,
             period: `${timeframe === "daily" ? "일봉" : "주봉"} · ${period}년`,
             stats: [
               { label: "전략 점수", value: `${result.score}점`, color: "#3182F6" },
@@ -884,12 +884,12 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
         const years = isBasic() ? BACKTEST_PERIODS[top10ActiveTab].years : period;
         const list = top10Results[years] || [];
         if (!list.length) return null;
-        const tickerName = getTickerLabel(ticker);
+        const tickerName = getTickerName(ticker);
         return (
           <ShareSheet
-            text={`🏆 ${ticker}(${tickerName}) TOP 10 전략 (${years}년)\n${list.slice(0, 5).map((s, i) => `${i + 1}위 ${s.label} ${s.score}점 ${s.totalReturn >= 0 ? "+" : ""}${fmt(s.totalReturn, 0)}%`).join("\n")}`}
+            text={`🏆 ${tickerName} TOP 10 전략 (${years}년)\n${list.slice(0, 5).map((s, i) => `${i + 1}위 ${s.label} ${s.score}점 ${s.totalReturn >= 0 ? "+" : ""}${fmt(s.totalReturn, 0)}%`).join("\n")}`}
             card={{
-              title: `${ticker} 최적 전략 TOP 10`,
+              title: `${getTickerName(ticker)} 최적 전략 TOP 10`,
               period: `${timeframe === "daily" ? "일봉" : "주봉"} · ${years}년 백테스트`,
               rows: list.slice(0, 5).map((s) => ({
                 label: s.label,
