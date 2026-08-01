@@ -81,10 +81,37 @@ for (const [name, tickers] of Object.entries(TICKER_CATEGORIES)) {
   });
 }
 
-const output = { updated: now.toISOString().slice(0, 10), strategy: "daily", categories };
-fs.writeFileSync(OUT, JSON.stringify(output, null, 2));
-console.log(`✓ ${categories.length}개 카테고리 챔피언 → ${OUT}`);
-for (const c of categories) {
-  const top = c.ranking[0];
-  console.log(`  ${c.name} (${c.years}년): ${top.ticker} +${top.return}%${c.note ? " *" : ""}`);
+// ── 전체 명예의 전당 + 손실 방어 (레버리지 제외, 5년 풀데이터) ──
+const LEVERAGE = new Set(TICKER_CATEGORIES["레버리지 ETF"] ?? []);
+const start5 = yearsAgo(5);
+const pool = [];
+for (const t of allTickers) {
+  if (LEVERAGE.has(t)) continue;
+  const pr = priceCache[t];
+  if (!pr || pr[0].date > start5) continue; // 5년 풀데이터만
+  const res = runStrategy(pr, "daily", MONTHLY, start5, now);
+  if (res && res.totalInvested > 0) {
+    pool.push({
+      ticker: t,
+      return: +(res.totalReturn * 100).toFixed(1),
+      cagr: +(res.cagr * 100).toFixed(1),
+      mdd: +(res.mdd * 100).toFixed(1),
+    });
+  }
 }
+const overall = {
+  years: 5,
+  top: [...pool].sort((a, b) => b.return - a.return).slice(0, TOP_N),
+  worst: [...pool].sort((a, b) => a.return - b.return).slice(0, TOP_N),
+};
+const defensive = {
+  years: 5,
+  ranking: [...pool].sort((a, b) => b.mdd - a.mdd).slice(0, TOP_N), // mdd가 0에 가까울수록 덜 빠짐
+};
+
+const output = { updated: now.toISOString().slice(0, 10), strategy: "daily", overall, defensive, categories };
+fs.writeFileSync(OUT, JSON.stringify(output, null, 2));
+console.log(`✓ 명예의전당·손실방어·${categories.length}개 카테고리 → ${OUT}`);
+console.log(`  🏆 전체 1위: ${overall.top[0].ticker} +${overall.top[0].return}%`);
+console.log(`  ⚠️ 전체 꼴찌: ${overall.worst[0].ticker} ${overall.worst[0].return}%`);
+console.log(`  🛡 덜 빠진: ${defensive.ranking[0].ticker} MDD ${defensive.ranking[0].mdd}%`);

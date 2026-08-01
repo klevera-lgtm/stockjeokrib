@@ -4397,6 +4397,9 @@ input, select {
 .champ-rank-ret { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
 .champ-rank-ret > span:first-child { font-size: 14px; font-weight: 800; }
 .champ-rank-cagr { font-size: 11px; color: var(--text-tertiary); }
+.champ-cat.special { border-color: var(--primary); }
+.champ-cat.special .champ-cat-name { color: var(--primary); }
+.champ-mdd { color: var(--primary); font-weight: 800; font-variant-numeric: tabular-nums; }
 
 /* ── 종목 대결 ───────────────────────────────── */
 .vs { padding: 4px 0 8px; }
