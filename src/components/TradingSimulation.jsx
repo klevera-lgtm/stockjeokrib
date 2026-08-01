@@ -8,9 +8,9 @@ import { loadPrices } from "../utils/dataLoader.js";
 import { logClick } from "../utils/analytics.js";
 import { getTickerLabel, fmtPrice, isKrTicker } from "../utils/tickers.js";
 import {
-  backtestMA, backtestRSI, backtestMACD, backtestCombo, backtestDualMA,
+  backtestMA, backtestRSI, backtestMACD, backtestCombo, backtestDualMA, backtestBollinger,
   filterByPeriod, toWeekly, buyAndHold, scoreResult, scoreBreakdown, rankAllStrategies,
-  strategyLabel, comboLabel, MA_PERIODS, RSI_COMBOS, DUAL_MA_COMBOS, BACKTEST_PERIODS,
+  strategyLabel, comboLabel, MA_PERIODS, RSI_COMBOS, DUAL_MA_COMBOS, BOLLINGER_COMBOS, BACKTEST_PERIODS,
   COMBO_PRESETS,
 } from "../utils/tradingEngine.js";
 import { Chart } from "chart.js/auto";
@@ -20,6 +20,7 @@ const STRATEGY_TYPES = [
   { id: "rsi", label: "RSI", desc: "과매도 진입, 과매수 청산", coin: 1 },
   { id: "dualma", label: "이중 이평선", desc: "단기 MA가 장기 MA를 교차할 때 매매", coin: 1 },
   { id: "macd", label: "MACD", desc: "시그널선 교차 매매", coin: 1 },
+  { id: "bollinger", label: "볼린저밴드", desc: "하단 밴드 터치 시 진입, 평균 복귀 시 청산", coin: 1 },
   { id: "combo", label: "조합 전략", desc: "여러 지표를 결합해 테스트", coin: 2 },
 ];
 
@@ -207,6 +208,8 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
       setStep("rsi-params");
     } else if (type === "dualma") {
       setStep("dualma-params");
+    } else if (type === "bollinger") {
+      setStep("bollinger-params");
     } else if (type === "combo") {
       setStep("combo-select");
     }
@@ -223,6 +226,11 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
   }
 
   function handleRSISelect(combo) {
+    setStrategyParams(combo);
+    setStep("period");
+  }
+
+  function handleBollingerSelect(combo) {
     setStrategyParams(combo);
     setStep("period");
   }
@@ -269,6 +277,7 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
         case "rsi":   res = backtestRSI(prices, activeParams); break;
         case "dualma": res = backtestDualMA(prices, activeParams.short, activeParams.long); break;
         case "macd":  res = backtestMACD(prices); break;
+        case "bollinger": res = backtestBollinger(prices, activeParams); break;
         case "combo": res = backtestCombo(prices, activeParams); break;
         default: throw new Error("알 수 없는 전략");
       }
@@ -373,7 +382,7 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
         <span className="trade-step-arrow">›</span>
         <span className={`trade-step${step === "timeframe" ? " active" : timeframe && step !== "ticker" ? " done" : ""}`}>봉</span>
         <span className="trade-step-arrow">›</span>
-        <span className={`trade-step${["strategy", "ma-params", "rsi-params", "dualma-params", "combo-select", "combo-params"].includes(step) ? " active" : strategyType || step === "top10-period" || step === "top10-result" ? " done" : ""}`}>전략</span>
+        <span className={`trade-step${["strategy", "ma-params", "rsi-params", "dualma-params", "bollinger-params", "combo-select", "combo-params"].includes(step) ? " active" : strategyType || step === "top10-period" || step === "top10-result" ? " done" : ""}`}>전략</span>
         <span className="trade-step-arrow">›</span>
         <span className={`trade-step${step === "period" || step === "top10-period" ? " active" : period ? " done" : ""}`}>기간</span>
         <span className="trade-step-arrow">›</span>
@@ -418,7 +427,7 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
                 <span className="trade-strategy-name">{s.label}</span>
                 <span className="trade-strategy-desc">{s.desc}</span>
                 <span className="trade-strategy-count">
-                  {s.id === "ma" ? "20가지" : s.id === "dualma" ? "4가지" : s.id === "rsi" ? "8가지" : s.id === "combo" ? `🪙${s.coin}` : "1가지"}
+                  {s.id === "ma" ? "20가지" : s.id === "dualma" ? "4가지" : s.id === "rsi" ? "8가지" : s.id === "bollinger" ? "6가지" : s.id === "combo" ? `🪙${s.coin}` : "1가지"}
                 </span>
               </button>
             ))}
@@ -484,6 +493,21 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
               <button key={i} className="trade-rsi-btn" onClick={() => handleRSISelect(c)}>
                 <span>진입 RSI &lt; {c.buyBelow}</span>
                 <span>이탈 RSI &gt; {c.sellAbove}</span>
+                <span>손절 {c.stopLoss}%</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {step === "bollinger-params" && (
+        <div className="trade-card">
+          <h3 className="trade-card-title">볼린저밴드 조합 선택</h3>
+          <div className="trade-rsi-list">
+            {BOLLINGER_COMBOS.map((c, i) => (
+              <button key={i} className="trade-rsi-btn" onClick={() => handleBollingerSelect(c)}>
+                <span>±{c.stdMult}σ 하단 진입</span>
+                <span>{c.exitAt === "upper" ? "상단 밴드" : "중심선"} 청산</span>
                 <span>손절 {c.stopLoss}%</span>
               </button>
             ))}
