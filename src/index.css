@@ -4638,7 +4638,12 @@ input, select {
 .ts-slot { margin: 10px 0 4px; }
 
 /* ── 오늘의 종목 대결 ─────────────────────────── */
-.dv { margin: 0 16px 14px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.dv {
+  margin: 0 16px 14px; padding: 16px; border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(229,62,62,0.14), rgba(37,99,235,0.15)), var(--surface);
+  border: 1.5px solid var(--primary);
+  box-shadow: 0 3px 16px rgba(27,58,107,0.14);
+}
 .dv-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
 .dv-badge { font-size: 14px; font-weight: 800; color: var(--text-primary); }
 .dv-reward-hint { flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 3px 9px; border-radius: 999px; }
