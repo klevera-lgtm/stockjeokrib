@@ -4398,6 +4398,53 @@ input, select {
 .champ-rank-ret > span:first-child { font-size: 14px; font-weight: 800; }
 .champ-rank-cagr { font-size: 11px; color: var(--text-tertiary); }
 
+/* ── 종목 대결 ───────────────────────────────── */
+.vs { padding: 4px 0 8px; }
+.vs-sub { font-size: 13px; color: var(--text-secondary); padding: 4px 20px 12px; }
+.vs-sub strong { color: var(--text-primary); }
+.vs-slots { display: flex; align-items: stretch; gap: 8px; padding: 0 16px; }
+.vs-slot {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 62px; padding: 10px; border-radius: 12px;
+  background: var(--surface); border: 1.5px dashed var(--border-strong, #B4C0D6);
+}
+.vs-slot.filled { border-style: solid; }
+.vs-slot.a.filled { border-color: var(--pos); }
+.vs-slot.b.filled { border-color: var(--neg); }
+.vs-slot-sym { font-size: 17px; font-weight: 800; color: var(--text-primary); }
+.vs-slot-name { font-size: 11px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.vs-slot-add { font-size: 14px; font-weight: 700; color: var(--text-tertiary); }
+.vs-mark { align-self: center; font-size: 14px; font-weight: 800; color: var(--text-tertiary); flex-shrink: 0; }
+.vs-periods { display: flex; gap: 6px; padding: 12px 16px 0; }
+.vs-period { flex: 1; padding: 8px 0; border-radius: 10px; font-size: 13px; font-weight: 700; color: var(--text-secondary); background: var(--surface); border: 1px solid var(--border); }
+.vs-period.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.vs-run { margin: 12px 16px 0; }
+.vs-result { padding: 12px 16px 0; }
+.vs-winner { text-align: center; font-size: 18px; font-weight: 800; color: var(--text-primary); }
+.vs-winner strong { color: var(--primary); }
+.vs-margin { display: block; font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-top: 2px; }
+.vs-basis { text-align: center; font-size: 12px; color: var(--text-tertiary); margin: 2px 0 10px; }
+.vs-stats { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.vs-stat {
+  display: grid; grid-template-columns: 14px 1fr auto; align-items: center; gap: 8px 10px;
+  padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; text-align: left;
+}
+.vs-stat.win { border-color: var(--primary); background: var(--primary-light); }
+.vs-stat-dot { width: 12px; height: 12px; border-radius: 50%; }
+.vs-stat-sym { font-size: 15px; font-weight: 800; color: var(--text-primary); }
+.vs-stat-ret { font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; text-align: right; }
+.vs-stat-ret.pos { color: var(--pos); }
+.vs-stat-ret.neg { color: var(--neg); }
+.vs-stat-meta { grid-column: 2 / 4; font-size: 12px; color: var(--text-secondary); }
+.vs-again { width: calc(100% ); margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); font-size: 14px; font-weight: 700; color: var(--primary); }
+.vs-teaser { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 16px; text-align: center; }
+.vs-teaser-vs { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 18px; font-weight: 800; color: var(--text-primary); }
+.vs-teaser-mark { font-size: 13px; color: var(--text-tertiary); }
+.vs-teaser-hint { font-size: 13px; color: var(--text-secondary); margin: 10px 0 14px; }
+.vs-reveal { }
+.vs-cost { background: rgba(255,255,255,0.25); padding: 1px 8px; border-radius: 99px; margin-left: 6px; font-size: 13px; }
+.vs-balance { font-size: 12px; color: var(--text-tertiary); margin-top: 8px; }
+
 /* ── 내 종목 (통합) ─────────────────────────── */
 .mystocks { padding: 4px 0 8px; }
 .ms-signal-banner {
