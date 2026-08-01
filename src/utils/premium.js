@@ -5,6 +5,7 @@ const WELCOME_KEY = "ait_welcome_done";
 const PLAN_KEY = "stockjeokrib_plan";
 const STREAK_KEY = "ait_streak_count";
 const STREAK_BONUS_DATE_KEY = "ait_streak_bonus_date";
+const STREAK_CLAIM_KEY = "ait_streak_claim_date";
 
 const WELCOME_QUERIES = 10;         // 첫 진입 웰컴 코인
 export const AD_REWARD_QUERIES = 2; // 리워드 광고 시청 보상
@@ -74,30 +75,49 @@ function ensureVisitReward() {
       const prevStreak = parseInt(localStorage.getItem(STREAK_KEY) ?? "0", 10);
       const streak = lastVisit === yesterdayStr() ? prevStreak + 1 : 1;
       localStorage.setItem(STREAK_KEY, String(streak));
-
-      // 매일 지급 없음. 이틀 연속마다 +1, 7일 연속 마일스톤 +3
-      let reward = 0;
-      if (streak % STREAK_COIN_EVERY === 0) reward += STREAK_COIN;
-      if (streak % STREAK_MILESTONE === 0) {
-        reward += STREAK_BONUS;
-        localStorage.setItem(STREAK_BONUS_DATE_KEY, today);
-      }
-      if (reward > 0) setStoredBalance(getStoredBalance() + reward);
       localStorage.setItem(REFILL_KEY, today);
+      // 코인은 출석 도장판에서 claimStreakReward()로 지급 (자동 지급 없음)
     }
   } catch {}
 }
 
-// 연속 출석 정보: { count, bonusToday, daysToBonus }
+// 오늘 스트릭이 주는 코인 (2일마다 +1, 7일마다 +3, 중첩 가능)
+function streakRewardFor(count) {
+  let r = 0;
+  if (count > 0 && count % STREAK_COIN_EVERY === 0) r += STREAK_COIN;
+  if (count > 0 && count % STREAK_MILESTONE === 0) r += STREAK_BONUS;
+  return r;
+}
+
+// 연속 출석 정보: { count, bonusToday, daysToBonus, reward, claimedToday }
 export function getStreakInfo() {
   try {
     ensureVisitReward();
     const count = parseInt(localStorage.getItem(STREAK_KEY) ?? "0", 10);
     const bonusToday = localStorage.getItem(STREAK_BONUS_DATE_KEY) === todayStr();
     const daysToBonus = STREAK_MILESTONE - (count % STREAK_MILESTONE || STREAK_MILESTONE);
-    return { count, bonusToday, daysToBonus };
+    const claimedToday = localStorage.getItem(STREAK_CLAIM_KEY) === todayStr();
+    return { count, bonusToday, daysToBonus, reward: streakRewardFor(count), claimedToday };
   } catch {
-    return { count: 0, bonusToday: false, daysToBonus: STREAK_MILESTONE };
+    return { count: 0, bonusToday: false, daysToBonus: STREAK_MILESTONE, reward: 0, claimedToday: false };
+  }
+}
+
+// 오늘의 출석 코인 받기 (하루 1회, 코인 balance에 지급). 반환: { amount, already, milestone, count }
+export function claimStreakReward() {
+  try {
+    ensureVisitReward();
+    const today = todayStr();
+    const count = parseInt(localStorage.getItem(STREAK_KEY) ?? "0", 10);
+    if (localStorage.getItem(STREAK_CLAIM_KEY) === today) return { amount: 0, already: true, count };
+    const amount = streakRewardFor(count);
+    localStorage.setItem(STREAK_CLAIM_KEY, today);
+    if (amount > 0) setStoredBalance(getStoredBalance() + amount);
+    const milestone = count > 0 && count % STREAK_MILESTONE === 0;
+    if (milestone) localStorage.setItem(STREAK_BONUS_DATE_KEY, today);
+    return { amount, already: false, milestone, count };
+  } catch {
+    return { amount: 0, already: false, count: 0 };
   }
 }
 

@@ -31,6 +31,7 @@ import CoinShopModal from "./components/CoinShopModal.jsx";
 import RewardedAdBanner from "./components/RewardedAdBanner.jsx";
 import InsightCard from "./components/InsightCard.jsx";
 import DailyQuiz from "./components/DailyQuiz.jsx";
+import AttendanceBoard from "./components/AttendanceBoard.jsx";
 import { loadPrices, prefetchTickers } from "./utils/dataLoader.js";
 import { precomputeFeaturedCombos } from "./utils/comboResultCache.js";
 import { logScreen, logClick } from "./utils/analytics.js";
@@ -258,7 +259,7 @@ export default function App() {
             </button>
             {(() => {
               const s = getStreakInfo();
-              return s.count >= 2 && (
+              return s.count >= 2 && view !== "home" && (
                 <span className="streak-global">
                   {s.bonusToday
                     ? `🔥 ${s.count}일 연속 · 보너스 +${STREAK_BONUS} 받음!`
@@ -270,6 +271,7 @@ export default function App() {
         )}
         {!basic && <RewardedAdBanner onEarned={refreshCoins} />}
         {view === "home" && <InsightCard onNavigate={handleNavigate} />}
+        {view === "home" && <AttendanceBoard onCoinsChanged={refreshCoins} />}
         {view === "home" && <DailyQuiz onCoinsChanged={refreshCoins} onOpenDetail={openDetail} />}
         <div className="view-transition" key={`${view}-${detailTicker}-${discoverFeature}`}>
           {renderContent()}
