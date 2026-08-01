@@ -4622,3 +4622,17 @@ input, select {
 }
 .att-claim:active { opacity: 0.9; }
 .att-done { margin-top: 14px; text-align: center; font-size: 13px; font-weight: 700; color: var(--text-secondary); }
+/* 컴팩트 스트립 (홈 상단) */
+.att.att--strip { display: flex; align-items: center; gap: 10px; padding: 10px 14px; margin: 0 16px 10px; }
+.att-strip-streak { flex-shrink: 0; font-size: 13px; font-weight: 800; color: var(--text-primary); }
+.att-strip-dots { display: flex; align-items: center; gap: 5px; flex: 1; }
+.att-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
+.att-dot.done { background: var(--primary); }
+.att-dot.bonus { background: #FCD34D; }
+.att-dot.bonus.done { background: #F59E0B; }
+.att-strip-claim { flex-shrink: 0; padding: 6px 12px; font-size: 12px; font-weight: 800; color: #fff; background: var(--primary); border-radius: 999px; }
+.att-strip-claim:active { opacity: 0.9; }
+.att-strip-done { flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--text-tertiary); }
+
+/* 검색 아래 데일리 훅 슬롯 (인기종목 ↔ 카테고리 사이) */
+.ts-slot { margin: 10px 0 4px; }

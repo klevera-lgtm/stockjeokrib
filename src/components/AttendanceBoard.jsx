@@ -2,7 +2,7 @@ import { useState } from "react";
 import { getStreakInfo, claimStreakReward, isBasic, STREAK_BONUS, STREAK_MILESTONE } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 
-export default function AttendanceBoard({ onCoinsChanged }) {
+export default function AttendanceBoard({ onCoinsChanged, compact = false }) {
   const [info, setInfo] = useState(() => getStreakInfo());
   const [justClaimed, setJustClaimed] = useState(0);
   const basic = isBasic();
@@ -18,6 +18,26 @@ export default function AttendanceBoard({ onCoinsChanged }) {
     if (res.amount > 0) { setJustClaimed(res.amount); onCoinsChanged?.(); }
     setInfo(getStreakInfo());
     logClick("streak_claim", { count: res.count, amount: res.amount });
+  }
+
+  if (compact) {
+    return (
+      <div className="att att--strip">
+        <span className="att-strip-streak">🔥 {count}일</span>
+        <div className="att-strip-dots">
+          {Array.from({ length: STREAK_MILESTONE }, (_, i) => {
+            const day = i + 1;
+            const cls = `att-dot${day <= cyclePos ? " done" : ""}${day === STREAK_MILESTONE ? " bonus" : ""}`;
+            return <span key={day} className={cls} />;
+          })}
+        </div>
+        {canClaim ? (
+          <button className="att-strip-claim" onClick={claim}>🪙 +{info.reward} 받기</button>
+        ) : (
+          <span className="att-strip-done">{justClaimed > 0 ? `🪙 +${justClaimed} ✓` : "오늘 완료 ✓"}</span>
+        )}
+      </div>
+    );
   }
 
   return (

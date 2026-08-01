@@ -5,7 +5,7 @@ import AdBanner from "./AdBanner.jsx";
 const POPULAR = ["TSLA", "NVDA", "AAPL", "QQQ", "SPY", "MSFT"];
 const CAT_KEYS = Object.keys(TICKER_CATEGORIES);
 
-export default function TickerSearch({ onSelect, multi = false, selected = [], compact = false }) {
+export default function TickerSearch({ onSelect, multi = false, selected = [], compact = false, belowPopular = null }) {
   const [query, setQuery] = useState("");
   const [openCat, setOpenCat] = useState(null);
 
@@ -85,6 +85,8 @@ export default function TickerSearch({ onSelect, multi = false, selected = [], c
               </div>
             </div>
           )}
+
+          {!compact && belowPopular && <div className="ts-slot">{belowPopular}</div>}
 
           <div className="ts-categories">
             <p className="ts-section-label">📂 카테고리별 탐색</p>

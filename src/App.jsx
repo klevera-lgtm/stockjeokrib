@@ -242,7 +242,17 @@ export default function App() {
     if (view === "my") {
       return <MyStocks onOpenDetail={openDetail} onNavigate={handleNavigate} />;
     }
-    return <Home onSelectTicker={(t) => openDetail(t, "acc")} />;
+    return (
+      <Home
+        onSelectTicker={(t) => openDetail(t, "acc")}
+        belowPopular={
+          <>
+            <DailyQuiz onCoinsChanged={refreshCoins} onOpenDetail={openDetail} />
+            <InsightCard onNavigate={handleNavigate} />
+          </>
+        }
+      />
+    );
   }
 
   const navActive = view === "detail" ? "home" : view;
@@ -270,9 +280,7 @@ export default function App() {
           </div>
         )}
         {!basic && <RewardedAdBanner onEarned={refreshCoins} />}
-        {view === "home" && <InsightCard onNavigate={handleNavigate} />}
-        {view === "home" && <AttendanceBoard onCoinsChanged={refreshCoins} />}
-        {view === "home" && <DailyQuiz onCoinsChanged={refreshCoins} onOpenDetail={openDetail} />}
+        {view === "home" && <AttendanceBoard onCoinsChanged={refreshCoins} compact />}
         <div className="view-transition" key={`${view}-${detailTicker}-${discoverFeature}`}>
           {renderContent()}
         </div>
