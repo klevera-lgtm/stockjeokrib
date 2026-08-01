@@ -4421,7 +4421,7 @@ input, select {
 .vs-periods { display: flex; gap: 6px; padding: 12px 16px 0; }
 .vs-period { flex: 1; padding: 8px 0; border-radius: 10px; font-size: 13px; font-weight: 700; color: var(--text-secondary); background: var(--surface); border: 1px solid var(--border); }
 .vs-period.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-.vs-run { margin: 12px 16px 0; }
+.vs-run { margin: 12px 16px 0; width: calc(100% - 32px); }
 .vs-result { padding: 12px 16px 0; }
 .vs-winner { text-align: center; font-size: 18px; font-weight: 800; color: var(--text-primary); }
 .vs-winner strong { color: var(--primary); }
