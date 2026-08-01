@@ -23,16 +23,17 @@ jobs:
       - name: Compute featured combos
         run: node scripts/compute-combos.mjs
 
-      - name: Compute champions & daily quiz
+      - name: Compute champions, daily quiz & daily versus
         run: |
           node scripts/computeChampions.mjs
           node scripts/computeDailyQuiz.mjs
+          node scripts/computeDailyVersus.mjs
 
       - name: Commit updated combos
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/featuredCombos.json public/cagrDistribution.json public/eventGainers.json public/goalRanking.json data/supportedTickers.json public/categoryChampions.json public/dailyQuiz.json
+          git add public/featuredCombos.json public/cagrDistribution.json public/eventGainers.json public/goalRanking.json data/supportedTickers.json public/categoryChampions.json public/dailyQuiz.json public/dailyVersus.json
           git diff --cached --quiet || git commit -m "chore: update precomputed data [$(date '+%Y-%m-%d')]"
           git pull --rebase origin main
           git push

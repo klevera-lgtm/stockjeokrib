@@ -28,6 +28,10 @@ TICKERS = {
         "AMD", "AVGO", "ASML", "TSM", "QCOM",
         "NFLX", "UBER", "COIN", "PLTR", "SNOW", "SHOP", "SPOT"
     ],
+    "신규 인기주 (2026-08)": [
+        "SBUX", "DIS", "NKE", "MA", "WMT", "HD", "PYPL", "ADBE", "CSCO", "PFE",
+        "MRK", "UNH", "BAC", "WFC", "GS", "F", "GM", "AXP", "BA", "BABA", "ABNB",
+    ],
     "나라별 ETF": [
         "EWY", "EWJ", "FXI", "EWT", "INDA",
         "EZU", "EWG", "EWU", "EWQ",

@@ -4636,3 +4636,41 @@ input, select {
 
 /* 검색 아래 데일리 훅 슬롯 (인기종목 ↔ 카테고리 사이) */
 .ts-slot { margin: 10px 0 4px; }
+
+/* ── 오늘의 종목 대결 ─────────────────────────── */
+.dv { margin: 0 16px 14px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.dv-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.dv-badge { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+.dv-reward-hint { flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 3px 9px; border-radius: 999px; }
+.dv-q { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.5; }
+.dv-q strong { color: var(--text-primary); font-weight: 700; }
+.dv-picks { display: flex; align-items: stretch; gap: 8px; }
+.dv-pick {
+  position: relative; flex: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-height: 76px; padding: 12px 8px; border-radius: 12px;
+  background: var(--bg); border: 1.5px solid var(--border);
+}
+.dv-pick:active:not(:disabled) { transform: scale(0.98); }
+.dv-pick:disabled { cursor: default; }
+.dv-pick.win { background: rgba(34,197,94,0.10); border-color: var(--pos); }
+.dv-pick.lose { background: rgba(229,62,62,0.08); border-color: var(--neg); }
+.dv-pick.dim { opacity: 0.5; }
+.dv-pick-primary { font-size: 17px; font-weight: 800; color: var(--text-primary); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-pick-secondary { font-size: 11px; color: var(--text-secondary); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-pick-ret { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.dv-pick-ret.pos { color: var(--pos); }
+.dv-pick-ret.neg { color: var(--neg); }
+.dv-pick-crown { position: absolute; top: -11px; font-size: 18px; }
+.dv-vs-mark { align-self: center; flex-shrink: 0; font-size: 13px; font-weight: 800; color: var(--text-tertiary); }
+.dv-reveal { margin-top: 12px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--bg); }
+.dv-reveal.ok { background: rgba(34,197,94,0.08); }
+.dv-reveal.no { background: rgba(229,62,62,0.06); }
+.dv-verdict { font-size: 14px; font-weight: 800; color: var(--text-primary); }
+.dv-margin { font-size: 13px; color: var(--text-secondary); margin-top: 5px; line-height: 1.5; }
+.dv-margin strong { color: var(--text-primary); font-weight: 800; }
+.dv-actions { display: flex; gap: 8px; margin-top: 12px; }
+.dv-share { flex: 1; padding: 11px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 800; color: #fff; background: var(--primary); }
+.dv-share:active { opacity: 0.9; }
+.dv-more { flex-shrink: 0; padding: 11px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; color: var(--primary); background: var(--primary-light); }
+.dv-tomorrow { margin-top: 10px; font-size: 12px; color: var(--text-tertiary); }

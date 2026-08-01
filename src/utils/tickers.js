@@ -7,6 +7,8 @@ export const TICKER_CATEGORIES = {
     "AAOI","CRWV","DDOG","GH","IREN","JPM","MSTR","NTRA","OKTA","SMR","UCTT",
     "HOOD","SOFI","RIVN","NIO","PANW","CRM",
     "MARA","RIOT","CLSK","CORZ",
+    "SBUX","DIS","NKE","MA","WMT","HD","PYPL","ADBE","CSCO","PFE",
+    "MRK","UNH","BAC","WFC","GS","F","GM","AXP","BA","BABA","ABNB",
   ],
   "미국 인덱스 ETF": ["VOO","SPY","IVV","QQQM","QQQ","VTI","DIA","IWM","VB","SCHG","VUG","RSP","COWZ"],
   "반도체 ETF": ["SMH","SOXX"],
@@ -28,10 +30,18 @@ export const TICKER_CATEGORIES = {
   "아시아 국가 ETF": ["INDA","EWJ","MCHI","EWT","VNM","EWY","EWH","EWS","EIDO","THD","FXI","EWM"],
   "유럽 국가 ETF": ["VGK","EWG","EWU","EWQ","EWI","EWL","EZU"],
   "기타 국가 ETF": ["EWZ","EWW","EEM","ACWI","EWA","KSA","VT","VXUS","IEFA","IEMG","VWO"],
-  "국내 자산": ["KS11","KQ11","005930","000660","069500","360750","088980","458730"],
+  "국내 자산": ["KS11","KQ11","005930","000660","035420","035720","373220","005380","000270","207940","051910","105560","005490","068270","069500","360750","088980","458730"],
 };
 
 export const TICKER_LABELS = {
+  // 신규 추가 (2026-08) — 미국
+  "SBUX": "스타벅스", "DIS": "디즈니", "NKE": "나이키", "MA": "마스터카드", "WMT": "월마트",
+  "HD": "홈디포", "PYPL": "페이팔", "ADBE": "어도비", "CSCO": "시스코", "PFE": "화이자",
+  "MRK": "머크", "UNH": "유나이티드헬스", "BAC": "뱅크오브아메리카", "WFC": "웰스파고", "GS": "골드만삭스",
+  "F": "포드", "GM": "제너럴모터스", "AXP": "아메리칸익스프레스", "BA": "보잉", "BABA": "알리바바", "ABNB": "에어비앤비",
+  // 신규 추가 (2026-08) — 한국
+  "035420": "네이버", "035720": "카카오", "373220": "LG에너지솔루션", "005380": "현대차", "000270": "기아",
+  "207940": "삼성바이오로직스", "051910": "LG화학", "105560": "KB금융", "005490": "POSCO홀딩스", "068270": "셀트리온",
   // 한국 주식·ETF
   "KS11": "코스피",
   "KQ11": "코스닥",
@@ -319,6 +329,10 @@ export const SUPPORTED_TICKERS = new Set([
   "IBIT","FBTC","ETHA","BSOL","MARA","RIOT","CLSK","CORZ",
   // 한국 배당 자산
   "088980","458730",
+  // 신규 추가 (2026-08) — 미국 개별주 + 한국 대형주
+  "SBUX","DIS","NKE","MA","WMT","HD","PYPL","ADBE","CSCO","PFE",
+  "MRK","UNH","BAC","WFC","GS","F","GM","AXP","BA","BABA","ABNB",
+  "035420","035720","373220","005380","000270","207940","051910","105560","005490","068270",
 ]);
 
 export function getTickerLabel(ticker) {

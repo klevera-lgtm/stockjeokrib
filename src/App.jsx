@@ -30,7 +30,7 @@ import InvestTypeTest from "./components/InvestTypeTest.jsx";
 import CoinShopModal from "./components/CoinShopModal.jsx";
 import RewardedAdBanner from "./components/RewardedAdBanner.jsx";
 import InsightCard from "./components/InsightCard.jsx";
-import DailyQuiz from "./components/DailyQuiz.jsx";
+import DailyVersus from "./components/DailyVersus.jsx";
 import AttendanceBoard from "./components/AttendanceBoard.jsx";
 import { loadPrices, prefetchTickers } from "./utils/dataLoader.js";
 import { precomputeFeaturedCombos } from "./utils/comboResultCache.js";
@@ -121,6 +121,12 @@ export default function App() {
   function goNav(id) {
     setView(id);
     if (id === "discover") setDiscoverFeature(null);
+    window.scrollTo(0, 0);
+  }
+
+  function openVersus() {
+    setDiscoverFeature("versus");
+    setView("discover");
     window.scrollTo(0, 0);
   }
 
@@ -247,7 +253,7 @@ export default function App() {
         onSelectTicker={(t) => openDetail(t, "acc")}
         belowPopular={
           <>
-            <DailyQuiz onCoinsChanged={refreshCoins} onOpenDetail={openDetail} />
+            <DailyVersus onCoinsChanged={refreshCoins} onOpenVersus={openVersus} />
             <InsightCard onNavigate={handleNavigate} />
           </>
         }
