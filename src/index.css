@@ -4355,6 +4355,49 @@ input, select {
 .discover-feature { padding: 4px 0 8px; }
 .my-section { padding: 4px 0 8px; }
 
+/* ── 적립 챔피언 ─────────────────────────────── */
+.champ { padding: 4px 0 8px; }
+.champ-msg { text-align: center; color: var(--text-tertiary); font-size: 14px; padding: 40px 16px; }
+.champ-sub { font-size: 13px; color: var(--text-secondary); padding: 4px 20px 10px; }
+.champ-sub strong { color: var(--text-primary); }
+.champ-cat-list { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
+.champ-cat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.champ-cat.open { border-color: var(--primary); }
+.champ-cat-head {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 12px 14px; background: var(--surface); text-align: left;
+}
+.champ-cat.open .champ-cat-head { background: rgba(27,58,107,0.04); }
+.champ-cat-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.champ-cat-name { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.champ-cat-topline { font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 5px; }
+.champ-cat-topline strong { color: var(--text-primary); font-weight: 700; }
+.champ-ret { font-weight: 800; font-variant-numeric: tabular-nums; }
+.champ-ret.pos, .champ-rank-ret .pos { color: var(--pos); }
+.champ-ret.neg, .champ-rank-ret .neg { color: var(--neg); }
+.champ-cat-basis { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--text-tertiary); flex-shrink: 0; }
+.champ-arrow { display: inline-block; transition: transform 0.2s; }
+.champ-arrow.open { transform: rotate(180deg); }
+.champ-cat-body { border-top: 1px solid var(--border); padding: 6px 8px 8px; }
+.champ-note { font-size: 11px; color: var(--text-tertiary); padding: 6px 8px; line-height: 1.5; }
+.champ-rank-item {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 9px 8px; background: transparent; text-align: left; border-radius: var(--radius-sm);
+}
+.champ-rank-item:active { background: var(--primary-light); }
+.champ-rank-num {
+  width: 22px; height: 22px; flex-shrink: 0; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--text-secondary); background: var(--bg);
+}
+.champ-rank-num.gold { background: #FEF3C7; color: #92400E; }
+.champ-rank-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.champ-rank-sym { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.champ-rank-name { font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.champ-rank-ret { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.champ-rank-ret > span:first-child { font-size: 14px; font-weight: 800; }
+.champ-rank-cagr { font-size: 11px; color: var(--text-tertiary); }
+
 /* ── 내 종목 (통합) ─────────────────────────── */
 .mystocks { padding: 4px 0 8px; }
 .ms-signal-banner {

@@ -3,11 +3,12 @@ import {
   IconHome, IconCompass, IconBriefcase, IconArrowLeft,
   IconActivityHeartbeat, IconRadar2, IconTrophy, IconUserStar,
   IconList, IconCalendar, IconCirclesRelation, IconNews, IconUsers,
-  IconTarget, IconUmbrella, IconScale,
+  IconTarget, IconUmbrella, IconScale, IconAward,
 } from "@tabler/icons-react";
 import Disclaimer from "./components/Disclaimer.jsx";
 import Home from "./components/Home.jsx";
 import TickerDetail from "./components/TickerDetail.jsx";
+import AccumChampions from "./components/AccumChampions.jsx";
 import ComboBacktest from "./components/ComboBacktest.jsx";
 import GoalCalculator from "./components/GoalCalculator.jsx";
 import EventExplorer from "./components/EventExplorer.jsx";
@@ -43,6 +44,7 @@ const NAV_TABS = [
 
 const DISCOVER_GROUPS = [
   { title: "종목 발굴", items: [
+    { id: "champions",   label: "적립 챔피언", desc: "카테고리별 5년 적립 1위",     Icon: IconAward },
     { id: "div-ranking", label: "배당 랭킹",   desc: "배당 수익률 순위",           Icon: IconList },
     { id: "scanner",     label: "스캐너",      desc: "조건을 충족한 종목 탐색",     Icon: IconRadar2 },
     { id: "combo",       label: "조합 탐색",   desc: "종목을 섞은 최적 적립 조합",   Icon: IconCirclesRelation },
@@ -158,6 +160,7 @@ export default function App() {
 
   function renderDiscoverFeature(id) {
     switch (id) {
+      case "champions":   return <AccumChampions onOpenDetail={openDetail} />;
       case "breadth":     return <MarketBreadth onCoinsChanged={refreshCoins} />;
       case "scanner":     return <TradingScanner onNavigate={handleNavigate} onCoinsChanged={refreshCoins} />;
       case "alpha":       return <TradingRanking onCoinsChanged={refreshCoins} onNavigate={handleNavigate} />;
