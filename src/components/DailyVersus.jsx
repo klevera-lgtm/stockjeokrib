@@ -102,8 +102,8 @@ export default function DailyVersus({ onCoinsChanged, onOpenVersus }) {
               <LineChart
                 labels={q.chart.labels}
                 datasets={[
-                  { label: A.primary, data: q.chart.a, borderColor: "#E53E3E", backgroundColor: "transparent", fill: false, tension: 0.3, pointRadius: 0, borderWidth: 2 },
-                  { label: B.primary, data: q.chart.b, borderColor: "#3182F6", backgroundColor: "transparent", fill: false, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+                  { label: A.primary, data: q.chart.a, borderColor: "#E53E3E", backgroundColor: "rgba(120,132,155,0.16)", fill: "+1", tension: 0.25, pointRadius: 0, borderWidth: q.winner === "a" ? 2.6 : 1.8 },
+                  { label: B.primary, data: q.chart.b, borderColor: "#3182F6", backgroundColor: "transparent", fill: false, tension: 0.25, pointRadius: 0, borderWidth: q.winner === "b" ? 2.6 : 1.8 },
                 ]}
                 yType="pct"
               />

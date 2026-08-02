@@ -4645,10 +4645,10 @@ input, select {
   border: 1.5px solid var(--primary);
   box-shadow: 0 3px 16px rgba(27,58,107,0.14);
 }
-.dv-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.dv-head { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; }
 .dv-badge { font-size: 14px; font-weight: 800; color: var(--text-primary); }
-.dv-reward-hint { flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 3px 9px; border-radius: 999px; }
-.dv-q { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.5; }
+.dv-reward-hint { position: absolute; right: 0; top: 50%; transform: translateY(-50%); flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 3px 9px; border-radius: 999px; }
+.dv-q { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.5; text-align: center; }
 .dv-q strong { color: var(--text-primary); font-weight: 700; }
 .dv-picks { display: flex; align-items: stretch; gap: 8px; }
 .dv-pick {
@@ -4675,7 +4675,7 @@ input, select {
 .dv-verdict { font-size: 14px; font-weight: 800; color: var(--text-primary); }
 .dv-margin { font-size: 13px; color: var(--text-secondary); margin-top: 5px; line-height: 1.5; }
 .dv-margin strong { color: var(--text-primary); font-weight: 800; }
-.dv-chart .chart-container { height: 118px; padding: 0; margin: 10px 0 2px; }
+.dv-chart .chart-container { height: 168px; padding: 0; margin: 10px 0 2px; }
 .dv-actions { display: flex; gap: 8px; margin-top: 12px; }
 .dv-share { flex: 1; padding: 11px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 800; color: #fff; background: var(--primary); }
 .dv-share:active { opacity: 0.9; }
