@@ -53,7 +53,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   const [remaining, setRemaining] = useState(getQueryBalance());
   const [revealed, setRevealed] = useState(isBasic());
   const [showShare, setShowShare] = useState(false);
-  const [has10yr, setHas10yr] = useState(false);
+  const [dataMeta, setDataMeta] = useState(null); // { years, start }
   const [chartIdx, setChartIdx] = useState(0);
   const basic = isBasic();
   const autoRanRef = useRef(false);
@@ -63,14 +63,14 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   const streak = getStreakInfo();
 
   useEffect(() => {
-    if (!ticker) { setHas10yr(false); return; }
+    if (!ticker) { setDataMeta(null); return; }
     let cancelled = false;
     loadPrices(ticker).then((p) => {
       if (cancelled) return;
-      const tenYearsAgo = new Date();
-      tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-      setHas10yr(p.length > 0 && p[0].date <= tenYearsAgo);
-    }).catch(() => { if (!cancelled) setHas10yr(false); });
+      if (!p?.length) { setDataMeta(null); return; }
+      const years = (Date.now() - p[0].date.getTime()) / (365.25 * 24 * 3600 * 1000);
+      setDataMeta({ years, start: p[0].date });
+    }).catch(() => { if (!cancelled) setDataMeta(null); });
     return () => { cancelled = true; };
   }, [ticker]);
 
@@ -225,6 +225,12 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             </span>
           </div>
 
+          {dataMeta && (
+            <p className="data-span">
+              📅 데이터 약 {dataMeta.years >= 10 ? Math.round(dataMeta.years) : dataMeta.years.toFixed(1)}년 ({dataMeta.start.getFullYear()}.{dataMeta.start.getMonth() + 1}~)
+            </p>
+          )}
+
           <button className="btn-primary run-btn" onClick={run} disabled={loading}>
             {loading ? "계산 중..." : `${getTickerName(ticker)} 전략 분석하기`}
           </button>
@@ -234,7 +240,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             tickers={[ticker]}
             weights={{ [ticker]: 100 }}
             monthlyAmount={monthlyAmount}
-            has10yr={has10yr}
+            dataYears={dataMeta?.years ?? 0}
             onNeedUpgrade={() => setShowUpgrade(true)}
           />
         </div>

@@ -63,7 +63,7 @@ export default function ComboBacktest({ focus = null, onNavigate }) {
   const [showShare, setShowShare] = useState(false);
   const [percentile, setPercentile] = useState(null);
   const [gateReason, setGateReason] = useState("reveal");
-  const [has10yr, setHas10yr] = useState(false);
+  const [dataYears, setDataYears] = useState(0); // 조합에서 가장 짧은 종목 기준
   const resultRef = useRef(null);
   const basic = isBasic();
 
@@ -80,15 +80,14 @@ export default function ComboBacktest({ focus = null, onNavigate }) {
   }, [results]);
 
   useEffect(() => {
-    if (tickers.length === 0) { setHas10yr(false); return; }
+    if (tickers.length === 0) { setDataYears(0); return; }
     let cancelled = false;
     Promise.all(tickers.map((t) => loadPrices(t))).then((allP) => {
       if (cancelled) return;
-      const tenYearsAgo = new Date();
-      tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-      const ok = allP.every((p) => p.length > 0 && p[0].date <= tenYearsAgo);
-      setHas10yr(ok);
-    }).catch(() => { if (!cancelled) setHas10yr(false); });
+      if (allP.some((p) => !p?.length)) { setDataYears(0); return; }
+      const yrs = allP.map((p) => (Date.now() - p[0].date.getTime()) / (365.25 * 24 * 3600 * 1000));
+      setDataYears(Math.min(...yrs));
+    }).catch(() => { if (!cancelled) setDataYears(0); });
     return () => { cancelled = true; };
   }, [tickers]);
 
@@ -432,7 +431,7 @@ export default function ComboBacktest({ focus = null, onNavigate }) {
             tickers={tickers}
             weights={weights}
             monthlyAmount={monthlyAmount}
-            has10yr={has10yr}
+            dataYears={dataYears}
             onNeedUpgrade={() => setShowUpgrade(true)}
           />
         </div>

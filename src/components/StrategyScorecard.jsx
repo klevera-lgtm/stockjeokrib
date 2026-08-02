@@ -11,16 +11,20 @@ import { logClick } from "../utils/analytics.js";
 import QueryGateModal from "./QueryGateModal.jsx";
 
 const COST = 5;
-const PERIODS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const MAX_PERIODS = 10;
+const MIN_PERIODS = 3;
 const TOTAL_STRATEGIES = ALL_STRATEGIES.length;
 
 export default function StrategyScorecard({
   tickers,
   weights,
   monthlyAmount,
-  has10yr,
+  dataYears = 0,
   onNeedUpgrade,
 }) {
+  // 데이터 있는 만큼만 기간을 잡음 (1~maxN년)
+  const maxN = Math.min(MAX_PERIODS, Math.floor(dataYears || 0));
+  const periods = Array.from({ length: maxN }, (_, i) => i + 1);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("");
@@ -34,7 +38,7 @@ export default function StrategyScorecard({
   }, [results]);
 
   async function run() {
-    if (!has10yr) return;
+    if (maxN < MIN_PERIODS) return;
     logClick("scorecard_run", { assets: tickers.length });
 
     if (!basic && !consumeQueries(COST)) {
@@ -55,8 +59,8 @@ export default function StrategyScorecard({
 
       const periodResults = [];
 
-      for (const years of PERIODS) {
-        setLoadingMsg(`${years}년 기간 분석 중... (${years}/10)`);
+      for (const years of periods) {
+        setLoadingMsg(`${years}년 기간 분석 중... (${years}/${maxN})`);
         await new Promise((r) => setTimeout(r, 10));
 
         const endDate = new Date();
@@ -118,7 +122,7 @@ export default function StrategyScorecard({
         });
       });
 
-      const maxScore = TOTAL_STRATEGIES * PERIODS.length;
+      const maxScore = TOTAL_STRATEGIES * maxN;
       const finalRanking = ALL_STRATEGIES
         .map((s) => ({
           strategy: s,
@@ -140,7 +144,14 @@ export default function StrategyScorecard({
     }
   }
 
-  if (!has10yr) return null;
+  if (!dataYears) return null; // 데이터 로딩 전
+  if (maxN < MIN_PERIODS) {
+    return (
+      <p className="scorecard-tooyoung">
+        📊 데이터가 약 {dataYears.toFixed(1)}년뿐이라 종합 성적표는 3년 이상부터 나와요
+      </p>
+    );
+  }
 
   return (
     <>
@@ -148,9 +159,9 @@ export default function StrategyScorecard({
         <button className="btn-scorecard" onClick={run} disabled={loading}>
           <span className="scorecard-icon">🏅</span>
           <span className="scorecard-text">
-            <strong>전략 종합 성적표 (1~10년)</strong>
+            <strong>전략 종합 성적표 (1~{maxN}년)</strong>
             <span className="scorecard-desc">
-              10개 기간에 걸쳐 가장 꾸준한 전략을 찾아요
+              {maxN}개 기간에 걸쳐 가장 꾸준한 전략을 찾아요{maxN < MAX_PERIODS ? ` · 데이터 약 ${dataYears.toFixed(1)}년` : ""}
             </span>
           </span>
           {!basic && <span className="scorecard-cost">코인 {COST}개</span>}
@@ -166,7 +177,7 @@ export default function StrategyScorecard({
             <div className="loading-sheet-bar">
               <div className="loading-sheet-bar-fill" />
             </div>
-            <p className="loading-sheet-hint">14개 전략 × 10개 기간 = 140회 시뮬레이션</p>
+            <p className="loading-sheet-hint">{TOTAL_STRATEGIES}개 전략 × {maxN}개 기간 = {TOTAL_STRATEGIES * maxN}회 시뮬레이션</p>
           </div>
         </>
       )}
@@ -175,13 +186,13 @@ export default function StrategyScorecard({
         <div className="scorecard-results" ref={resultRef}>
           <h2 className="section-title">
             🏅 전략 종합 성적표
-            <span className="period-label">최근 1~10년</span>
+            <span className="period-label">최근 1~{maxN}년</span>
           </h2>
 
           <div className="scorecard-method">
             <p className="scorecard-method-title">📊 선정 방법</p>
             <p className="scorecard-method-body">
-              최근 1년부터 10년까지 <strong>10개 기간</strong>에서 {TOTAL_STRATEGIES}개 전략의
+              최근 1년부터 {maxN}년까지 <strong>{maxN}개 기간</strong>에서 {TOTAL_STRATEGIES}개 전략의
               수익률을 각각 계산하고, 기간마다 순위를 매겨{" "}
               <strong>1위={TOTAL_STRATEGIES}점 ~ {TOTAL_STRATEGIES}위=1점</strong>으로
               환산한 뒤 합산한 종합 점수예요.
