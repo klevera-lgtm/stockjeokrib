@@ -4400,6 +4400,7 @@ input, select {
 .champ-cat.special { border-color: var(--primary); }
 .champ-cat.special .champ-cat-name { color: var(--primary); }
 .champ-mdd { color: var(--primary); font-weight: 800; font-variant-numeric: tabular-nums; }
+.champ-rank-ad { margin: 8px 2px; }
 
 /* ── 종목 대결 ───────────────────────────────── */
 .vs { padding: 4px 0 8px; }

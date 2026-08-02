@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import AdBanner from "./AdBanner.jsx";
 import { isKrTicker, TICKER_LABELS } from "../utils/tickers.js";
 import { logClick } from "../utils/analytics.js";
@@ -72,7 +72,9 @@ export default function AccumChampions({ onOpenDetail }) {
             {sec.items.map((r, i) => {
               const d = disp(r.ticker);
               return (
-                <button className="champ-rank-item" key={r.ticker} onClick={() => onOpenDetail?.(r.ticker, "acc")}>
+                <Fragment key={r.ticker}>
+                  {i === 5 && <AdBanner className="ad-banner-inline champ-rank-ad" />}
+                  <button className="champ-rank-item" onClick={() => onOpenDetail?.(r.ticker, "acc")}>
                   <span className={`champ-rank-num${i === 0 ? " gold" : ""}`}>{i + 1}</span>
                   <span className="champ-rank-info">
                     <span className="champ-rank-sym">{d.primary}</span>
@@ -90,6 +92,7 @@ export default function AccumChampions({ onOpenDetail }) {
                     </span>
                   )}
                 </button>
+                </Fragment>
               );
             })}
           </div>
