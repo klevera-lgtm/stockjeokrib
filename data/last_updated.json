@@ -1,9 +1,9 @@
 {
-  "last_updated": "2026-08-01",
-  "updated_at": "2026-08-01T22:44:17.693756",
-  "total_tickers": 126,
-  "updated": 23,
-  "skipped": 242,
+  "last_updated": "2026-08-02",
+  "updated_at": "2026-08-02T22:45:56.184526",
+  "total_tickers": 147,
+  "updated": 295,
+  "skipped": 1,
   "failed": [],
   "categories": {
     "미국 대형주 ETF": [
@@ -157,6 +157,29 @@
       "SNOW",
       "SHOP",
       "SPOT"
+    ],
+    "신규 인기주 (2026-08)": [
+      "SBUX",
+      "DIS",
+      "NKE",
+      "MA",
+      "WMT",
+      "HD",
+      "PYPL",
+      "ADBE",
+      "CSCO",
+      "PFE",
+      "MRK",
+      "UNH",
+      "BAC",
+      "WFC",
+      "GS",
+      "F",
+      "GM",
+      "AXP",
+      "BA",
+      "BABA",
+      "ABNB"
     ],
     "나라별 ETF": [
       "EWY",
