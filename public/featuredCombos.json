@@ -1,70 +1,70 @@
 {
-  "updatedAt": "2026-07-28",
+  "updatedAt": "2026-08-02",
   "combos": {
     "1mo": {
       "with": {
         "tickers": [
           "SOXS",
           "JEM",
-          "USO",
-          "BMNR",
-          "BATL"
+          "MSFU",
+          "PYPL",
+          "NBIS"
         ],
         "strategies": [
-          "monthly-last",
-          "weekly-fri",
-          "rsi30",
-          "monthly-last",
-          "monthly-first"
+          "monthly-first",
+          "ma50",
+          "ma10",
+          "ma100",
+          "monthly-last"
         ],
         "cagrs": [
           99.99,
           99.99,
-          59.1106,
-          20.7549,
-          18.3955
+          99.99,
+          37.891,
+          26.6932
         ],
         "simpleReturns": [
-          13.8782,
-          5.1677,
-          0.3236,
-          0.2243,
-          0.225
+          12.0144,
+          4.7049,
+          0.4053,
+          0.2848,
+          0.2552
         ],
         "combinedCagr": 99.99,
-        "combinedSimpleReturn": 3.9638
+        "combinedSimpleReturn": 3.5329
       },
       "without": {
         "tickers": [
           "SOXS",
           "JEM",
-          "USO",
-          "BMNR",
-          "BATL"
+          "MSFU",
+          "PYPL",
+          "NBIS"
         ],
         "strategies": [
-          "monthly-last",
-          "weekly-fri",
-          "rsi30",
-          "monthly-last",
-          "monthly-first"
+          "monthly-first",
+          "ma50",
+          "ma10",
+          "ma100",
+          "monthly-last"
         ],
         "cagrs": [
           99.99,
           99.99,
-          59.1106,
-          20.7549,
-          18.3955
+          99.99,
+          37.891,
+          26.6932
         ],
         "simpleReturns": [
-          13.8782,
-          5.1677,
-          0.3236,
-          0.2243,
-          0.225
+          12.0144,
+          4.7049,
+          0.4053,
+          0.2848,
+          0.2552
         ],
         "combinedCagr": 99.99,
-        "combinedSimpleReturn": 3.9638
+        "combinedSimpleReturn": 3.5329
       }
     },
     "3mo": {
@@ -72,65 +72,65 @@
         "tickers": [
           "SOXS",
           "JEM",
-          "OKTA",
-          "DDOG",
-          "SNOW"
+          "SNOW",
+          "PANW",
+          "OKTA"
         ],
         "strategies": [
-          "monthly-last",
+          "monthly-first",
           "ma50",
           "ma50",
           "ma200",
-          "ma50"
+          "ma100"
         ],
         "cagrs": [
           99.99,
           99.99,
-          13.6177,
-          12.7934,
-          12.1348
+          15.8346,
+          10.5409,
+          10.4759
         ],
         "simpleReturns": [
-          9.8185,
-          4.1717,
-          0.8805,
-          0.855,
-          0.8337
+          10.3665,
+          3.0258,
+          0.9744,
+          0.8027,
+          0.8003
         ],
         "combinedCagr": 99.99,
-        "combinedSimpleReturn": 3.3119
+        "combinedSimpleReturn": 3.1939
       },
       "without": {
         "tickers": [
           "SOXS",
           "JEM",
-          "OKTA",
-          "DDOG",
-          "SNOW"
+          "SNOW",
+          "PANW",
+          "OKTA"
         ],
         "strategies": [
-          "monthly-last",
+          "monthly-first",
           "ma50",
           "ma50",
           "ma200",
-          "ma50"
+          "ma100"
         ],
         "cagrs": [
           99.99,
           99.99,
-          13.6177,
-          12.7934,
-          12.1348
+          15.8346,
+          10.5409,
+          10.4759
         ],
         "simpleReturns": [
-          9.8185,
-          4.1717,
-          0.8805,
-          0.855,
-          0.8337
+          10.3665,
+          3.0258,
+          0.9744,
+          0.8027,
+          0.8003
         ],
         "combinedCagr": 99.99,
-        "combinedSimpleReturn": 3.3119
+        "combinedSimpleReturn": 3.1939
       }
     },
     "6mo": {
@@ -138,33 +138,33 @@
         "tickers": [
           "SOXS",
           "JEM",
-          "SOXL",
           "SYRE",
-          "PENG"
+          "PENG",
+          "NBIS"
         ],
         "strategies": [
           "monthly-first",
-          "monthly-last",
-          "ma200",
           "ma50",
-          "ma100"
+          "ma50",
+          "ma200",
+          "ma200"
         ],
         "cagrs": [
-          35.3518,
-          19.9779,
-          11.4297,
-          10.0657,
-          8.1389
+          39.486,
+          10.4253,
+          8.9646,
+          7.4369,
+          5.9793
         ],
         "simpleReturns": [
-          4.6488,
-          3.3342,
-          2.368,
-          2.1846,
-          1.9041
+          5.0716,
+          2.2775,
+          2.0661,
+          1.8273,
+          1.5776
         ],
-        "combinedCagr": 16.9928,
-        "combinedSimpleReturn": 2.888
+        "combinedCagr": 14.4584,
+        "combinedSimpleReturn": 2.564
       },
       "without": {
         "tickers": [
@@ -172,295 +172,295 @@
           "JEM",
           "SYRE",
           "PENG",
-          "MU"
+          "NBIS"
         ],
         "strategies": [
           "monthly-first",
-          "monthly-last",
           "ma50",
-          "ma100",
-          "ma100"
+          "ma50",
+          "ma200",
+          "ma200"
         ],
         "cagrs": [
-          35.3518,
-          19.9779,
-          10.0657,
-          8.1389,
-          7.8678
+          39.486,
+          10.4253,
+          8.9646,
+          7.4369,
+          5.9793
         ],
         "simpleReturns": [
-          4.6488,
-          3.3342,
-          2.1846,
-          1.9041,
-          1.8623
+          5.0716,
+          2.2775,
+          2.0661,
+          1.8273,
+          1.5776
         ],
-        "combinedCagr": 16.2804,
-        "combinedSimpleReturn": 2.7868
+        "combinedCagr": 14.4584,
+        "combinedSimpleReturn": 2.564
       }
     },
     "1yr": {
       "with": {
         "tickers": [
           "SYRE",
+          "SNDK",
           "INTC",
-          "AAOI",
           "DOCN",
-          "TER"
+          "SOXS"
         ],
         "strategies": [
           "ma100",
-          "rsi30",
+          "daily",
           "ma200",
           "ma200",
-          "ma200"
+          "rsi30"
         ],
         "cagrs": [
-          5.7564,
-          3.8913,
-          3.7478,
-          3.0714,
-          2.9516
+          5.4567,
+          5.0143,
+          3.5743,
+          2.7745,
+          2.7165
         ],
         "simpleReturns": [
-          5.5734,
-          3.7809,
-          3.6427,
-          2.99,
-          2.8743
+          5.3181,
+          4.8901,
+          3.4941,
+          2.7167,
+          2.6602
         ],
-        "combinedCagr": 3.8837,
-        "combinedSimpleReturn": 3.7723
+        "combinedCagr": 3.9073,
+        "combinedSimpleReturn": 3.8158
       },
       "without": {
         "tickers": [
           "SYRE",
+          "SNDK",
           "INTC",
-          "AAOI",
           "DOCN",
-          "TER"
+          "SOXS"
         ],
         "strategies": [
           "ma100",
-          "rsi30",
+          "daily",
           "ma200",
           "ma200",
-          "ma200"
+          "rsi30"
         ],
         "cagrs": [
-          5.7564,
-          3.8913,
-          3.7478,
-          3.0714,
-          2.9516
+          5.4567,
+          5.0143,
+          3.5743,
+          2.7745,
+          2.7165
         ],
         "simpleReturns": [
-          5.5734,
-          3.7809,
-          3.6427,
-          2.99,
-          2.8743
+          5.3181,
+          4.8901,
+          3.4941,
+          2.7167,
+          2.6602
         ],
-        "combinedCagr": 3.8837,
-        "combinedSimpleReturn": 3.7723
+        "combinedCagr": 3.9073,
+        "combinedSimpleReturn": 3.8158
       }
     },
     "2yr": {
       "with": {
         "tickers": [
-          "BE",
           "WDC",
-          "MU",
-          "SOXL",
-          "HUT"
+          "BE",
+          "STX",
+          "LITE",
+          "MU"
         ],
         "strategies": [
-          "ma200",
           "rsi30",
           "rsi30",
+          "rsi20",
           "rsi30",
-          "ma200"
-        ],
-        "cagrs": [
-          2.6653,
-          2.6279,
-          2.5453,
-          2.511,
-          1.8668
-        ],
-        "simpleReturns": [
-          12.1742,
-          11.909,
-          11.3322,
-          11.0962,
-          7.0891
-        ],
-        "combinedCagr": 2.4433,
-        "combinedSimpleReturn": 10.7201
-      },
-      "without": {
-        "tickers": [
-          "BE",
-          "WDC",
-          "MU",
-          "HUT",
-          "AAOI"
-        ],
-        "strategies": [
-          "ma200",
-          "rsi30",
-          "rsi30",
-          "ma200",
           "rsi30"
         ],
         "cagrs": [
-          2.6653,
-          2.6279,
-          2.5453,
-          1.8668,
-          1.5565
+          2.7205,
+          2.5765,
+          2.5185,
+          2.4691,
+          2.3611
         ],
         "simpleReturns": [
-          12.1742,
-          11.909,
-          11.3322,
-          7.0891,
-          5.4439
+          12.5708,
+          11.548,
+          11.1476,
+          10.8112,
+          10.0924
         ],
-        "combinedCagr": 2.2524,
-        "combinedSimpleReturn": 9.5897
+        "combinedCagr": 2.5291,
+        "combinedSimpleReturn": 11.234
+      },
+      "without": {
+        "tickers": [
+          "WDC",
+          "BE",
+          "STX",
+          "LITE",
+          "MU"
+        ],
+        "strategies": [
+          "rsi30",
+          "rsi30",
+          "rsi20",
+          "rsi30",
+          "rsi30"
+        ],
+        "cagrs": [
+          2.7205,
+          2.5765,
+          2.5185,
+          2.4691,
+          2.3611
+        ],
+        "simpleReturns": [
+          12.5708,
+          11.548,
+          11.1476,
+          10.8112,
+          10.0924
+        ],
+        "combinedCagr": 2.5291,
+        "combinedSimpleReturn": 11.234
       }
     },
     "3yr": {
       "with": {
         "tickers": [
           "BE",
+          "LITE",
           "WDC",
-          "SOXL",
-          "MU",
-          "HUT"
+          "STX",
+          "000660"
         ],
         "strategies": [
           "rsi20",
           "rsi30",
           "rsi30",
-          "rsi30",
+          "rsi20",
           "ma200"
         ],
         "cagrs": [
-          1.5973,
-          1.3516,
-          1.305,
-          1.1757,
-          1.1653
+          1.6826,
+          1.4807,
+          1.3791,
+          1.303,
+          1.201
         ],
         "simpleReturns": [
-          16.2151,
-          11.8013,
-          11.0583,
-          9.1524,
-          9.0079
+          18.1629,
+          14.1625,
+          12.3789,
+          11.1381,
+          9.5998
         ],
-        "combinedCagr": 1.319,
-        "combinedSimpleReturn": 11.447
+        "combinedCagr": 1.4093,
+        "combinedSimpleReturn": 13.0885
       },
       "without": {
         "tickers": [
           "BE",
+          "LITE",
           "WDC",
-          "MU",
-          "HUT",
-          "AAOI"
+          "STX",
+          "000660"
         ],
         "strategies": [
           "rsi20",
           "rsi30",
           "rsi30",
-          "ma200",
-          "rsi30"
+          "rsi20",
+          "ma200"
         ],
         "cagrs": [
-          1.5973,
-          1.3516,
-          1.1757,
-          1.1653,
-          1.0762
+          1.6826,
+          1.4807,
+          1.3791,
+          1.303,
+          1.201
         ],
         "simpleReturns": [
-          16.2151,
-          11.8013,
-          9.1524,
-          9.0079,
-          7.83
+          18.1629,
+          14.1625,
+          12.3789,
+          11.1381,
+          9.5998
         ],
-        "combinedCagr": 1.2732,
-        "combinedSimpleReturn": 10.8013
+        "combinedCagr": 1.4093,
+        "combinedSimpleReturn": 13.0885
       }
     },
     "4yr": {
       "with": {
         "tickers": [
-          "SYRE",
           "WDC",
-          "AAOI",
+          "SYRE",
           "BE",
-          "SOXL"
+          "AAOI",
+          "LITE"
         ],
         "strategies": [
           "rsi20",
           "rsi20",
-          "rsi30",
           "rsi20",
+          "rsi30",
           "rsi30"
         ],
         "cagrs": [
-          1.1614,
-          1.1544,
-          1.131,
-          1.0419,
-          0.8742
+          1.1776,
+          1.1387,
+          1.0954,
+          1.0937,
+          0.9578
         ],
         "simpleReturns": [
-          20.5949,
-          20.3168,
-          19.4086,
-          16.2151,
-          11.2323
+          21.3437,
+          19.7929,
+          18.1629,
+          18.1004,
+          13.6122
         ],
-        "combinedCagr": 1.0726,
-        "combinedSimpleReturn": 17.5535
+        "combinedCagr": 1.0927,
+        "combinedSimpleReturn": 18.2024
       },
       "without": {
         "tickers": [
-          "SYRE",
           "WDC",
-          "AAOI",
+          "SYRE",
           "BE",
-          "MU"
+          "AAOI",
+          "LITE"
         ],
         "strategies": [
           "rsi20",
           "rsi20",
-          "rsi30",
           "rsi20",
-          "ma200"
+          "rsi30",
+          "rsi30"
         ],
         "cagrs": [
-          1.1614,
-          1.1544,
-          1.131,
-          1.0419,
-          0.8453
+          1.1776,
+          1.1387,
+          1.0954,
+          1.0937,
+          0.9578
         ],
         "simpleReturns": [
-          20.5949,
-          20.3168,
-          19.4086,
-          16.2151,
-          10.4969
+          21.3437,
+          19.7929,
+          18.1629,
+          18.1004,
+          13.6122
         ],
-        "combinedCagr": 1.0668,
-        "combinedSimpleReturn": 17.4065
+        "combinedCagr": 1.0927,
+        "combinedSimpleReturn": 18.2024
       }
     },
     "5yr": {
@@ -468,395 +468,395 @@
         "tickers": [
           "AAOI",
           "WDC",
-          "SYRE",
           "BE",
-          "MU"
+          "SYRE",
+          "000660"
         ],
         "strategies": [
           "rsi30",
           "rsi20",
           "rsi20",
           "rsi20",
-          "rsi30"
+          "ma200"
         ],
         "cagrs": [
-          0.8949,
-          0.8472,
-          0.7674,
-          0.7479,
-          0.645
+          0.8713,
+          0.8634,
+          0.7852,
+          0.7552,
+          0.7043
         ],
         "simpleReturns": [
-          23.2096,
-          20.3168,
-          16.1059,
-          15.1839,
-          10.9613
+          21.818,
+          21.3437,
+          17.0359,
+          15.5771,
+          13.3122
         ],
-        "combinedCagr": 0.7805,
-        "combinedSimpleReturn": 17.1555
+        "combinedCagr": 0.7959,
+        "combinedSimpleReturn": 17.8174
       },
       "without": {
         "tickers": [
           "AAOI",
           "WDC",
-          "SYRE",
           "BE",
-          "MU"
+          "SYRE",
+          "000660"
         ],
         "strategies": [
           "rsi30",
           "rsi20",
           "rsi20",
           "rsi20",
-          "rsi30"
+          "ma200"
         ],
         "cagrs": [
-          0.8949,
-          0.8472,
-          0.7674,
-          0.7479,
-          0.645
+          0.8713,
+          0.8634,
+          0.7852,
+          0.7552,
+          0.7043
         ],
         "simpleReturns": [
-          23.2096,
-          20.3168,
-          16.1059,
-          15.1839,
-          10.9613
+          21.818,
+          21.3437,
+          17.0359,
+          15.5771,
+          13.3122
         ],
-        "combinedCagr": 0.7805,
-        "combinedSimpleReturn": 17.1555
+        "combinedCagr": 0.7959,
+        "combinedSimpleReturn": 17.8174
       }
     },
     "6yr": {
       "with": {
         "tickers": [
-          "AAOI",
           "WDC",
+          "AAOI",
           "BE",
-          "MU",
-          "SYRE"
+          "000660",
+          "STX"
         ],
         "strategies": [
-          "rsi30",
-          "rsi20",
           "rsi20",
           "rsi30",
-          "rsi20"
+          "rsi20",
+          "ma200",
+          "ma200"
         ],
         "cagrs": [
-          0.6766,
-          0.6673,
-          0.5741,
-          0.526,
-          0.4975
+          0.6796,
+          0.6595,
+          0.602,
+          0.57,
+          0.5198
         ],
         "simpleReturns": [
-          21.038,
-          20.3168,
-          14.1093,
-          11.5452,
-          10.2074
+          21.3437,
+          19.7834,
+          15.8287,
+          13.9119,
+          11.2718
         ],
-        "combinedCagr": 0.5883,
-        "combinedSimpleReturn": 15.4433
+        "combinedCagr": 0.6062,
+        "combinedSimpleReturn": 16.4279
       },
       "without": {
         "tickers": [
-          "AAOI",
           "WDC",
+          "AAOI",
           "BE",
-          "MU",
-          "SYRE"
+          "000660",
+          "STX"
         ],
         "strategies": [
-          "rsi30",
-          "rsi20",
           "rsi20",
           "rsi30",
-          "rsi20"
+          "rsi20",
+          "ma200",
+          "ma200"
         ],
         "cagrs": [
-          0.6766,
-          0.6673,
-          0.5741,
-          0.526,
-          0.4975
+          0.6796,
+          0.6595,
+          0.602,
+          0.57,
+          0.5198
         ],
         "simpleReturns": [
-          21.038,
-          20.3168,
-          14.1093,
-          11.5452,
-          10.2074
+          21.3437,
+          19.7834,
+          15.8287,
+          13.9119,
+          11.2718
         ],
-        "combinedCagr": 0.5883,
-        "combinedSimpleReturn": 15.4433
+        "combinedCagr": 0.6062,
+        "combinedSimpleReturn": 16.4279
       }
     },
     "7yr": {
       "with": {
         "tickers": [
+          "FTAI",
+          "000660",
           "WDC",
           "AAOI",
-          "BE",
-          "MU",
-          "USD"
+          "BE"
         ],
         "strategies": [
           "rsi20",
-          "rsi30",
-          "rsi30",
+          "rsi20",
+          "rsi20",
           "rsi30",
           "rsi30"
         ],
         "cagrs": [
-          0.5494,
-          0.5362,
-          0.4734,
-          0.466,
-          0.4392
+          0.5929,
+          0.5856,
+          0.5599,
+          0.5235,
+          0.4959
         ],
         "simpleReturns": [
-          20.3168,
-          19.0812,
-          14.0001,
-          13.4774,
-          11.7298
+          24.8672,
+          24.0495,
+          21.3437,
+          17.9419,
+          15.6776
         ],
-        "combinedCagr": 0.4929,
-        "combinedSimpleReturn": 15.7211
+        "combinedCagr": 0.5516,
+        "combinedSimpleReturn": 20.776
       },
       "without": {
         "tickers": [
+          "FTAI",
+          "000660",
           "WDC",
           "AAOI",
-          "BE",
-          "MU",
-          "USD"
+          "BE"
         ],
         "strategies": [
           "rsi20",
-          "rsi30",
-          "rsi30",
+          "rsi20",
+          "rsi20",
           "rsi30",
           "rsi30"
         ],
         "cagrs": [
-          0.5494,
-          0.5362,
-          0.4734,
-          0.466,
-          0.4392
+          0.5929,
+          0.5856,
+          0.5599,
+          0.5235,
+          0.4959
         ],
         "simpleReturns": [
-          20.3168,
-          19.0812,
-          14.0001,
-          13.4774,
-          11.7298
+          24.8672,
+          24.0495,
+          21.3437,
+          17.9419,
+          15.6776
         ],
-        "combinedCagr": 0.4929,
-        "combinedSimpleReturn": 15.7211
+        "combinedCagr": 0.5516,
+        "combinedSimpleReturn": 20.776
       }
     },
     "8yr": {
       "with": {
         "tickers": [
           "NVDA",
+          "FTAI",
           "HUT",
-          "WDC",
-          "AAOI",
-          "BE"
+          "000660",
+          "WDC"
         ],
         "strategies": [
           "rsi20",
           "rsi20",
           "rsi20",
-          "rsi30",
+          "rsi20",
           "rsi20"
         ],
         "cagrs": [
-          0.6753,
-          0.5014,
-          0.4637,
-          0.4388,
-          0.4212
+          0.6682,
+          0.4986,
+          0.4983,
+          0.4963,
+          0.4721
         ],
         "simpleReturns": [
-          60.5353,
-          24.6458,
-          19.9345,
-          17.2601,
-          15.5437
+          58.7236,
+          24.3582,
+          24.3097,
+          24.0436,
+          20.9809
         ],
-        "combinedCagr": 0.5001,
-        "combinedSimpleReturn": 27.5839
+        "combinedCagr": 0.5267,
+        "combinedSimpleReturn": 30.4832
       },
       "without": {
         "tickers": [
           "NVDA",
+          "FTAI",
           "HUT",
-          "WDC",
-          "AAOI",
-          "BE"
+          "000660",
+          "WDC"
         ],
         "strategies": [
           "rsi20",
           "rsi20",
           "rsi20",
-          "rsi30",
+          "rsi20",
           "rsi20"
         ],
         "cagrs": [
-          0.6753,
-          0.5014,
-          0.4637,
-          0.4388,
-          0.4212
+          0.6682,
+          0.4986,
+          0.4983,
+          0.4963,
+          0.4721
         ],
         "simpleReturns": [
-          60.5353,
-          24.6458,
-          19.9345,
-          17.2601,
-          15.5437
+          58.7236,
+          24.3582,
+          24.3097,
+          24.0436,
+          20.9809
         ],
-        "combinedCagr": 0.5001,
-        "combinedSimpleReturn": 27.5839
+        "combinedCagr": 0.5267,
+        "combinedSimpleReturn": 30.4832
       }
     },
     "9yr": {
       "with": {
         "tickers": [
           "NVDA",
+          "000660",
+          "FTAI",
           "WDC",
-          "USD",
-          "MU",
-          "AAOI"
+          "USD"
         ],
         "strategies": [
           "rsi20",
           "rsi20",
-          "rsi30",
-          "rsi30",
+          "rsi20",
+          "rsi20",
           "rsi30"
         ],
         "cagrs": [
-          0.5821,
-          0.3889,
-          0.3856,
-          0.3672,
-          0.3638
+          0.576,
+          0.4307,
+          0.43,
+          0.3958,
+          0.3717
         ],
         "simpleReturns": [
-          60.5333,
-          18.1083,
-          17.7078,
-          15.592,
-          15.2219
+          58.7216,
+          24.0422,
+          23.9194,
+          19.0473,
+          16.1486
         ],
-        "combinedCagr": 0.4175,
-        "combinedSimpleReturn": 25.4326
+        "combinedCagr": 0.4408,
+        "combinedSimpleReturn": 28.3758
       },
       "without": {
         "tickers": [
           "NVDA",
+          "000660",
+          "FTAI",
           "WDC",
-          "USD",
-          "MU",
-          "AAOI"
+          "USD"
         ],
         "strategies": [
           "rsi20",
           "rsi20",
-          "rsi30",
-          "rsi30",
+          "rsi20",
+          "rsi20",
           "rsi30"
         ],
         "cagrs": [
-          0.5821,
-          0.3889,
-          0.3856,
-          0.3672,
-          0.3638
+          0.576,
+          0.4307,
+          0.43,
+          0.3958,
+          0.3717
         ],
         "simpleReturns": [
-          60.5333,
-          18.1083,
-          17.7078,
-          15.592,
-          15.2219
+          58.7216,
+          24.0422,
+          23.9194,
+          19.0473,
+          16.1486
         ],
-        "combinedCagr": 0.4175,
-        "combinedSimpleReturn": 25.4326
+        "combinedCagr": 0.4408,
+        "combinedSimpleReturn": 28.3758
       }
     },
     "10yr": {
       "with": {
         "tickers": [
           "NVDA",
+          "000660",
+          "FTAI",
           "USD",
-          "WDC",
-          "MU",
-          "AMD"
+          "WDC"
         ],
         "strategies": [
           "rsi20",
-          "ma10",
           "rsi20",
-          "daily",
-          "ma100"
+          "rsi20",
+          "ma10",
+          "rsi20"
         ],
         "cagrs": [
-          0.5107,
-          0.3577,
-          0.3347,
-          0.3315,
-          0.3259
+          0.5059,
+          0.3804,
+          0.3786,
+          0.3451,
+          0.3409
         ],
         "simpleReturns": [
-          60.5327,
-          20.1863,
-          16.8694,
-          16.4441,
-          15.7237
+          58.721,
+          24.0416,
+          23.7231,
+          18.3401,
+          17.7432
         ],
-        "combinedCagr": 0.3721,
-        "combinedSimpleReturn": 25.9512
+        "combinedCagr": 0.3902,
+        "combinedSimpleReturn": 28.5138
       },
       "without": {
         "tickers": [
           "NVDA",
+          "000660",
+          "FTAI",
           "USD",
-          "WDC",
-          "MU",
-          "AMD"
+          "WDC"
         ],
         "strategies": [
           "rsi20",
-          "ma10",
           "rsi20",
-          "daily",
-          "ma100"
+          "rsi20",
+          "ma10",
+          "rsi20"
         ],
         "cagrs": [
-          0.5107,
-          0.3577,
-          0.3347,
-          0.3315,
-          0.3259
+          0.5059,
+          0.3804,
+          0.3786,
+          0.3451,
+          0.3409
         ],
         "simpleReturns": [
-          60.5327,
-          20.1863,
-          16.8694,
-          16.4441,
-          15.7237
+          58.721,
+          24.0416,
+          23.7231,
+          18.3401,
+          17.7432
         ],
-        "combinedCagr": 0.3721,
-        "combinedSimpleReturn": 25.9512
+        "combinedCagr": 0.3902,
+        "combinedSimpleReturn": 28.5138
       }
     }
   }
