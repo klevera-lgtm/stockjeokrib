@@ -79,6 +79,22 @@ const target = new Date(now); target.setFullYear(target.getFullYear() - TARGET_Y
 const known = new Set(Object.values(TICKER_CATEGORIES).flat());
 const label = (t) => TICKER_LABELS[t] || t;
 
+// 미니 차트용: 두 포트폴리오 곡선을 ~30점으로 다운샘플 (총수익률 % 시리즈)
+function downsampleChart(pvA, pvB, points = 30) {
+  const n = Math.min(pvA?.length ?? 0, pvB?.length ?? 0);
+  if (n < 2) return null;
+  const step = (n - 1) / (points - 1);
+  const labels = [], a = [], b = [];
+  for (let k = 0; k < points; k++) {
+    const i = Math.round(k * step);
+    const da = pvA[i], db = pvB[i];
+    labels.push(new Date(da.date).toISOString().slice(0, 10));
+    a.push(+((da.invested > 0 ? da.value / da.invested - 1 : 0) * 100).toFixed(1));
+    b.push(+((db.invested > 0 ? db.value / db.invested - 1 : 0) * 100).toFixed(1));
+  }
+  return { labels, a, b };
+}
+
 const pool = [];
 for (const [a, b] of PAIRS) {
   if (!known.has(a) || !known.has(b)) continue;
@@ -101,6 +117,7 @@ for (const [a, b] of PAIRS) {
     cagrB: +(rb.cagr * 100).toFixed(1),
     winner: retA >= retB ? "a" : "b",
     margin: +Math.abs(retA - retB).toFixed(1),
+    chart: downsampleChart(ra.portfolioValues, rb.portfolioValues),
   });
 }
 

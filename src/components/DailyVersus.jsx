@@ -3,6 +3,7 @@ import { earnCoins } from "../utils/premium.js";
 import { isKrTicker } from "../utils/tickers.js";
 import { shareText, APP_LINK } from "../utils/share.js";
 import { logClick } from "../utils/analytics.js";
+import LineChart from "./LineChart.jsx";
 
 // 하루 한 대결 · 날짜 시드로 모두 같은 대진 · 승자 맞히면 🪙+1 (하루 1회)
 const PREFIX = "aiq_dailyversus_";
@@ -96,6 +97,18 @@ export default function DailyVersus({ onCoinsChanged, onOpenVersus }) {
             {isRight ? (rewarded ? "🎉 정답! 🪙 +1 받았어요" : "🎉 정답이에요!") : `🙈 아쉬워요`}
           </p>
           <p className="dv-margin"><strong>{winnerName}</strong>가 {q.margin}%p 앞섰어요 · {q.years}년 매일 적립</p>
+          {q.chart && (
+            <div className="dv-chart">
+              <LineChart
+                labels={q.chart.labels}
+                datasets={[
+                  { label: A.primary, data: q.chart.a, borderColor: "#E53E3E", backgroundColor: "transparent", fill: false, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+                  { label: B.primary, data: q.chart.b, borderColor: "#3182F6", backgroundColor: "transparent", fill: false, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+                ]}
+                yType="pct"
+              />
+            </div>
+          )}
           <div className="dv-actions">
             <button className="dv-share" onClick={doShare}>
               {shareStatus === "copied" ? "✓ 복사됨" : shareStatus === "shared" ? "✓ 공유 완료" : "📤 이 대결 공유"}
