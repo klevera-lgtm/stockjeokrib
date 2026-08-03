@@ -109,8 +109,10 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
 
       allResults.sort((a, b) => b.totalReturn - a.totalReturn);
       const benchmark = allResults.find((r) => r.strategy === "daily") ?? null;
+      const lumpsum = runStrategy(prices, "lumpsum", monthlyAmount, startDate, endDate);
+      const lumpRank = lumpsum ? allResults.filter((r) => r.totalReturn > lumpsum.totalReturn).length + 1 : null;
       setChartIdx(0);
-      setResults({ list: allResults, benchmark });
+      setResults({ list: allResults, benchmark, lumpsum, lumpRank });
       setTimeout(() => chartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     } catch (e) {
       setError(e.message);
@@ -291,6 +293,37 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                 ]}
                 yType="pct"
               />
+              </div>
+            );
+          })()}
+
+          {results.lumpsum && results.benchmark && (() => {
+            const dca = results.benchmark;
+            const lump = results.lumpsum;
+            const diff = (lump.totalReturn - dca.totalReturn) * 100;
+            const lumpWins = lump.totalReturn >= dca.totalReturn;
+            const toPct = (pv) => pv.map((d) => (d.invested > 0 ? (d.value / d.invested - 1) * 100 : 0));
+            return (
+              <div className="lump-card">
+                <div className="lump-head">📊 적립 vs 거치 <span className="lump-sub">같은 돈 · 나눠 넣기 vs 한 번에</span></div>
+                <div className="lump-nums">
+                  <div className="lump-num"><span className="lump-num-label">매일 적립</span><span className={`lump-num-val ${dca.totalReturn >= 0 ? "pos" : "neg"}`}>{formatPct(dca.totalReturn)}</span></div>
+                  <div className="lump-num"><span className="lump-num-label">거치 (첫날 한 번에)</span><span className={`lump-num-val ${lump.totalReturn >= 0 ? "pos" : "neg"}`}>{formatPct(lump.totalReturn)}</span></div>
+                </div>
+                <div className="lump-chart">
+                  <LineChart
+                    labels={dca.portfolioValues.map((d) => d.date)}
+                    datasets={[
+                      { label: "매일 적립", data: toPct(dca.portfolioValues), borderColor: "#3182F6", backgroundColor: "transparent", fill: false, tension: 0.25, pointRadius: 0, borderWidth: 2 },
+                      { label: "거치", data: toPct(lump.portfolioValues), borderColor: "#E53E3E", backgroundColor: "transparent", fill: false, tension: 0.25, pointRadius: 0, borderWidth: 2 },
+                    ]}
+                    yType="pct"
+                  />
+                </div>
+                <p className="lump-verdict">
+                  이 종목·기간엔 <strong>{lumpWins ? "거치(한 번에)" : "적립(나눠서)"}</strong>가 {Math.abs(diff).toFixed(1)}%p 유리했어요
+                  {results.lumpRank != null && <span className="lump-rank"> · 거치는 적립 전략 중 {results.lumpRank}위 수준</span>}
+                </p>
               </div>
             );
           })()}

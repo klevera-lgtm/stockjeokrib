@@ -204,6 +204,29 @@ export function runStrategy(prices, strategy, monthlyAmount, startDate, endDate)
     });
   }
 
+  // Lump-sum (거치): 같은 총 원금(월납입 × 개월수)을 첫 거래일에 한 번에 투입하고 홀드
+  if (strategy === "lumpsum") {
+    const totalYears = (filtered.at(-1).date - filtered[0].date) / (365.25 * 24 * 3600 * 1000);
+    const months = Math.max(1, Math.round(totalYears * 12));
+    const total = monthlyAmount * months;
+    let shares = 0;
+    const pv = [];
+    for (let i = 0; i < filtered.length; i++) {
+      const p = filtered[i];
+      if (i === 0 && p.close > 0) shares = (total * (1 - TX_FEE)) / p.close;
+      pv.push({ date: p.date, value: shares * p.close, invested: total });
+    }
+    const finalValue = pv.at(-1)?.value ?? 0;
+    const totalReturn = total > 0 ? (finalValue - total) / total : 0;
+    return {
+      strategy, totalInvested: total, finalValue, totalReturn,
+      cagr: calcCAGR(total, finalValue, totalYears),
+      mdd: calcMDD(pv.map((v) => v.value)),
+      sharpe: calcSharpe(pv.map((v) => v.value)),
+      portfolioValues: pv, years: totalYears,
+    };
+  }
+
   // Time-based strategies
   // weekly-fri: monthlyAmount * 12/52 ≈ monthlyAmount / 4.33 per Friday
   const dailyAmount = monthlyAmount / 21;

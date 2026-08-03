@@ -4520,6 +4520,21 @@ input, select {
 .top-strategy-delta.pos { color: var(--pos); }
 .top-strategy-delta.neg { color: var(--neg); }
 
+/* ── 적립 vs 거치 ─────────────────────────────── */
+.lump-card { margin: 12px 16px 0; padding: 14px; background: var(--surface); border: 1.5px solid var(--primary); border-radius: var(--radius); box-shadow: 0 2px 12px rgba(27,58,107,0.10); }
+.lump-head { font-size: 15px; font-weight: 800; color: var(--text-primary); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.lump-sub { font-size: 12px; font-weight: 600; color: var(--text-tertiary); }
+.lump-nums { display: flex; gap: 8px; margin-top: 10px; }
+.lump-num { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 6px; background: var(--bg); border-radius: var(--radius-sm); }
+.lump-num-label { font-size: 12px; color: var(--text-secondary); }
+.lump-num-val { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.lump-num-val.pos { color: var(--pos); }
+.lump-num-val.neg { color: var(--neg); }
+.lump-chart .chart-container { height: 150px; padding: 0; margin: 12px 0 4px; }
+.lump-verdict { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-top: 6px; }
+.lump-verdict strong { color: var(--text-primary); font-weight: 800; }
+.lump-rank { color: var(--text-tertiary); }
+
 /* ── 평단 계산기 ─────────────────────────────── */
 .avg { padding: 4px 16px 10px; }
 .avg-sub { font-size: 13px; color: var(--text-secondary); padding: 2px 4px 12px; }
