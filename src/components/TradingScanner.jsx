@@ -29,6 +29,7 @@ const SCAN_TICKERS = [
   ...TICKER_CATEGORIES["유럽 국가 ETF"],
   ...TICKER_CATEGORIES["기타 국가 ETF"],
   ...TICKER_CATEGORIES["국내 자산"],
+  ...TICKER_CATEGORIES["국내 ETF"],
 ];
 const UNIQUE_TICKERS = [...new Set(SCAN_TICKERS)];
 

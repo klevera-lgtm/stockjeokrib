@@ -12,7 +12,7 @@ export const TICKER_CATEGORIES = {
   ],
   "미국 인덱스 ETF": ["VOO","SPY","IVV","QQQM","QQQ","VTI","DIA","IWM","VB","SCHG","VUG","RSP","COWZ"],
   "반도체 ETF": ["SMH","SOXX"],
-  "테크 섹터 ETF": ["XLK","VGT","IGV","HACK","WCLD","BOTZ"],
+  "테크 섹터 ETF": ["XLK","VGT","MAGS","IGV","HACK","WCLD","BOTZ"],
   "AI·로보틱스 ETF": ["AIQ","CHAT","ROBO"],
   "크립토 ETF": ["IBIT","FBTC","ETHA","BSOL","BITO","BITX"],
   "원자력·우라늄 ETF": ["URA","URNM","NLR"],
@@ -27,13 +27,22 @@ export const TICKER_CATEGORIES = {
   "GICS 11섹터 ETF": ["XLK","XLC","XLY","XLP","XLV","XLF","XLI","XLE","XLB","XLU","XLRE"],
   "테마 섹터 ETF": ["ITA","XBI","ICLN","LIT","ARKK","ARKF","ARKX","QTUM","VNQ","ARKG","PAVE"],
   "안전자산": ["GLD","SLV","TLT","SHY","USO","BND","AGG","HYG","IAU","GDX","IEF","SGOV","JEM"],
-  "아시아 국가 ETF": ["INDA","EWJ","MCHI","EWT","VNM","EWY","EWH","EWS","EIDO","THD","FXI","EWM"],
+  "아시아 국가 ETF": ["INDA","EWJ","MCHI","KWEB","EWT","VNM","EWY","EWH","EWS","EIDO","THD","FXI","EWM"],
   "유럽 국가 ETF": ["VGK","EWG","EWU","EWQ","EWI","EWL","EZU"],
   "기타 국가 ETF": ["EWZ","EWW","EEM","ACWI","EWA","KSA","VT","VXUS","IEFA","IEMG","VWO"],
   "국내 자산": ["KS11","KQ11","005930","000660","035420","035720","373220","005380","000270","207940","051910","105560","005490","068270","069500","360750","088980","458730"],
+  "국내 ETF": ["133690","102110","091160","229200","379800","379810","381170","390390","381180","305720","305540","371460","357870","459580"],
 };
 
 export const TICKER_LABELS = {
+  // 신규 ETF (2026-08)
+  "MAGS": "매그니피센트7", "KWEB": "차이나인터넷",
+  "133690": "TIGER 미국나스닥100", "381170": "TIGER 미국테크TOP10",
+  "379800": "KODEX 미국S&P500TR", "379810": "KODEX 미국나스닥100TR",
+  "091160": "KODEX 반도체", "305720": "KODEX 2차전지산업", "305540": "TIGER 2차전지테마",
+  "102110": "TIGER 200", "229200": "KODEX 코스닥150", "371460": "TIGER 차이나전기차",
+  "390390": "KODEX 미국반도체", "381180": "TIGER 미국필라델피아반도체",
+  "357870": "TIGER CD금리투자KIS", "459580": "KODEX CD금리액티브",
   // 신규 추가 (2026-08) — 미국
   "SBUX": "스타벅스", "DIS": "디즈니", "NKE": "나이키", "MA": "마스터카드", "WMT": "월마트",
   "HD": "홈디포", "PYPL": "페이팔", "ADBE": "어도비", "CSCO": "시스코", "PFE": "화이자",
@@ -333,6 +342,9 @@ export const SUPPORTED_TICKERS = new Set([
   "SBUX","DIS","NKE","MA","WMT","HD","PYPL","ADBE","CSCO","PFE",
   "MRK","UNH","BAC","WFC","GS","F","GM","AXP","BA","BABA","ABNB",
   "035420","035720","373220","005380","000270","207940","051910","105560","005490","068270",
+  // 신규 ETF (2026-08) — 미국 2 + 국내 ETF 14
+  "MAGS","KWEB",
+  "133690","102110","091160","229200","379800","379810","381170","390390","381180","305720","305540","371460","357870","459580",
 ]);
 
 export function getTickerLabel(ticker) {
@@ -341,7 +353,7 @@ export function getTickerLabel(ticker) {
   return `${label}(${ticker})`;
 }
 
-const KR_TICKERS = new Set(TICKER_CATEGORIES["국내 자산"]);
+const KR_TICKERS = new Set([...TICKER_CATEGORIES["국내 자산"], ...(TICKER_CATEGORIES["국내 ETF"] ?? [])]);
 export function isKrTicker(ticker) { return KR_TICKERS.has(ticker); }
 
 // 헤딩용 짧은 표시: 국내는 회사명(코드 없이), 그 외는 티커

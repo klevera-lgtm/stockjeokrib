@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { TICKER_CATEGORIES, SUPPORTED_TICKERS, getTickerLabel } from "../utils/tickers.js";
+import { TICKER_CATEGORIES, SUPPORTED_TICKERS, getTickerLabel, isKrTicker } from "../utils/tickers.js";
 import AdBanner from "./AdBanner.jsx";
 
 const POPULAR = ["TSLA", "NVDA", "AAPL", "QQQ", "SPY", "MSFT"];
@@ -33,7 +33,7 @@ export default function TickerSearch({ onSelect, multi = false, selected = [], c
 
   function renderChip(ticker) {
     const isSelected = multi ? selected.includes(ticker) : selected === ticker;
-    const isKR = TICKER_CATEGORIES["국내 자산"]?.includes(ticker);
+    const isKR = isKrTicker(ticker);
     return (
       <button
         key={ticker}
