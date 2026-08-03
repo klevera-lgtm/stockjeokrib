@@ -178,6 +178,32 @@ export function runStrategy(prices, strategy, monthlyAmount, startDate, endDate)
     });
   }
 
+  // Trend-following: 가격이 장기 이평선 위(상승추세)일 때만 투입
+  if (strategy === "up100" || strategy === "up200") {
+    const period = strategy === "up200" ? 200 : 100;
+    const allSMA = calcSMA(prices, period);
+    const smaMap = new Map();
+    prices.forEach((p, i) => smaMap.set(p.date.getTime(), allSMA[i]));
+    return _runWithPool(filtered, strategy, monthlyAmount, (p) => {
+      const smaVal = smaMap.get(p.date.getTime());
+      return smaVal != null && p.close > smaVal;
+    });
+  }
+
+  // Trend-following: 골든크로스(단기 이평선 > 200일선)일 때만 투입
+  if (strategy === "gc50" || strategy === "gc100") {
+    const shortP = strategy === "gc50" ? 50 : 100;
+    const shortSMA = calcSMA(prices, shortP);
+    const longSMA = calcSMA(prices, 200);
+    const sMap = new Map(), lMap = new Map();
+    prices.forEach((p, i) => { sMap.set(p.date.getTime(), shortSMA[i]); lMap.set(p.date.getTime(), longSMA[i]); });
+    return _runWithPool(filtered, strategy, monthlyAmount, (p) => {
+      const s = sMap.get(p.date.getTime());
+      const l = lMap.get(p.date.getTime());
+      return s != null && l != null && s > l;
+    });
+  }
+
   // Time-based strategies
   // weekly-fri: monthlyAmount * 12/52 ≈ monthlyAmount / 4.33 per Friday
   const dailyAmount = monthlyAmount / 21;
@@ -266,6 +292,10 @@ export const STRATEGY_LABELS = {
   "rsi30":         "RSI(14) 30 이하일 때만",
   "bb1":           "볼린저 -1σ 아래일 때만",
   "bb2":           "볼린저 -2σ 아래일 때만",
+  "up100":         "MA100 위일 때만",
+  "up200":         "MA200 위일 때만",
+  "gc50":          "골든크로스(50>200)일 때만",
+  "gc100":         "100일선>200일선일 때만",
 };
 
 export const ALL_STRATEGIES = Object.keys(STRATEGY_LABELS);
