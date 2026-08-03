@@ -411,7 +411,7 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
           <span className="cross-link-icon">📈</span>
           <div className="cross-link-text">
             <strong>{getTickerName(ticker)} 적립 전략도 비교하기</strong>
-            <span>14가지 적립 전략별 수익률을 한눈에 비교해요</span>
+            <span>여러 적립 전략별 수익률을 한눈에 비교해요</span>
           </div>
           <span className="cross-link-arrow">→</span>
         </button>

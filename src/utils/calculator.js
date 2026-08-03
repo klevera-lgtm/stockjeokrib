@@ -69,6 +69,22 @@ export function calcCAGR(startValue, endValue, years) {
   return Math.pow(endValue / startValue, 1 / years) - 1;
 }
 
+// ── Bollinger lower band ─────────────────────────────────────────────────────
+// 각 시점의 하단 밴드 = SMA(period) - sigma × 표준편차(period). period 미만 구간은 null.
+export function calcBollingerLower(prices, period, sigma) {
+  const out = new Array(prices.length).fill(null);
+  for (let i = period - 1; i < prices.length; i++) {
+    let sum = 0;
+    for (let j = i - period + 1; j <= i; j++) sum += prices[j].close;
+    const mean = sum / period;
+    let variance = 0;
+    for (let j = i - period + 1; j <= i; j++) variance += (prices[j].close - mean) ** 2;
+    const std = Math.sqrt(variance / period);
+    out[i] = mean - sigma * std;
+  }
+  return out;
+}
+
 // ── Accumulation-pool runner (condition-based strategies) ────────────────────
 // Each trading day adds monthlyAmount/21 to a virtual pool.
 // When conditionFn returns true, the entire pool is deployed and reset.
@@ -147,6 +163,18 @@ export function runStrategy(prices, strategy, monthlyAmount, startDate, endDate)
       if (i === 0) return false;
       const prev = filtered[i - 1];
       return (p.close - prev.close) / prev.close <= -pct;
+    });
+  }
+
+  // Bollinger strategies — accumulation pool (하단 밴드 아래일 때만 투입)
+  if (strategy.startsWith("bb")) {
+    const sigma = strategy === "bb2" ? 2 : 1;
+    const lower = calcBollingerLower(prices, 20, sigma);
+    const lowerMap = new Map();
+    prices.forEach((p, i) => lowerMap.set(p.date.getTime(), lower[i]));
+    return _runWithPool(filtered, strategy, monthlyAmount, (p) => {
+      const lb = lowerMap.get(p.date.getTime());
+      return lb != null && p.close < lb;
     });
   }
 
@@ -236,6 +264,8 @@ export const STRATEGY_LABELS = {
   "drop5":         "전일 대비 -5% 이상 하락 시",
   "rsi20":         "RSI(14) 20 이하일 때만",
   "rsi30":         "RSI(14) 30 이하일 때만",
+  "bb1":           "볼린저 -1σ 아래일 때만",
+  "bb2":           "볼린저 -2σ 아래일 때만",
 };
 
 export const ALL_STRATEGIES = Object.keys(STRATEGY_LABELS);

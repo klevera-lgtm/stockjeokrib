@@ -438,7 +438,7 @@ export default function DividendVsGrowth({ onCoinsChanged, onNavigate }) {
           <span className="cross-link-icon">📈</span>
           <div className="cross-link-text">
             <strong>적립 전략별 수익률 비교하기</strong>
-            <span>14가지 적립 전략으로 더 자세히 분석해요</span>
+            <span>여러 적립 전략으로 더 자세히 분석해요</span>
           </div>
           <span className="cross-link-arrow">→</span>
         </button>
