@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { loadDividendMeta, getCategoryLabel, getCategoryColor, formatYield, formatKRW } from "../utils/dividendData.js";
-import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
+import { getQueryBalance, isBasic, unlockToday } from "../utils/premium.js";
 import { logClick, logScreen } from "../utils/analytics.js";
 import QueryGateModal from "./QueryGateModal.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
@@ -128,20 +128,12 @@ export default function RetirementCalc({ onCoinsChanged, onNavigate }) {
     if (portfolio.length === 0) return;
     logClick("retire_calc", { targetMonthly, monthlyInvest, count: portfolio.length });
 
-    if (isBasic()) {
+    if (unlockToday("retire")) {
+      onCoinsChanged?.();
       doCalc();
-      return;
-    }
-    if (getQueryBalance() <= 0) {
+    } else {
       setShowGate(true);
-      return;
     }
-    if (!consumeQuery()) {
-      setShowGate(true);
-      return;
-    }
-    onCoinsChanged?.();
-    doCalc();
   }
 
   if (!meta) return <div className="loading-msg">배당 데이터 로딩 중...</div>;

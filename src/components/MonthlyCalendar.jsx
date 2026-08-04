@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { loadDividendMeta, getCategoryLabel, getCategoryColor, getFrequencyLabel, formatYield } from "../utils/dividendData.js";
-import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
+import { getQueryBalance, isBasic, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { logClick, logScreen } from "../utils/analytics.js";
 import QueryGateModal from "./QueryGateModal.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
@@ -12,7 +12,7 @@ const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","
 export default function MonthlyCalendar({ onCoinsChanged }) {
   const [meta, setMeta] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
-  const [showCombo, setShowCombo] = useState(false);
+  const [showCombo, setShowCombo] = useState(isUnlockedToday("calendar_combo"));
   const [showGate, setShowGate] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showShare, setShowShare] = useState(false);
@@ -59,13 +59,13 @@ export default function MonthlyCalendar({ onCoinsChanged }) {
   function handleShowCombo() {
     logClick("calendar_combo");
     if (showCombo) return;
-    if (!isBasic()) {
-      if (getQueryBalance() <= 0) { setShowGate(true); return; }
-      if (!consumeQuery()) { setShowGate(true); return; }
+    if (unlockToday("calendar_combo")) {
       onCoinsChanged?.();
+      setShowCombo(true);
+      logScreen("calendar_combo_result");
+    } else {
+      setShowGate(true);
     }
-    setShowCombo(true);
-    logScreen("calendar_combo_result");
   }
 
   if (!meta || !calendarData) return (

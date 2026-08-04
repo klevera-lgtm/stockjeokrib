@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { loadDividendMeta, getCategoryLabel, getCategoryColor, getFrequencyLabel, formatKRW } from "../utils/dividendData.js";
 import { runDividendSim } from "../utils/dividendCalc.js";
-import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
+import { getQueryBalance, isBasic, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { logClick, logScreen } from "../utils/analytics.js";
 import QueryGateModal from "./QueryGateModal.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
@@ -70,7 +70,7 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
     setLoading(true);
     setError("");
     setResult(null);
-    setRevealed(isBasic());
+    setRevealed(isBasic() || isUnlockedToday(`divsim_${ticker}`));
 
     try {
       const res = await runDividendSim(ticker, amount, periodYears, drip);
@@ -319,11 +319,12 @@ export default function DividendSimulator({ initialTicker, onCoinsChanged, onNav
             <div className="reveal-cta">
               <p className="reveal-hint">배당 수입 상세와 성장 그래프를 보려면 코인 1개가 필요해요</p>
               <button className="btn-primary reveal-btn" onClick={() => {
-                if (isBasic()) { setRevealed(true); return; }
-                if (getQueryBalance() <= 0) { setShowGate(true); return; }
-                if (!consumeQuery()) { setShowGate(true); return; }
-                onCoinsChanged?.();
-                setRevealed(true);
+                if (unlockToday(`divsim_${ticker}`)) {
+                  onCoinsChanged?.();
+                  setRevealed(true);
+                } else {
+                  setShowGate(true);
+                }
               }}>
                 🔓 배당 수입 상세 보기 (코인 1개)
               </button>

@@ -5,7 +5,7 @@ import AdBanner from "./AdBanner.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
 import { getTickerLabel } from "../utils/tickers.js";
-import { consumeQueries, getQueryBalance, isBasic } from "../utils/premium.js";
+import { getQueryBalance, isBasic, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import {
   backtestMA, backtestRSI, backtestMACD, backtestDualMA, backtestBollinger,
@@ -47,7 +47,7 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
   const findAlpha = useCallback(async (t, p) => {
     setLoading(true);
     setProgress(0);
-    setRevealed(false);
+    setRevealed(isUnlockedToday(`alpha_${t}_${p.years}`));
     setResult(null);
 
     try {
@@ -89,16 +89,13 @@ export default function TradingRanking({ onCoinsChanged, onNavigate }) {
   }, []);
 
   function handleReveal() {
-    if (!basic && getQueryBalance() < ALPHA_COST) {
-      setShowGate(true);
-      return;
-    }
-    if (!basic) {
-      consumeQueries(ALPHA_COST);
+    if (unlockToday(`alpha_${ticker}_${period.years}`, ALPHA_COST)) {
       onCoinsChanged?.();
+      setRevealed(true);
+      logClick("alpha_reveal", { ticker, count: result.alphas.length });
+    } else {
+      setShowGate(true);
     }
-    setRevealed(true);
-    logClick("alpha_reveal", { ticker, count: result.alphas.length });
   }
 
   function handleTickerSelect(t) {

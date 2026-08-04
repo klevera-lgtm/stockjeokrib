@@ -7,7 +7,7 @@ import {
   formatKRW,
   formatPct,
 } from "../utils/calculator.js";
-import { isBasic, consumeQuery, getQueryBalance, getStreakInfo, STREAK_BONUS } from "../utils/premium.js";
+import { isBasic, getQueryBalance, getStreakInfo, STREAK_BONUS, isLumpUnlocked, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import TickerSearch from "./TickerSearch.jsx";
 import { getTickerLabel, getTickerName } from "../utils/tickers.js";
@@ -54,11 +54,15 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   const [revealed, setRevealed] = useState(isBasic());
   const [showShare, setShowShare] = useState(false);
   const [dataMeta, setDataMeta] = useState(null); // { years, start }
+  const [lumpSel, setLumpSel] = useState(1); // 적립 vs 거치 선택 기간(년)
+  const [lumpUnlocked, setLumpUnlocked] = useState(isLumpUnlocked()); // 기간 토글 잠금 해제 (세션 유지)
   const [chartIdx, setChartIdx] = useState(0);
   const basic = isBasic();
   const autoRanRef = useRef(false);
   const formRef = useRef(null);
   const chartRef = useRef(null);
+  const gateActionRef = useRef("reveal"); // 코인 게이트 모달이 어떤 행동을 위해 열렸는지
+  const gateLumpYearsRef = useRef(null);
   const [chartFlash, setChartFlash] = useState(false);
   const streak = getStreakInfo();
 
@@ -75,11 +79,26 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   }, [ticker]);
 
   function handleReveal() {
-    if (basic) { setRevealed(true); return; }
-    if (consumeQuery()) {
+    if (unlockToday(`rank_${ticker}`)) {
       setRevealed(true);
       setRemaining(getQueryBalance());
     } else {
+      gateActionRef.current = "reveal";
+      setShowQueryGate(true);
+    }
+  }
+
+  // 적립 vs 거치 기간 토글 잠금 해제 (코인 1개로 모든 기간 · 그날 하루 유지)
+  function handleLumpUnlock(years) {
+    if (lumpUnlocked) { if (years != null) setLumpSel(years); return; }
+    if (unlockToday("lump")) {
+      setLumpUnlocked(true);
+      if (years != null) setLumpSel(years);
+      setRemaining(getQueryBalance());
+      logClick("lump_unlock", { ticker, years });
+    } else {
+      gateActionRef.current = "lump";
+      gateLumpYearsRef.current = years;
       setShowQueryGate(true);
     }
   }
@@ -90,7 +109,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
     saveRecent(ticker);
     setLoading(true);
     setError(null);
-    setRevealed(basic);
+    setRevealed(basic || isUnlockedToday(`rank_${ticker}`));
     try {
       const prices = await loadPrices(ticker);
       let startDate, endDate;
@@ -109,10 +128,19 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
 
       allResults.sort((a, b) => b.totalReturn - a.totalReturn);
       const benchmark = allResults.find((r) => r.strategy === "daily") ?? null;
-      const lumpsum = runStrategy(prices, "lumpsum", monthlyAmount, startDate, endDate);
-      const lumpRank = lumpsum ? allResults.filter((r) => r.totalReturn > lumpsum.totalReturn).length + 1 : null;
+      // 적립 vs 거치 — 최근 1/2/3/5/10년(데이터 있는 만큼) 각각 계산해서 버튼으로 토글
+      const availYears = (endDate.getTime() - prices[0].date.getTime()) / (365.25 * 24 * 3600 * 1000);
+      const lumpPeriods = [1, 2, 3, 5, 10]
+        .filter((n) => n <= availYears + 0.15)
+        .map((n) => {
+          const s = new Date(endDate); s.setFullYear(s.getFullYear() - n);
+          const dca = runStrategy(prices, "daily", monthlyAmount, s, endDate);
+          const lump = runStrategy(prices, "lumpsum", monthlyAmount, s, endDate);
+          return dca && lump ? { years: n, dca, lump } : null;
+        })
+        .filter(Boolean);
       setChartIdx(0);
-      setResults({ list: allResults, benchmark, lumpsum, lumpRank });
+      setResults({ list: allResults, benchmark, lumpPeriods });
       setTimeout(() => chartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     } catch (e) {
       setError(e.message);
@@ -131,6 +159,12 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   // 공유 시트는 버튼 클릭으로만 열림 (검수 가이드: 바텀시트 자동 노출 금지)
   useEffect(() => {
     if (!results) setShowShare(false);
+  }, [results]);
+
+  // 결과 나오면 적립 vs 거치 기본 기간을 가장 짧은 기간(무료 노출)으로
+  useEffect(() => {
+    const ps = results?.lumpPeriods;
+    if (ps?.length) setLumpSel(ps[0].years);
   }, [results]);
 
   return (
@@ -297,18 +331,50 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             );
           })()}
 
-          {results.lumpsum && results.benchmark && (() => {
-            const dca = results.benchmark;
-            const lump = results.lumpsum;
+          {results.lumpPeriods?.length > 0 && (() => {
+            const shortest = results.lumpPeriods[0].years;
+            const displayYears = lumpUnlocked ? lumpSel : shortest;
+            const sel = results.lumpPeriods.find((p) => p.years === displayYears) ?? results.lumpPeriods[0];
+            const dca = sel.dca, lump = sel.lump;
             const diff = (lump.totalReturn - dca.totalReturn) * 100;
             const lumpWins = lump.totalReturn >= dca.totalReturn;
             const toPct = (pv) => pv.map((d) => (d.invested > 0 ? (d.value / d.invested - 1) * 100 : 0));
+            const mdd = (m) => `${(m * 100).toFixed(0)}%`;
+            const multiPeriod = results.lumpPeriods.length > 1;
             return (
               <div className="lump-card">
                 <div className="lump-head">📊 적립 vs 거치 <span className="lump-sub">같은 돈 · 나눠 넣기 vs 한 번에</span></div>
+                {multiPeriod && (
+                  <div className="lump-periods">
+                    {results.lumpPeriods.map((p, i) => {
+                      const locked = !lumpUnlocked && i !== 0;
+                      const active = p.years === sel.years;
+                      return (
+                        <button
+                          key={p.years}
+                          className={`lump-period${active ? " active" : ""}${locked ? " locked" : ""}`}
+                          onClick={() => (locked ? handleLumpUnlock(p.years) : setLumpSel(p.years))}
+                        >
+                          {p.years}년{locked ? " 🔒" : ""}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {multiPeriod && !lumpUnlocked && (
+                  <p className="lump-lock-hint">🔒 다른 기간도 코인 1개로 한 번에 열려요</p>
+                )}
                 <div className="lump-nums">
-                  <div className="lump-num"><span className="lump-num-label">매일 적립</span><span className={`lump-num-val ${dca.totalReturn >= 0 ? "pos" : "neg"}`}>{formatPct(dca.totalReturn)}</span></div>
-                  <div className="lump-num"><span className="lump-num-label">거치 (첫날 한 번에)</span><span className={`lump-num-val ${lump.totalReturn >= 0 ? "pos" : "neg"}`}>{formatPct(lump.totalReturn)}</span></div>
+                  <div className="lump-num">
+                    <span className="lump-num-label">매일 적립</span>
+                    <span className={`lump-num-val ${dca.totalReturn >= 0 ? "pos" : "neg"}`}>{formatPct(dca.totalReturn)}</span>
+                    <span className="lump-num-mdd">최대낙폭 {mdd(dca.mdd)}</span>
+                  </div>
+                  <div className="lump-num">
+                    <span className="lump-num-label">거치 (첫날 한 번에)</span>
+                    <span className={`lump-num-val ${lump.totalReturn >= 0 ? "pos" : "neg"}`}>{formatPct(lump.totalReturn)}</span>
+                    <span className="lump-num-mdd">최대낙폭 {mdd(lump.mdd)}</span>
+                  </div>
                 </div>
                 <div className="lump-chart">
                   <LineChart
@@ -320,10 +386,8 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                     yType="pct"
                   />
                 </div>
-                <p className="lump-verdict">
-                  이 종목·기간엔 <strong>{lumpWins ? "거치(한 번에)" : "적립(나눠서)"}</strong>가 {Math.abs(diff).toFixed(1)}%p 유리했어요
-                  {results.lumpRank != null && <span className="lump-rank"> · 거치는 적립 전략 중 {results.lumpRank}위 수준</span>}
-                </p>
+                <p className="lump-verdict">최근 {sel.years}년엔 <strong>{lumpWins ? "거치(한 번에)" : "적립(나눠서)"}</strong>가 {Math.abs(diff).toFixed(1)}%p 유리했어요</p>
+                <p className="lump-note">📌 오른 종목·긴 기간일수록 거치가 유리해요. 하지만 <strong>적립</strong>은 목돈 없이 <strong>월급으로</strong> 할 수 있고, <strong>하락·변동장에 강하고</strong>, 미래를 모를 때 마음이 편해요. (거치는 첫날 목돈이 있어야 가능해요.)</p>
               </div>
             );
           })()}
@@ -432,7 +496,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
       {showQueryGate && (
         <QueryGateModal
           onClose={() => setShowQueryGate(false)}
-          onEarned={() => handleReveal()}
+          onEarned={() => (gateActionRef.current === "lump" ? handleLumpUnlock(gateLumpYearsRef.current) : handleReveal())}
           onUpgrade={() => setShowUpgrade(true)}
         />
       )}

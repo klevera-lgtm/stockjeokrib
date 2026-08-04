@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { loadDividendMeta, loadRawPrices, getCategoryLabel, getCategoryColor, formatKRW } from "../utils/dividendData.js";
-import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
+import { getQueryBalance, isBasic, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { logClick, logScreen } from "../utils/analytics.js";
 import QueryGateModal from "./QueryGateModal.jsx";
 import UpgradeModal from "./UpgradeModal.jsx";
@@ -80,7 +80,7 @@ export default function DividendVsGrowth({ onCoinsChanged, onNavigate }) {
   const [showGate, setShowGate] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showShare, setShowShare] = useState(false);
-  const [revealed, setRevealed] = useState(isBasic());
+  const [revealed, setRevealed] = useState(isUnlockedToday("divvs"));
 
   useEffect(() => { loadDividendMeta().then(setMeta); }, []);
 
@@ -339,11 +339,12 @@ export default function DividendVsGrowth({ onCoinsChanged, onNavigate }) {
             <div className="reveal-cta">
               <p className="reveal-hint">상세 차트와 분석을 보려면 코인 1개가 필요해요</p>
               <button className="btn-primary reveal-btn" onClick={() => {
-                if (isBasic()) { setRevealed(true); return; }
-                if (getQueryBalance() <= 0) { setShowGate(true); return; }
-                if (!consumeQuery()) { setShowGate(true); return; }
-                onCoinsChanged?.();
-                setRevealed(true);
+                if (unlockToday("divvs")) {
+                  onCoinsChanged?.();
+                  setRevealed(true);
+                } else {
+                  setShowGate(true);
+                }
               }}>
                 🔓 상세 분석 보기 {!isBasic() && "(코인 1개)"}
               </button>

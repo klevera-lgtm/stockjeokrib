@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Chart } from "chart.js/auto";
 import AdBanner from "./AdBanner.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
-import { isBasic, consumeQueries, getQueryBalance } from "../utils/premium.js";
+import { isBasic, getQueryBalance, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import { getTickerLabel, SUPPORTED_TICKERS } from "../utils/tickers.js";
 
@@ -191,7 +191,7 @@ export default function InsiderTrading({ onNavigate, onCoinsChanged }) {
   const [insider, setInsider] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [revealed, setRevealed] = useState(false);
+  const [revealed, setRevealed] = useState(isUnlockedToday("insider"));
   const [showGate, setShowGate] = useState(false);
   const [expanded, setExpanded] = useState(null);
   const [filter, setFilter] = useState("all");
@@ -218,15 +218,13 @@ export default function InsiderTrading({ onNavigate, onCoinsChanged }) {
   }, []);
 
   function handleUnlock() {
-    if (basic) { setRevealed(true); return; }
-    if (getQueryBalance() < UNLOCK_COST) {
+    if (unlockToday("insider", UNLOCK_COST)) {
+      onCoinsChanged?.();
+      setRevealed(true);
+      logClick("insider_unlock", { cost: UNLOCK_COST });
+    } else {
       setShowGate(true);
-      return;
     }
-    consumeQueries(UNLOCK_COST);
-    onCoinsChanged?.();
-    setRevealed(true);
-    logClick("insider_unlock", { cost: UNLOCK_COST });
   }
 
   const unlocked = basic || revealed;

@@ -10,7 +10,7 @@ import {
   calcMDD,
   calcSharpe,
 } from "../utils/calculator.js";
-import { consumeQuery, isBasic, getQueryBalance } from "../utils/premium.js";
+import { isBasic, getQueryBalance, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { calcPercentile } from "../utils/percentile.js";
 import { logClick } from "../utils/analytics.js";
 import TickerSearch from "./TickerSearch.jsx";
@@ -92,8 +92,7 @@ export default function ComboBacktest({ focus = null, onNavigate }) {
   }, [tickers]);
 
   function handleReveal() {
-    if (basic) { setRevealed(true); return; }
-    if (consumeQuery()) {
+    if (unlockToday(`combo_${tickers.slice().sort().join("-")}`)) {
       setRevealed(true);
       setRemaining(getQueryBalance());
     } else {
@@ -138,7 +137,7 @@ export default function ComboBacktest({ focus = null, onNavigate }) {
     setPresetStrategyMap(stratMap);
     setUseAutoStrategy(false);
     setFreeCombo(isFree);
-    setRevealed(basic || isFree);
+    setRevealed(basic || isFree || isUnlockedToday(`combo_${comboTickers.slice().sort().join("-")}`));
     setError(null);
 
     // 캐시 hit → 즉시 표시 (기본 납입금 30만원 기준으로 미리 계산된 결과)
@@ -168,9 +167,9 @@ export default function ComboBacktest({ focus = null, onNavigate }) {
     if (totalWeight !== 100) { setError("비중 합계가 100%여야 합니다."); return; }
     logClick("combo_run", { assets: tickers.length, auto: useAutoStrategy, preset: !!presetStrategyMap });
 
-    // 자동 전략 선택은 코인 1개 소모 (콤보 프리셋 제외)
-    if (useAutoStrategy && !presetStrategyMap && !basic) {
-      if (!consumeQuery()) {
+    // 자동 전략 선택은 코인 1개 소모 (콤보 프리셋 제외 · 그날 하루 유지)
+    if (useAutoStrategy && !presetStrategyMap) {
+      if (!unlockToday(`combo_auto_${tickers.slice().sort().join("-")}`)) {
         setGateReason("run");
         setShowQueryGate(true);
         return;
@@ -180,7 +179,7 @@ export default function ComboBacktest({ focus = null, onNavigate }) {
 
     setError(null);
     setResults(null);
-    setRevealed(basic || freeCombo);
+    setRevealed(basic || freeCombo || isUnlockedToday(`combo_${tickers.slice().sort().join("-")}`));
     setLoading(true);
     setLoadingMsg("가격 데이터 불러오는 중...");
     const runStart = Date.now();

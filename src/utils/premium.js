@@ -121,6 +121,28 @@ export function claimStreakReward() {
   }
 }
 
+// ── 코인 잠금 해제는 그날 하루 유지 (같은 걸 다시 열 때 재과금 없음) ──
+// key: 잠금 대상 식별자 (예: `rank_TSLA`, `versus_A_B`, `lump`)
+export function isUnlockedToday(key) {
+  if (isBasic()) return true;
+  try { return localStorage.getItem(`ait_unlock_${key}`) === todayStr(); }
+  catch { return false; }
+}
+export function markUnlockedToday(key) {
+  try { localStorage.setItem(`ait_unlock_${key}`, todayStr()); } catch {}
+}
+// 코인으로 잠금 해제: 오늘 이미 열었으면 무료 통과, 아니면 cost만큼 차감 후 하루 저장.
+// 반환 true = 열림, false = 코인 부족.
+export function unlockToday(key, cost = 1) {
+  if (isUnlockedToday(key)) return true;
+  if (!consumeQueries(cost)) return false;
+  markUnlockedToday(key);
+  return true;
+}
+// 적립 vs 거치 기간 토글 (기능 전체 · 하루 유지)
+export function isLumpUnlocked() { return isUnlockedToday("lump"); }
+export function markLumpUnlocked() { markUnlockedToday("lump"); }
+
 export function getPlanLevel() {
   try { return localStorage.getItem(PLAN_KEY) ?? "free"; }
   catch { return "free"; }

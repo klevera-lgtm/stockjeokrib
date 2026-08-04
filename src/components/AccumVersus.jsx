@@ -7,7 +7,7 @@ import AdBanner from "./AdBanner.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
 import { runStrategy, formatKRW, formatPct } from "../utils/calculator.js";
 import { isKrTicker, TICKER_LABELS } from "../utils/tickers.js";
-import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
+import { isBasic, getQueryBalance, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 
 const PERIODS = [3, 5, 10];
@@ -33,7 +33,7 @@ export default function AccumVersus({ onOpenDetail, onCoinsChanged }) {
 
   const run = useCallback(async () => {
     if (!a || !b || a === b) return;
-    setLoading(true); setResult(null); setError(null); setRevealed(basic);
+    setLoading(true); setResult(null); setError(null); setRevealed(basic || isUnlockedToday(`versus_${a}_${b}`));
     try {
       const [pa, pb] = await Promise.all([loadPrices(a), loadPrices(b)]);
       if (!pa?.length || !pb?.length) { setError("데이터를 불러올 수 없어요"); setLoading(false); return; }
@@ -53,11 +53,13 @@ export default function AccumVersus({ onOpenDetail, onCoinsChanged }) {
   }, [a, b, years, basic]);
 
   function handleReveal() {
-    if (basic) { setRevealed(true); return; }
-    if (getQueryBalance() <= 0 || !consumeQuery()) { setShowGate(true); return; }
-    onCoinsChanged?.();
-    setRevealed(true);
-    logClick("versus_reveal", { a, b });
+    if (unlockToday(`versus_${a}_${b}`)) {
+      onCoinsChanged?.();
+      setRevealed(true);
+      logClick("versus_reveal", { a, b });
+    } else {
+      setShowGate(true);
+    }
   }
 
   function pick(ticker) {

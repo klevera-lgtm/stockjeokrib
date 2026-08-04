@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { STRATEGY_LABELS } from "../utils/calculator.js";
 import { getTickerLabel } from "../utils/tickers.js";
-import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
+import { isBasic, getQueryBalance, isUnlockedToday, unlockToday, markUnlockedToday } from "../utils/premium.js";
 import QueryGateModal from "./QueryGateModal.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
 import AdBanner from "./AdBanner.jsx";
@@ -24,7 +24,11 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [withLeverage, setWithLeverage] = useState(!!focus?.leverage);
-  const [revealedPeriods, setRevealedPeriods] = useState(new Set());
+  const [revealedPeriods, setRevealedPeriods] = useState(() => {
+    const s = new Set();
+    COIN_PERIODS.forEach((k) => { if (isUnlockedToday(`fc_period_${k}`)) s.add(k); });
+    return s;
+  });
   const [showQueryGate, setShowQueryGate] = useState(false);
   const [pendingPeriod, setPendingPeriod] = useState(null);
   const [pendingChart, setPendingChart] = useState(null);
@@ -61,8 +65,7 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
   }, [focus, data]);
 
   function handleReveal(periodKey) {
-    if (basic) { setRevealedPeriods((prev) => new Set([...prev, periodKey])); return; }
-    if (consumeQuery()) {
+    if (unlockToday(`fc_period_${periodKey}`)) {
       setRevealedPeriods((prev) => new Set([...prev, periodKey]));
     } else {
       setPendingPeriod(periodKey);
@@ -80,7 +83,7 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
   function handleChartClick(combo, periodKey) {
     const select = () => onComboSelect(combo.tickers, combo.strategies, periodKey, true, lKey);
     if (basic || !COIN_PERIODS.has(periodKey)) { select(); return; }
-    if (consumeQuery()) {
+    if (unlockToday(`fc_chart_${periodKey}`)) {
       select();
     } else {
       setPendingChart({ combo, periodKey });
@@ -220,13 +223,14 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
           onClose={() => { setShowQueryGate(false); setPendingPeriod(null); setPendingChart(null); }}
           onEarned={() => {
             if (pendingPeriod) {
+              markUnlockedToday(`fc_period_${pendingPeriod}`);
               setRevealedPeriods((prev) => new Set([...prev, pendingPeriod]));
               setPendingPeriod(null);
             }
             if (pendingChart) {
               const { combo, periodKey } = pendingChart;
               setPendingChart(null);
-              if (consumeQuery()) {
+              if (unlockToday(`fc_chart_${periodKey}`)) {
                 onComboSelect(combo.tickers, combo.strategies, periodKey, true, lKey);
               }
             }

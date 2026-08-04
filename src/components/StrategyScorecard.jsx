@@ -6,7 +6,7 @@ import {
   STRATEGY_LABELS,
   formatPct,
 } from "../utils/calculator.js";
-import { consumeQueries, isBasic, getQueryBalance } from "../utils/premium.js";
+import { isBasic, getQueryBalance, unlockToday } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import QueryGateModal from "./QueryGateModal.jsx";
 
@@ -41,7 +41,8 @@ export default function StrategyScorecard({
     if (maxN < MIN_PERIODS) return;
     logClick("scorecard_run", { assets: tickers.length });
 
-    if (!basic && !consumeQueries(COST)) {
+    // 같은 구성은 그날 하루 재과금 없이 다시 계산 가능
+    if (!unlockToday(`scorecard_${tickers.slice().sort().join("-")}`, COST)) {
       setShowGate(true);
       return;
     }

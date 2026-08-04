@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { loadPrices } from "../utils/dataLoader.js";
 import { runStrategy, ALL_STRATEGIES, STRATEGY_LABELS, formatKRW, formatPct } from "../utils/calculator.js";
-import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
+import { isBasic, getQueryBalance, isUnlockedToday, unlockToday, markUnlockedToday } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import { getTickerLabel } from "../utils/tickers.js";
 import { getPlans, addPlan, removePlan, planLimit, FREE_PLAN_LIMIT, BASIC_PLAN_LIMIT } from "../utils/goalPlans.js";
@@ -46,9 +46,12 @@ export default function GoalCalculator({ onNavigate }) {
   const [rankPeriod, setRankPeriod] = useState("5yr");
   const [rankWithLeverage, setRankWithLeverage] = useState(false);
   const [autoRun, setAutoRun] = useState(false);
-  const [revealedRankPeriods, setRevealedRankPeriods] = useState(() =>
-    isBasic() ? new Set(["1yr", "3yr", "5yr", "10yr"]) : new Set(["5yr"])
-  );
+  const [revealedRankPeriods, setRevealedRankPeriods] = useState(() => {
+    if (isBasic()) return new Set(["1yr", "3yr", "5yr", "10yr"]);
+    const s = new Set(["5yr"]);
+    ["1yr", "3yr", "10yr"].forEach((k) => { if (isUnlockedToday(`goalrank_${k}`)) s.add(k); });
+    return s;
+  });
   const [showRankQueryGate, setShowRankQueryGate] = useState(false);
   const [pendingRankPeriod, setPendingRankPeriod] = useState(null);
   const [showShare, setShowShare] = useState(false);
@@ -95,8 +98,7 @@ export default function GoalCalculator({ onNavigate }) {
   }
 
   function handleReveal() {
-    if (basic) { setRevealed(true); return; }
-    if (consumeQuery()) {
+    if (unlockToday(`goal_${ticker}`)) {
       setRevealed(true);
       setRemaining(getQueryBalance());
     } else {
@@ -105,8 +107,7 @@ export default function GoalCalculator({ onNavigate }) {
   }
 
   function handleRankReveal(periodKey) {
-    if (basic) { setRevealedRankPeriods((prev) => new Set([...prev, periodKey])); return; }
-    if (consumeQuery()) {
+    if (unlockToday(`goalrank_${periodKey}`)) {
       setRevealedRankPeriods((prev) => new Set([...prev, periodKey]));
       setRemaining(getQueryBalance());
     } else {
@@ -127,7 +128,7 @@ export default function GoalCalculator({ onNavigate }) {
     logClick("goal_run", { ticker, goal: goalAmount, years });
     setLoading(true);
     setError(null);
-    setRevealed(basic);
+    setRevealed(basic || isUnlockedToday(`goal_${ticker}`));
     try {
       const prices = await loadPrices(ticker);
       const endDate = new Date();
@@ -426,6 +427,7 @@ export default function GoalCalculator({ onNavigate }) {
           onClose={() => { setShowRankQueryGate(false); setPendingRankPeriod(null); }}
           onEarned={() => {
             if (pendingRankPeriod) {
+              markUnlockedToday(`goalrank_${pendingRankPeriod}`);
               setRevealedRankPeriods((prev) => new Set([...prev, pendingRankPeriod]));
               setPendingRankPeriod(null);
             }

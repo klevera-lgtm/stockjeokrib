@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { loadPrices, prefetchTickers } from "../utils/dataLoader.js";
 import { runStrategy, formatKRW, formatPct } from "../utils/calculator.js";
-import { isBasic, consumeQuery, getQueryBalance } from "../utils/premium.js";
+import { isBasic, getQueryBalance, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import { getTickerLabel } from "../utils/tickers.js";
 import TickerSearch from "./TickerSearch.jsx";
@@ -82,13 +82,12 @@ export default function EventExplorer() {
   }
 
   useEffect(() => {
-    setGainersRevealed(isBasic());
+    setGainersRevealed(isBasic() || isUnlockedToday(`event_gainers_${selectedEvent?.id}`));
     setGainersRemaining(getQueryBalance());
   }, [selectedEvent?.id]);
 
   function handleGainersReveal() {
-    if (isBasic()) { setGainersRevealed(true); return; }
-    if (consumeQuery()) {
+    if (unlockToday(`event_gainers_${selectedEvent?.id}`)) {
       setGainersRevealed(true);
       setGainersRemaining(getQueryBalance());
     } else {
@@ -98,7 +97,7 @@ export default function EventExplorer() {
 
   const run = useCallback(async () => {
     if (!selectedEvent || !ticker) return;
-    if (!consumeQuery()) { setShowQueryGate(true); return; }
+    if (!unlockToday(`event_${selectedEvent.id}_${ticker}`)) { setShowQueryGate(true); return; }
     logClick("event_run", { event: selectedEvent.id, ticker });
     setLoading(true);
     setError(null);

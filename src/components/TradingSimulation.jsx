@@ -3,7 +3,7 @@ import TickerSearch from "./TickerSearch.jsx";
 import AdBanner from "./AdBanner.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
 import ShareSheet from "./ShareSheet.jsx";
-import { consumeQuery, consumeQueries, getQueryBalance, isBasic } from "../utils/premium.js";
+import { getQueryBalance, isBasic, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { loadPrices } from "../utils/dataLoader.js";
 import { logClick } from "../utils/analytics.js";
 import { getTickerName, fmtPrice, isKrTicker } from "../utils/tickers.js";
@@ -324,7 +324,8 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
   }
 
   async function handleTop10Period(years) {
-    if (getQueryBalance() < TOP10_COIN_COST) { setShowGate(true); return; }
+    const key = `trade_top10_${ticker}_${years}`;
+    if (!isUnlockedToday(key) && getQueryBalance() < TOP10_COIN_COST) { setShowGate(true); return; }
     setTop10Loading(true);
     setError(null);
     try {
@@ -333,7 +334,7 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
       if (timeframe === "weekly") prices = toWeekly(prices);
       const ranked = rankAllStrategies(prices, 10);
 
-      if (!consumeQueries(TOP10_COIN_COST)) { setShowGate(true); return; }
+      if (!unlockToday(key, TOP10_COIN_COST)) { setShowGate(true); return; }
       onCoinsChanged?.();
 
       setPeriod(years);
@@ -361,12 +362,12 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
     if (isBasic()) { setRevealed(true); return; }
     // 표면 무료: 첫 단일전략 백테스트는 코인 없이
     if (firstFree) { freeUsedRef.current = true; setRevealed(true); return; }
-    if (getQueryBalance() < coinCost) { setShowGate(true); return; }
-    for (let i = 0; i < coinCost; i++) {
-      if (!consumeQuery()) { setShowGate(true); return; }
+    if (unlockToday(`trade_bt_${ticker}_${strategyType}`, coinCost)) {
+      onCoinsChanged?.();
+      setRevealed(true);
+    } else {
+      setShowGate(true);
     }
-    onCoinsChanged?.();
-    setRevealed(true);
   }
 
   const label = strategyType ? strategyLabel(strategyType, strategyParams || {}) : "";

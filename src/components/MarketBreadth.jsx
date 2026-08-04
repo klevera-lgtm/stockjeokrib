@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Chart } from "chart.js/auto";
 import AdBanner from "./AdBanner.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
-import { consumeQuery, getQueryBalance, isBasic } from "../utils/premium.js";
+import { getQueryBalance, isBasic, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import { shareText, APP_LINK } from "../utils/share.js";
 
@@ -131,7 +131,11 @@ export default function MarketBreadth({ onCoinsChanged }) {
   const [activeIndex, setActiveIndex] = useState("SPY");
   const [range, setRange] = useState(252);
   const [activePeriod, setActivePeriod] = useState("pct_above_20");
-  const [unlockedPeriods, setUnlockedPeriods] = useState({});
+  const [unlockedPeriods, setUnlockedPeriods] = useState(() => {
+    const init = {};
+    PERIODS.forEach((p) => { if (isUnlockedToday(`breadth_${p.key}`)) init[p.key] = true; });
+    return init;
+  });
   const [showGate, setShowGate] = useState(false);
   const [pendingPeriod, setPendingPeriod] = useState(null);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -320,15 +324,14 @@ export default function MarketBreadth({ onCoinsChanged }) {
   function handleUnlock(periodKey) {
     if (basic || unlockedPeriods[periodKey]) return;
     logClick("breadth_unlock", { period: periodKey });
-    if (getQueryBalance() <= 0) {
+    if (unlockToday(`breadth_${periodKey}`)) {
+      onCoinsChanged?.();
+      setUnlockedPeriods((prev) => ({ ...prev, [periodKey]: true }));
+      setActivePeriod(periodKey);
+    } else {
       setPendingPeriod(periodKey);
       setShowGate(true);
-      return;
     }
-    consumeQuery();
-    onCoinsChanged?.();
-    setUnlockedPeriods((prev) => ({ ...prev, [periodKey]: true }));
-    setActivePeriod(periodKey);
   }
 
   if (loading) {
@@ -602,10 +605,11 @@ export default function MarketBreadth({ onCoinsChanged }) {
           onEarned={() => {
             onCoinsChanged?.();
             if (pendingPeriod) {
-              consumeQuery();
-              onCoinsChanged?.();
-              setUnlockedPeriods((prev) => ({ ...prev, [pendingPeriod]: true }));
-              setActivePeriod(pendingPeriod);
+              if (unlockToday(`breadth_${pendingPeriod}`)) {
+                onCoinsChanged?.();
+                setUnlockedPeriods((prev) => ({ ...prev, [pendingPeriod]: true }));
+                setActivePeriod(pendingPeriod);
+              }
               setPendingPeriod(null);
             }
           }}

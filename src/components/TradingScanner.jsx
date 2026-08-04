@@ -3,7 +3,7 @@ import AdBanner from "./AdBanner.jsx";
 import IndicatorChart from "./IndicatorChart.jsx";
 import QueryGateModal from "./QueryGateModal.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
-import { isBasic, consumeQueries, getQueryBalance } from "../utils/premium.js";
+import { isBasic, getQueryBalance, isUnlockedToday, unlockToday } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 import { getTickerLabel, TICKER_CATEGORIES, fmtPrice, isKrTicker, TICKER_LABELS } from "../utils/tickers.js";
 import {
@@ -68,7 +68,7 @@ export default function TradingScanner({ onNavigate, onCoinsChanged }) {
   const [progress, setProgress] = useState(0);
   const [helpOpen, setHelpOpen] = useState(false);
   const [expanded, setExpanded] = useState(null);
-  const [revealed, setRevealed] = useState(false);
+  const [revealed, setRevealed] = useState(isUnlockedToday(`scanner_${SCAN_STRATEGIES[0].id}`));
   const [showGate, setShowGate] = useState(false);
   const basic = isBasic();
 
@@ -120,20 +120,18 @@ export default function TradingScanner({ onNavigate, onCoinsChanged }) {
 
   function handleStrategyChange(strat) {
     setStrategy(strat);
-    setRevealed(false);
+    setRevealed(isUnlockedToday(`scanner_${strat.id}`));
     scan(strat);
   }
 
   function handleUnlock() {
-    if (basic) return;
-    if (getQueryBalance() < UNLOCK_COST) {
+    if (unlockToday(`scanner_${strategy.id}`, UNLOCK_COST)) {
+      onCoinsChanged?.();
+      setRevealed(true);
+      logClick("scanner_unlock", { strategy: strategy.id, cost: UNLOCK_COST });
+    } else {
       setShowGate(true);
-      return;
     }
-    consumeQueries(UNLOCK_COST);
-    onCoinsChanged?.();
-    setRevealed(true);
-    logClick("scanner_unlock", { strategy: strategy.id, cost: UNLOCK_COST });
   }
 
   const unlocked = basic || revealed;
