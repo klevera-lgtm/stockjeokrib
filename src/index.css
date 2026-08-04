@@ -4543,6 +4543,24 @@ input, select {
 .lump-note { font-size: 12px; color: var(--text-tertiary); line-height: 1.55; margin-top: 8px; background: var(--bg); padding: 10px 12px; border-radius: var(--radius-sm); }
 .lump-note strong { color: var(--text-secondary); font-weight: 700; }
 
+/* 오너 광고 미리보기 (면책문구 7탭) */
+.disclaimer-lead { user-select: none; -webkit-user-select: none; }
+.preview-toast {
+  position: fixed; left: 50%; bottom: 88px; transform: translateX(-50%);
+  background: rgba(20, 22, 28, 0.92); color: #fff; font-size: 13px; font-weight: 700;
+  padding: 10px 16px; border-radius: 999px; z-index: 9999; white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+.preview-badge {
+  position: fixed; left: 50%; bottom: 60px; transform: translateX(-50%);
+  background: #FEF3C7; color: #92400E; font-size: 11.5px; font-weight: 700;
+  padding: 5px 12px; border-radius: 999px; z-index: 9998; white-space: nowrap;
+  border: 1px solid #FCD34D;
+}
+.ad-preview-note { font-size: 11.5px; font-weight: 600; color: var(--text-tertiary); text-align: center; margin: 4px 0 8px; }
+.ad-preview-note.failed { color: var(--neg); }
+.ad-banner-slot.ad-preview-empty { min-height: 56px; border: 1px dashed var(--border); border-radius: var(--radius-sm); display: block; }
+
 /* ── 평단 계산기 ─────────────────────────────── */
 .avg { padding: 4px 16px 10px; }
 .avg-sub { font-size: 13px; color: var(--text-secondary); padding: 2px 4px 12px; }
