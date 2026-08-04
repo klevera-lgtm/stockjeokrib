@@ -462,6 +462,18 @@ export default function ComboBacktest({ focus = null, onNavigate }) {
           </h2>
           <span className="tx-fee-badge">💰 거래 비용 0.35% 반영</span>
 
+          {(() => {
+            const reqYears = customStart
+              ? (Date.now() - new Date(customStart + "-01").getTime()) / (365.25 * 24 * 3600 * 1000)
+              : 5;
+            if (!dataYears || dataYears >= reqYears - 0.15) return null;
+            return (
+              <p className="period-clamp-note">
+                ⚠️ 이 조합엔 상장 <strong>{dataYears.toFixed(1)}년</strong>짜리 종목이 있어요. 그 종목은 요청 구간 전체가 아니라 상장 이후만 반영돼서, 이력이 긴 종목과 수익률을 직접 비교하면 오해가 생길 수 있어요.
+              </p>
+            );
+          })()}
+
           <LineChart data={results.portfolioValues} title="포트폴리오 가치" />
 
           {/* 적용된 전략 — 코인 공개 */}

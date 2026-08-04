@@ -167,6 +167,20 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
     if (ps?.length) setLumpSel(ps[0].years);
   }, [results]);
 
+  // 결과의 실제 커버 구간 (요청 기간이 데이터보다 길면 clamp 표시)
+  const periodInfo = (() => {
+    const r0 = results?.list?.[0];
+    if (!r0) return null;
+    const first = r0.portfolioValues?.[0]?.date ?? null;
+    const yrs = r0.years ?? 0;
+    const reqStart = customStart ? new Date(customStart + "-01") : getPeriodDates(5).start;
+    const clamped = !!first && first.getTime() - reqStart.getTime() > 40 * 864e5;
+    const label = first
+      ? `${first.getFullYear()}.${first.getMonth() + 1} ~ 현재 · ${yrs.toFixed(1)}년`
+      : customStart ? `${customStart} ~ 현재` : "최근 5년";
+    return { label, clamped, yrs, reqLabel: customStart ? `${customStart}부터` : "최근 5년" };
+  })();
+
   return (
     <div className="page">
       {!embedded && (
@@ -289,10 +303,15 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
           <h2 className="section-title">
             {getTickerName(ticker)} 전략별 수익률 순위
             <span className="period-label">
-              {customStart ? customStart + " ~ 현재" : "최근 5년"}
+              {periodInfo?.label ?? (customStart ? customStart + " ~ 현재" : "최근 5년")}
             </span>
           </h2>
           <span className="tx-fee-badge">💰 거래 비용 0.35% 반영</span>
+          {periodInfo?.clamped && (
+            <p className="period-clamp-note">
+              ⚠️ 요청은 {periodInfo.reqLabel}이지만 {getTickerName(ticker)} 데이터가 <strong>{periodInfo.yrs.toFixed(1)}년</strong>뿐이라 이 구간만 계산했어요. 이력이 다른 종목끼리 수익률을 직접 비교하면 오해가 생길 수 있어요.
+            </p>
+          )}
 
           {results.list[chartIdx] && (() => {
             const selected = results.list[chartIdx];

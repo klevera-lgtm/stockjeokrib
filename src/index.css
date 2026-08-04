@@ -4561,6 +4561,17 @@ input, select {
 .ad-preview-note.failed { color: var(--neg); }
 .ad-banner-slot.ad-preview-empty { min-height: 56px; border: 1px dashed var(--border); border-radius: var(--radius-sm); display: block; }
 
+/* 요청 기간이 데이터보다 길 때 경고 (짧은 이력 종목) */
+.period-clamp-note {
+  font-size: 12px; line-height: 1.5; color: #92400E; background: #FEF3C7;
+  border: 1px solid #FCD34D; border-radius: var(--radius-sm);
+  padding: 8px 12px; margin: 8px 0 4px;
+}
+.period-clamp-note strong { font-weight: 800; }
+@media (prefers-color-scheme: dark) {
+  .period-clamp-note { color: #FCD34D; background: rgba(251, 191, 36, 0.12); border-color: rgba(251, 191, 36, 0.4); }
+}
+
 /* ── 평단 계산기 ─────────────────────────────── */
 .avg { padding: 4px 16px 10px; }
 .avg-sub { font-size: 13px; color: var(--text-secondary); padding: 2px 4px 12px; }
