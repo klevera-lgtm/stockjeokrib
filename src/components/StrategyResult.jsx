@@ -301,56 +301,6 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
 
       {results && (
         <div className="results-section">
-          <h2 className="section-title">
-            {getTickerName(ticker)} 전략별 수익률 순위
-            <span className="period-label">
-              {periodInfo?.label ?? (customStart ? customStart + " ~ 현재" : "최근 5년")}
-            </span>
-          </h2>
-          <span className="tx-fee-badge">💰 거래 비용 0.35% 반영</span>
-          {periodInfo?.clamped && (
-            <p className="period-clamp-note">
-              ⚠️ 요청은 {periodInfo.reqLabel}이지만 {getTickerName(ticker)} 데이터가 <strong>{periodInfo.yrs.toFixed(1)}년</strong>뿐이라 이 구간만 계산했어요. 이력이 다른 종목끼리 수익률을 직접 비교하면 오해가 생길 수 있어요.
-            </p>
-          )}
-
-          {results.list[chartIdx] && (() => {
-            const selected = results.list[chartIdx];
-            const bm = results.benchmark;
-            const toReturnPct = (pv) =>
-              pv.map((d) => d.invested > 0 ? (d.value / d.invested - 1) * 100 : 0);
-            return (
-              <div ref={chartRef} className={`chart-highlight-wrap${chartFlash ? " chart-flash" : ""}`}>
-              <div className="chart-selected-label">📊 {STRATEGY_LABELS[selected.strategy]}</div>
-              <LineChart
-                labels={selected.portfolioValues.map((d) => d.date)}
-                datasets={[
-                  {
-                    label: STRATEGY_LABELS[selected.strategy],
-                    data: toReturnPct(selected.portfolioValues),
-                    borderColor: "#3182F6",
-                    backgroundColor: "rgba(49,130,246,0.1)",
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 0,
-                  },
-                  ...(bm && bm.strategy !== selected.strategy ? [{
-                    label: "매일 적립 기준",
-                    data: toReturnPct(bm.portfolioValues),
-                    borderColor: "rgba(150,150,150,0.6)",
-                    borderDash: [5, 4],
-                    backgroundColor: "transparent",
-                    fill: false,
-                    tension: 0.3,
-                    pointRadius: 0,
-                  }] : []),
-                ]}
-                yType="pct"
-              />
-              </div>
-            );
-          })()}
-
           {results.lumpPeriods?.length > 0 && (() => {
             const shortest = results.lumpPeriods[0].years;
             const displayYears = lumpUnlocked ? lumpSel : shortest;
@@ -408,6 +358,56 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                 </div>
                 <p className="lump-verdict">최근 {sel.years}년엔 <strong>{lumpWins ? "거치(한 번에)" : "적립(나눠서)"}</strong>가 {Math.abs(diff).toFixed(1)}%p 유리했어요</p>
                 <p className="lump-note">📌 오른 종목·긴 기간일수록 거치가 유리해요. 하지만 <strong>적립</strong>은 목돈 없이 <strong>월급으로</strong> 할 수 있고, <strong>하락·변동장에 강하고</strong>, 미래를 모를 때 마음이 편해요. (거치는 첫날 목돈이 있어야 가능해요.)</p>
+              </div>
+            );
+          })()}
+
+          <h2 className="section-title">
+            {getTickerName(ticker)} 전략별 수익률 순위
+            <span className="period-label">
+              {periodInfo?.label ?? (customStart ? customStart + " ~ 현재" : "최근 5년")}
+            </span>
+          </h2>
+          <span className="tx-fee-badge">💰 거래 비용 0.35% 반영</span>
+          {periodInfo?.clamped && (
+            <p className="period-clamp-note">
+              ⚠️ 요청은 {periodInfo.reqLabel}이지만 {getTickerName(ticker)} 데이터가 <strong>{periodInfo.yrs.toFixed(1)}년</strong>뿐이라 이 구간만 계산했어요. 이력이 다른 종목끼리 수익률을 직접 비교하면 오해가 생길 수 있어요.
+            </p>
+          )}
+
+          {results.list[chartIdx] && (() => {
+            const selected = results.list[chartIdx];
+            const bm = results.benchmark;
+            const toReturnPct = (pv) =>
+              pv.map((d) => d.invested > 0 ? (d.value / d.invested - 1) * 100 : 0);
+            return (
+              <div ref={chartRef} className={`chart-highlight-wrap${chartFlash ? " chart-flash" : ""}`}>
+              <div className="chart-selected-label">📊 {STRATEGY_LABELS[selected.strategy]}</div>
+              <LineChart
+                labels={selected.portfolioValues.map((d) => d.date)}
+                datasets={[
+                  {
+                    label: STRATEGY_LABELS[selected.strategy],
+                    data: toReturnPct(selected.portfolioValues),
+                    borderColor: "#3182F6",
+                    backgroundColor: "rgba(49,130,246,0.1)",
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 0,
+                  },
+                  ...(bm && bm.strategy !== selected.strategy ? [{
+                    label: "매일 적립 기준",
+                    data: toReturnPct(bm.portfolioValues),
+                    borderColor: "rgba(150,150,150,0.6)",
+                    borderDash: [5, 4],
+                    backgroundColor: "transparent",
+                    fill: false,
+                    tension: 0.3,
+                    pointRadius: 0,
+                  }] : []),
+                ]}
+                yType="pct"
+              />
               </div>
             );
           })()}
