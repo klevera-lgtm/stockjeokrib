@@ -60,11 +60,11 @@ export default function QueryGateModal({ onClose, onEarned, onUpgrade }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-badge query-gate-badge">코인 소진</div>
-        <h2 className="modal-title">오늘 코인을 모두 사용했어요</h2>
+        <div className="modal-badge query-gate-badge">잠금 해제</div>
+        <h2 className="modal-title">광고 보고 바로 열기</h2>
         <p className="modal-desc">
-          광고를 시청하면 코인 +{AD_REWARD_QUERIES}개를 바로 받아요.<br />
-          내일 오전에 3개가 자동으로 충전됩니다.
+          짧은 광고를 보면 코인 +{AD_REWARD_QUERIES}개를 받아 지금 바로 이어서 볼 수 있어요.<br />
+          출석 도장으로 매일 코인을 모을 수도 있어요.
         </p>
 
         {earned ? (
@@ -76,7 +76,7 @@ export default function QueryGateModal({ onClose, onEarned, onUpgrade }) {
               onClick={handleWatchAd}
               disabled={rewarding && !isAdLoaded && isSupported}
             >
-              {rewarding && !isAdLoaded && isSupported ? "광고 로딩 중..." : `📺 광고 보고 +${AD_REWARD_QUERIES}개 받기`}
+              {rewarding && !isAdLoaded && isSupported ? "광고 로딩 중..." : "📺 광고 보고 바로 열기"}
             </button>
             {VIRAL_ENABLED && (
               <button className="btn-secondary modal-cta-secondary" onClick={handleInvite}>
