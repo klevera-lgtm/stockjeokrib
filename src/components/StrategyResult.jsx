@@ -28,6 +28,7 @@ import TickerInfoCard from "./TickerInfoCard.jsx";
 import ShareSheet from "./ShareSheet.jsx";
 import { APP_LINK } from "../utils/share.js";
 import AdBanner from "./AdBanner.jsx";
+import AdUnlockButton from "./AdUnlockButton.jsx";
 import StrategyScorecard from "./StrategyScorecard.jsx";
 
 function getPeriodDates(yearsBack) {
@@ -434,10 +435,25 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                 </div>
                 <div className="reveal-cta">
                   <p className="reveal-hint">나머지 전략 순위도 궁금하다면?</p>
-                  <button className="btn-primary reveal-btn" onClick={handleReveal}>
-                    🔓 전체 순위 보기 (코인 1개)
-                  </button>
-                  <p className="reveal-balance">남은 코인 {remaining}개 · 광고 시청 시 +2개</p>
+                  {remaining >= 1 ? (
+                    <button className="btn-primary reveal-btn" onClick={handleReveal}>
+                      🔓 전체 순위 보기 (코인 1개)
+                    </button>
+                  ) : (
+                    <>
+                      <AdUnlockButton
+                        className="reveal-btn"
+                        label="📺 광고 보고 전체 순위 열기"
+                        onRewarded={() => { setRemaining(getQueryBalance()); handleReveal(); }}
+                      />
+                      <button className="btn-secondary reveal-btn-sub" onClick={handleReveal}>
+                        🪙 코인으로 열기
+                      </button>
+                    </>
+                  )}
+                  <p className="reveal-balance">
+                    남은 코인 {remaining}개{remaining >= 1 ? "" : " · 광고 보면 바로 열려요 (+2코인)"}
+                  </p>
                 </div>
               </>
             );

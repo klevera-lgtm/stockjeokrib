@@ -4568,6 +4568,7 @@ input, select {
   padding: 8px 12px; margin: 8px 0 4px;
 }
 .period-clamp-note strong { font-weight: 800; }
+.reveal-btn-sub { width: 100%; margin-top: 8px; }
 @media (prefers-color-scheme: dark) {
   .period-clamp-note { color: #FCD34D; background: rgba(251, 191, 36, 0.12); border-color: rgba(251, 191, 36, 0.4); }
 }
