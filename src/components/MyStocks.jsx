@@ -10,9 +10,10 @@ import { isBasic } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
 
 const STORE_KEY = "ait_my_stocks";
+const DATES_KEY = "ait_my_stocks_dates";
 const MIGRATED_KEY = "ait_my_stocks_migrated";
-const FREE_LIMIT = 3;
-const BASIC_LIMIT = 20;
+const FREE_LIMIT = 10;
+const BASIC_LIMIT = 100;
 
 function loadStocks() {
   try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch { return []; }
@@ -20,6 +21,14 @@ function loadStocks() {
 function saveStocks(list) {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(list)); } catch {}
 }
+// 담은 날짜 앵커 { ticker: "YYYY-MM-DD" } — "담은 날부터 성적" 계산용
+function loadDates() {
+  try { return JSON.parse(localStorage.getItem(DATES_KEY)) || {}; } catch { return {}; }
+}
+function saveDates(map) {
+  try { localStorage.setItem(DATES_KEY, JSON.stringify(map)); } catch {}
+}
+function todayStr() { return new Date().toISOString().slice(0, 10); }
 
 // 기존 3개 저장소(거래·배당 로컬)에서 종목 추출 — 데이터 보존
 function localLegacyTickers() {
@@ -44,6 +53,7 @@ function tradeCls(status) {
 
 export default function MyStocks({ onOpenDetail, onNavigate }) {
   const [stocks, setStocks] = useState([]);
+  const [dates, setDates] = useState({});
   const [monitors, setMonitors] = useState({});
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -72,7 +82,7 @@ export default function MyStocks({ onOpenDetail, onNavigate }) {
           }
         } catch {}
       }
-      if (!cancelled) setStocks(list);
+      if (!cancelled) { setStocks(list); setDates(loadDates()); }
     })();
     return () => { cancelled = true; };
   }, []);
@@ -88,7 +98,7 @@ export default function MyStocks({ onOpenDetail, onNavigate }) {
     if (!stocks.length) { setMonitors({}); setLoading(false); return; }
     let cancelled = false;
     setLoading(true);
-    Promise.all(stocks.map((t) => monitorStock(t))).then((results) => {
+    Promise.all(stocks.map((t) => monitorStock(t, dates[t] ?? null))).then((results) => {
       if (cancelled) return;
       const map = {};
       for (const r of results) map[r.ticker] = r;
@@ -96,7 +106,7 @@ export default function MyStocks({ onOpenDetail, onNavigate }) {
       setLoading(false);
     });
     return () => { cancelled = true; };
-  }, [stocks, refreshKey]);
+  }, [stocks, dates, refreshKey]);
 
   function addTicker(ticker) {
     if (stocks.includes(ticker)) { setShowAdd(false); return; }
@@ -104,6 +114,8 @@ export default function MyStocks({ onOpenDetail, onNavigate }) {
     const updated = [...stocks, ticker];
     setStocks(updated);
     saveStocks(updated);
+    const nd = { ...dates, [ticker]: todayStr() };
+    setDates(nd); saveDates(nd);
     setShowAdd(false);
     logClick("mystocks_add", { ticker });
   }
@@ -112,6 +124,8 @@ export default function MyStocks({ onOpenDetail, onNavigate }) {
     const updated = stocks.filter((t) => t !== ticker);
     setStocks(updated);
     saveStocks(updated);
+    const nd = { ...dates }; delete nd[ticker];
+    setDates(nd); saveDates(nd);
     logClick("mystocks_remove", { ticker });
   }
 
@@ -188,6 +202,21 @@ export default function MyStocks({ onOpenDetail, onNavigate }) {
                     {label !== t && <span className="ms-name">{label}</span>}
                     {m?.lastPrice != null && <span className="ms-price">${m.lastPrice.toFixed(2)}</span>}
                   </div>
+                  {m?.sinceAdded && (() => {
+                    const s = m.sinceAdded;
+                    const pct = s.pct * 100;
+                    const pos = pct >= 0;
+                    return (
+                      <div className={`ms-since ${pos ? "pos" : "neg"}`}>
+                        <span className="ms-since-main">📌 담은 지 {s.days}일 · {pos ? "+" : ""}{pct.toFixed(1)}%</span>
+                        <span className="ms-since-note">
+                          {s.days < 5
+                            ? "아직 며칠 안 됐어요 · 적립은 길게 봐요"
+                            : pos ? "담은 뒤 올랐어요" : "더 싸게 담을 기회예요"}
+                        </span>
+                      </div>
+                    );
+                  })()}
                   <div className="ms-badges">
                     {loading || !m ? (
                       <span className="ms-badge loading">분석 중…</span>

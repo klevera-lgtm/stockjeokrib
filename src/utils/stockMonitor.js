@@ -74,13 +74,31 @@ function getTradeSignal(prices, type, params) {
 }
 
 // 종목 하나에 대해 적립·거래 상태를 계산. 가격은 1회만 로드.
-export async function monitorStock(ticker) {
+// addedDate("YYYY-MM-DD")를 주면 "담은 날부터 수익률"도 계산해요.
+export async function monitorStock(ticker, addedDate = null) {
   let prices;
   try { prices = await loadPrices(ticker); }
   catch { return { ticker, error: true }; }
   if (!prices?.length) return { ticker, error: true };
 
   const lastPrice = prices[prices.length - 1]?.close ?? null;
+
+  // 담은 날부터 성적: 담은 날 이후 첫 종가 대비 현재
+  let sinceAdded = null;
+  if (addedDate) {
+    try {
+      const from = new Date(addedDate + "T00:00:00");
+      // 담은 날 이후 첫 종가, 없으면(오늘 담아 데이터 아직 없음) 마지막 종가 → 0%
+      const anchor = prices.find((p) => p.date >= from) ?? prices[prices.length - 1];
+      if (anchor && anchor.close > 0 && lastPrice != null) {
+        sinceAdded = {
+          pct: lastPrice / anchor.close - 1,
+          days: Math.max(0, Math.round((Date.now() - from.getTime()) / 86400000)),
+          fromPrice: anchor.close,
+        };
+      }
+    } catch {}
+  }
 
   // 적립: 최근 5년 최적 DCA 전략 + 오늘 조건 충족 여부
   let acc = null;
@@ -112,5 +130,5 @@ export async function monitorStock(ticker) {
     }
   } catch {}
 
-  return { ticker, lastPrice, acc, trade };
+  return { ticker, lastPrice, acc, trade, sinceAdded };
 }
