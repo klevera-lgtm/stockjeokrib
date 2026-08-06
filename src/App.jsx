@@ -37,6 +37,7 @@ import { precomputeFeaturedCombos } from "./utils/comboResultCache.js";
 import { logScreen, logClick } from "./utils/analytics.js";
 import { initPaidCoins } from "./utils/coinsApi.js";
 import { getQueryBalance, isBasic, getStreakInfo, STREAK_BONUS } from "./utils/premium.js";
+import { hasSavedStocks } from "./utils/savedStocks.js";
 import "./App.css";
 
 const PREFETCH_SEEDS = ["SPY", "QQQ", "NVDA", "AAPL", "TSLA", "VOO", "IVV", "TQQQ", "SOXL", "TLT"];
@@ -73,7 +74,8 @@ const DISCOVER_GROUPS = [
 const DISCOVER_FEATURES = DISCOVER_GROUPS.flatMap((g) => g.items);
 
 export default function App() {
-  const [view, setView] = useState("home");              // home | detail | discover | my
+  // 저장한 종목이 있으면 열 때 '내 종목' 먼저 (없으면 검색/적립부터) — 리텐션
+  const [view, setView] = useState(() => (hasSavedStocks() ? "my" : "home")); // home | detail | discover | my
   const [detailTicker, setDetailTicker] = useState(null);
   const [detailTab, setDetailTab] = useState("acc");     // acc | trade | div
   const [discoverFeature, setDiscoverFeature] = useState(null); // null = 발견 메뉴

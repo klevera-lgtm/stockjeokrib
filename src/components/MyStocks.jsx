@@ -8,27 +8,15 @@ import { getAnonKey, fetchPortfolio } from "../utils/portfolioApi.js";
 import { getTickerLabel } from "../utils/tickers.js";
 import { isBasic } from "../utils/premium.js";
 import { logClick } from "../utils/analytics.js";
+import {
+  getSavedStocks as loadStocks,
+  writeSavedStocks as saveStocks,
+  getSavedDates as loadDates,
+  writeSavedDates as saveDates,
+  todayStr, FREE_LIMIT, BASIC_LIMIT,
+} from "../utils/savedStocks.js";
 
-const STORE_KEY = "ait_my_stocks";
-const DATES_KEY = "ait_my_stocks_dates";
 const MIGRATED_KEY = "ait_my_stocks_migrated";
-const FREE_LIMIT = 10;
-const BASIC_LIMIT = 100;
-
-function loadStocks() {
-  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch { return []; }
-}
-function saveStocks(list) {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(list)); } catch {}
-}
-// 담은 날짜 앵커 { ticker: "YYYY-MM-DD" } — "담은 날부터 성적" 계산용
-function loadDates() {
-  try { return JSON.parse(localStorage.getItem(DATES_KEY)) || {}; } catch { return {}; }
-}
-function saveDates(map) {
-  try { localStorage.setItem(DATES_KEY, JSON.stringify(map)); } catch {}
-}
-function todayStr() { return new Date().toISOString().slice(0, 10); }
 
 // 기존 3개 저장소(거래·배당 로컬)에서 종목 추출 — 데이터 보존
 function localLegacyTickers() {

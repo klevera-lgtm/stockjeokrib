@@ -11,6 +11,7 @@ import { isBasic, getQueryBalance, getStreakInfo, STREAK_BONUS, isLumpUnlocked, 
 import { logClick } from "../utils/analytics.js";
 import TickerSearch from "./TickerSearch.jsx";
 import { getTickerLabel, getTickerName } from "../utils/tickers.js";
+import { isSaved, saveStock } from "../utils/savedStocks.js";
 
 const RECENT_KEY = "ait_recent_tickers";
 const MAX_RECENT = 5;
@@ -57,6 +58,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   const [dataMeta, setDataMeta] = useState(null); // { years, start }
   const [lumpSel, setLumpSel] = useState(1); // 적립 vs 거치 선택 기간(년)
   const [lumpUnlocked, setLumpUnlocked] = useState(isLumpUnlocked()); // 기간 토글 잠금 해제 (세션 유지)
+  const [saved, setSaved] = useState(false); // 내 종목에 담김 여부
   const [chartIdx, setChartIdx] = useState(0);
   const basic = isBasic();
   const autoRanRef = useRef(false);
@@ -168,6 +170,17 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
     if (ps?.length) setLumpSel(ps[0].years);
   }, [results]);
 
+  // 담김 여부 동기화
+  useEffect(() => { setSaved(ticker ? isSaved(ticker) : false); }, [ticker, results]);
+
+  function handleSaveStock() {
+    if (!ticker) return;
+    const r = saveStock(ticker);
+    if (r === "limit") { setShowUpgrade(true); return; }
+    setSaved(true);
+    logClick("save_stock", { ticker, from: "strategy", result: r });
+  }
+
   // 결과의 실제 커버 구간 (요청 기간이 데이터보다 길면 clamp 표시)
   const periodInfo = (() => {
     const r0 = results?.list?.[0];
@@ -181,6 +194,16 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
       : customStart ? `${customStart} ~ 현재` : "최근 5년";
     return { label, clamped, yrs, reqLabel: customStart ? `${customStart}부터` : "최근 5년" };
   })();
+
+  // 내 종목 담기 CTA — 1등 카드/순위 바로 아래에 노출 (아하 순간에 담기 권유)
+  const saveCTA = results?.list?.[0] ? (
+    <div className="save-stock-cta">
+      <button className={`btn-primary save-stock-btn${saved ? " done" : ""}`} onClick={handleSaveStock} disabled={saved}>
+        {saved ? "✓ 내 종목에 담겼어요" : `📌 ${getTickerName(ticker)} 담기`}
+      </button>
+      {!saved && <p className="save-stock-hint">담아두면 <strong>담은 날부터 성적·신호</strong>를 앱 열 때마다 추적해요</p>}
+    </div>
+  ) : null;
 
   return (
     <div className="page">
@@ -433,6 +456,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                     </div>
                   )}
                 </div>
+                {saveCTA}
                 <div className="reveal-cta">
                   <p className="reveal-hint">나머지 전략 순위도 궁금하다면?</p>
                   {remaining >= 1 ? (
@@ -506,6 +530,8 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
               })}
             </div>
           )}
+
+          {revealed && saveCTA}
 
           {results.list[0] && (
             <button className="ssheet-trigger" onClick={() => setShowShare(true)}>
