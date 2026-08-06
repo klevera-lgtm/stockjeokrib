@@ -417,6 +417,14 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             const bm = results.benchmark;
             const toReturnPct = (pv) =>
               pv.map((d) => d.invested > 0 ? (d.value / d.invested - 1) * 100 : 0);
+            const selPct = toReturnPct(selected.portfolioValues);
+            // 매수(투입) 시점 = invested가 늘어난 날. 너무 잦으면(매일·매주) 점 생략.
+            const pvs = selected.portfolioValues;
+            const buySet = new Set();
+            for (let i = 0; i < pvs.length; i++) {
+              if (i === 0 ? pvs[i].invested > 0 : pvs[i].invested > pvs[i - 1].invested) buySet.add(i);
+            }
+            const showBuys = buySet.size > 0 && buySet.size <= 80;
             return (
               <div ref={chartRef} className={`chart-highlight-wrap${chartFlash ? " chart-flash" : ""}`}>
               <div className="chart-selected-label">📊 {STRATEGY_LABELS[selected.strategy]}</div>
@@ -425,7 +433,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                 datasets={[
                   {
                     label: STRATEGY_LABELS[selected.strategy],
-                    data: toReturnPct(selected.portfolioValues),
+                    data: selPct,
                     borderColor: "#3182F6",
                     backgroundColor: "rgba(49,130,246,0.1)",
                     fill: true,
@@ -441,6 +449,16 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                     fill: false,
                     tension: 0.3,
                     pointRadius: 0,
+                  }] : []),
+                  ...(showBuys ? [{
+                    label: "매수 시점",
+                    data: selPct.map((v, i) => (buySet.has(i) ? v : null)),
+                    showLine: false,
+                    pointRadius: 3,
+                    pointHoverRadius: 4,
+                    pointBackgroundColor: "#E53E3E",
+                    pointBorderColor: "#E53E3E",
+                    borderColor: "#E53E3E",
                   }] : []),
                 ]}
                 yType="pct"

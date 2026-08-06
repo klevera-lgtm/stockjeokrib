@@ -4579,8 +4579,9 @@ input, select {
 
 /* 적립 결과 → 내 종목 담기 CTA */
 .save-stock-cta { margin: 6px 0 4px; }
-.save-stock-btn { width: 100%; }
-.save-stock-btn.done { background: var(--surface); color: var(--text-secondary); border: 1.5px solid var(--border); }
+.save-stock-btn { width: 100%; background: #16A34A; box-shadow: 0 3px 10px rgba(22,163,74,0.28); }
+.save-stock-btn:active { background: #15803D; }
+.save-stock-btn.done { background: var(--surface); color: var(--text-secondary); border: 1.5px solid var(--border); box-shadow: none; }
 .save-stock-hint { font-size: 12px; color: var(--text-tertiary); text-align: center; margin-top: 6px; }
 .save-stock-hint strong { color: var(--text-secondary); font-weight: 700; }
 .save-notify-btn { width: 100%; margin-top: 8px; }
