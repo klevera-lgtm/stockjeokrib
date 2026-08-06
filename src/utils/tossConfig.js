@@ -18,6 +18,11 @@ export const INTERSTITIAL_AD_GROUP_ID =
 export const BANNER_AD_GROUP_ID =
   import.meta.env.VITE_BANNER_AD_GROUP_ID || "ait-ad-test-banner-id";
 
+// 푸시 알림 동의 템플릿 코드 (콘솔 > 스마트 발송 > 알림 템플릿에서 발급)
+// 미설정 시 '알림 받기' 버튼이 뜨지 않아요.
+export const NOTIFICATION_TEMPLATE_CODE =
+  import.meta.env.VITE_NOTIFICATION_TEMPLATE_CODE || "";
+
 // 콘솔에서 자동 생성된 SKU → 코인 개수 (2026-07-19 등록분, 최우선 적용)
 const SKU_COIN_MAP = {
   "ait.0000050305.2ce3d748.fe08ca7798.4413625643": 10,

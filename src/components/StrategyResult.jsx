@@ -12,6 +12,7 @@ import { logClick } from "../utils/analytics.js";
 import TickerSearch from "./TickerSearch.jsx";
 import { getTickerLabel, getTickerName } from "../utils/tickers.js";
 import { isSaved, saveStock } from "../utils/savedStocks.js";
+import { requestNotify, notifyConsent, notifySupported } from "../utils/notify.js";
 
 const RECENT_KEY = "ait_recent_tickers";
 const MAX_RECENT = 5;
@@ -59,6 +60,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   const [lumpSel, setLumpSel] = useState(1); // 적립 vs 거치 선택 기간(년)
   const [lumpUnlocked, setLumpUnlocked] = useState(isLumpUnlocked()); // 기간 토글 잠금 해제 (세션 유지)
   const [saved, setSaved] = useState(false); // 내 종목에 담김 여부
+  const [notifyOn, setNotifyOn] = useState(notifyConsent() === "granted"); // 알림 동의 여부
   const [chartIdx, setChartIdx] = useState(0);
   const basic = isBasic();
   const autoRanRef = useRef(false);
@@ -181,6 +183,12 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
     logClick("save_stock", { ticker, from: "strategy", result: r });
   }
 
+  async function handleNotify() {
+    logClick("notify_optin", { ticker, from: "strategy" });
+    const r = await requestNotify();
+    if (r === "granted") setNotifyOn(true);
+  }
+
   // 결과의 실제 커버 구간 (요청 기간이 데이터보다 길면 clamp 표시)
   const periodInfo = (() => {
     const r0 = results?.list?.[0];
@@ -202,6 +210,12 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
         {saved ? "✓ 내 종목에 담겼어요" : `📌 ${getTickerName(ticker)} 담기`}
       </button>
       {!saved && <p className="save-stock-hint">담아두면 <strong>담은 날부터 성적·신호</strong>를 앱 열 때마다 추적해요</p>}
+      {saved && notifySupported() && !notifyOn && (
+        <button className="btn-secondary save-notify-btn" onClick={handleNotify}>
+          🔔 신호 뜨면 알림 받기
+        </button>
+      )}
+      {saved && notifyOn && <p className="save-notify-on">🔔 알림 켜짐 · 적립·급락 신호 뜨면 알려드려요</p>}
     </div>
   ) : null;
 
