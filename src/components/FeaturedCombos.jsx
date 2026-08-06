@@ -5,6 +5,8 @@ import { isBasic, getQueryBalance, isUnlockedToday, unlockToday, markUnlockedTod
 import QueryGateModal from "./QueryGateModal.jsx";
 import { loadPrices } from "../utils/dataLoader.js";
 import AdBanner from "./AdBanner.jsx";
+import { saveStock, getSavedStocks } from "../utils/savedStocks.js";
+import { logClick } from "../utils/analytics.js";
 
 const COIN_SHORT = ["1mo", "3mo", "6mo"];
 const COIN_MID = ["1yr", "2yr", "3yr", "4yr", "5yr"];
@@ -20,9 +22,25 @@ const PERIOD_LABELS = {
   "9yr": "지난 9년", "10yr": "지난 10년",
 };
 
+// 4가지 조합 모드 (전체/ETF × 레버리지 제외/포함)
+const MODE_LABEL = {
+  all_without: "전체 종목 · 레버리지 제외",
+  all_with: "전체 종목 · 레버리지 포함",
+  etf_without: "ETF 조합 · 레버리지 제외",
+  etf_with: "ETF 전체 · 레버리지 포함",
+};
+
+// 오늘의 무료 랭킹: 날짜 시드로 코인 기간 하나가 매일 무료로 열림 (데일리 리텐션 훅).
+// 앱을 열면 "오늘은 뭐가 무료?"로 매일 다른 기간을 보게 돼요.
+const ROTATION_POOL = ["3mo", "6mo", "1yr", "2yr", "3yr", "4yr", "5yr"];
+const DAY_SEED = parseInt(new Date().toLocaleDateString("en-CA").replace(/-/g, ""), 10);
+const TODAY_FREE_PERIOD = ROTATION_POOL[DAY_SEED % ROTATION_POOL.length];
+
 export default function FeaturedCombos({ onComboSelect, focus = null }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  // 들어오면 바로 ETF가 보이게 (사람들이 제일 원하는 것) — 성향 테스트 라우팅 시엔 전체 종목
+  const [universe, setUniverse] = useState(focus ? (focus.universe ?? "all") : "etf");
   const [withLeverage, setWithLeverage] = useState(!!focus?.leverage);
   const [revealedPeriods, setRevealedPeriods] = useState(() => {
     const s = new Set();
@@ -32,6 +50,8 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
   const [showQueryGate, setShowQueryGate] = useState(false);
   const [pendingPeriod, setPendingPeriod] = useState(null);
   const [pendingChart, setPendingChart] = useState(null);
+  const [savedSet, setSavedSet] = useState(() => new Set(getSavedStocks()));
+  const [saveLimitHit, setSaveLimitHit] = useState(false);
   const basic = isBasic();
 
   useEffect(() => {
@@ -54,6 +74,7 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
   // 성향 테스트 라우팅: 레버리지 토글 + 해당 섹션으로 스크롤
   useEffect(() => {
     if (!focus || !data) return;
+    setUniverse(focus.universe ?? "all");
     setWithLeverage(!!focus.leverage);
     if (focus.section) {
       const t = setTimeout(() => {
@@ -73,8 +94,16 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
     }
   }
 
+  // 무료로 볼 수 있는 기간: ETF '이번 달 최고'(상시) + 오늘의 무료 랭킹(매일 로테이션)
+  function isFreePeek(periodKey) {
+    if (universe === "etf" && periodKey === "1mo") return true;
+    if (periodKey === TODAY_FREE_PERIOD) return true;
+    return false;
+  }
+
   function isLocked(periodKey) {
     if (basic) return false;
+    if (isFreePeek(periodKey)) return false;
     if (!COIN_PERIODS.has(periodKey)) return false;
     return !revealedPeriods.has(periodKey);
   }
@@ -82,13 +111,28 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
   // 코인 기간의 차트 보기는 코인 1개 소모
   function handleChartClick(combo, periodKey) {
     const select = () => onComboSelect(combo.tickers, combo.strategies, periodKey, true, lKey);
-    if (basic || !COIN_PERIODS.has(periodKey)) { select(); return; }
+    if (basic || isFreePeek(periodKey) || !COIN_PERIODS.has(periodKey)) { select(); return; }
     if (unlockToday(`fc_chart_${periodKey}`)) {
       select();
     } else {
       setPendingChart({ combo, periodKey });
       setShowQueryGate(true);
     }
+  }
+
+  // 조합을 통째로 내 종목에 담기 → '담은 날부터 성적' 추적 루프로 연결 (리텐션)
+  function handleSaveCombo(combo) {
+    const next = new Set(savedSet);
+    let added = 0, hit = false;
+    for (const t of combo.tickers) {
+      if (next.has(t)) continue;
+      const r = saveStock(t);
+      if (r === "ok") { next.add(t); added++; }
+      else if (r === "exists") next.add(t);
+      else if (r === "limit") { hit = true; break; }
+    }
+    if (added > 0) { setSavedSet(next); logClick("combo_save", { mode: lKey, count: added }); }
+    if (hit) setSaveLimitHit(true);
   }
 
   if (loading) return (
@@ -104,12 +148,13 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
   );
   if (!data) return null;
 
-  const lKey = withLeverage ? "with" : "without";
+  const lKey = `${universe}_${withLeverage ? "with" : "without"}`;
 
   function ComboCard({ periodKey }) {
     const locked = isLocked(periodKey);
     const combo = data.combos[periodKey]?.[lKey];
     if (!combo || combo.tickers.length === 0) return null;
+    const comboSaved = combo.tickers.every((t) => savedSet.has(t));
     const useSimple = (periodKey === "1mo" || periodKey === "3mo") && combo.combinedSimpleReturn != null;
     const isShort = SHORT_PERIODS.has(periodKey);
 
@@ -128,6 +173,11 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
         <div className="fc-card-header">
           <span className="fc-period-label">{PERIOD_LABELS[periodKey]}</span>
           {locked && <span className="fc-badge">🔒 코인</span>}
+          {isFreePeek(periodKey) && (
+            <span className="fc-badge fc-badge--free">
+              🎁 {periodKey === TODAY_FREE_PERIOD ? "오늘 무료" : "무료"}
+            </span>
+          )}
         </div>
         <div className="fc-cagr">
           <span className="fc-cagr-num">{pct >= 0 ? "+" : ""}{pct.toFixed(1)}%{capped ? "+" : ""}</span>
@@ -167,7 +217,16 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
             className="fc-chart-btn"
             onClick={() => handleChartClick(combo, periodKey)}
           >
-            차트로 보기{!basic && COIN_PERIODS.has(periodKey) ? " (코인 1개)" : ""}
+            차트로 보기{!basic && !isFreePeek(periodKey) && COIN_PERIODS.has(periodKey) ? " (코인 1개)" : ""}
+          </button>
+        )}
+        {!locked && (
+          <button
+            className={`fc-save-btn${comboSaved ? " done" : ""}`}
+            disabled={comboSaved}
+            onClick={() => handleSaveCombo(combo)}
+          >
+            {comboSaved ? "✓ 내 종목에 담김" : "📌 이 조합 담기"}
           </button>
         )}
       </div>
@@ -176,15 +235,38 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
 
   return (
     <div className="featured-combos">
-      <div className="fc-toggle">
-        <button
-          className={`fc-toggle-btn${!withLeverage ? " fc-toggle-btn--on" : ""}`}
-          onClick={() => setWithLeverage(false)}
-        >레버리지 제외</button>
-        <button
-          className={`fc-toggle-btn${withLeverage ? " fc-toggle-btn--on" : ""}`}
-          onClick={() => setWithLeverage(true)}
-        >레버리지 포함</button>
+      <div className="fc-toggle-2d">
+        <div className="fc-toggle-row">
+          <span className="fc-toggle-label">자산</span>
+          <div className="fc-toggle">
+            <button
+              className={`fc-toggle-btn${universe === "all" ? " fc-toggle-btn--on" : ""}`}
+              onClick={() => setUniverse("all")}
+            >전체 종목</button>
+            <button
+              className={`fc-toggle-btn${universe === "etf" ? " fc-toggle-btn--on" : ""}`}
+              onClick={() => setUniverse("etf")}
+            >ETF만</button>
+          </div>
+        </div>
+        <div className="fc-toggle-row">
+          <span className="fc-toggle-label">레버리지</span>
+          <div className="fc-toggle">
+            <button
+              className={`fc-toggle-btn${!withLeverage ? " fc-toggle-btn--on" : ""}`}
+              onClick={() => setWithLeverage(false)}
+            >제외</button>
+            <button
+              className={`fc-toggle-btn${withLeverage ? " fc-toggle-btn--on" : ""}`}
+              onClick={() => setWithLeverage(true)}
+            >포함</button>
+          </div>
+        </div>
+      </div>
+      <p className="fc-mode-caption">{MODE_LABEL[lKey]}</p>
+
+      <div className="fc-daily-free">
+        🎁 오늘의 무료 랭킹 · <strong>{PERIOD_LABELS[TODAY_FREE_PERIOD]}</strong> 조합 · 매일 바뀌어요
       </div>
 
       <div className="fc-section" id="fc-section-short">
@@ -216,6 +298,9 @@ export default function FeaturedCombos({ onComboSelect, focus = null }) {
         ))}
       </div>
 
+      {saveLimitHit && (
+        <p className="fc-save-limit">무료 저장 10개를 다 채웠어요 · <strong>내 종목</strong>에서 관리해요</p>
+      )}
       <p className="fc-updated">기준일: {data.updatedAt} · 매주 업데이트</p>
 
       {showQueryGate && (

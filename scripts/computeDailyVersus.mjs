@@ -3,6 +3,9 @@
 //
 // 사람들이 아는 라이벌 대진을 매일 하나씩. 두 종목을 5년(부족하면 공통기간) 매일 적립한
 // 총수익률로 승자 결정. 사실 기반 과거 데이터 (예측·권유 아님). 날짜 시드로 앱에서 하루 하나.
+//
+// 2026-08 ETF 중심 개편: 쓰레드에서 사람들이 ETF에 훨씬 관심이 많아, 대진을 ETF-vs-ETF만
+// 남김 (아래 ETF_SET 필터). 개별주 라이벌은 자동 제외돼요.
 
 import fs from "fs";
 import path from "path";
@@ -57,6 +60,11 @@ const PAIRS = [
   // 국내
   ["005930", "000660"], ["KS11", "KQ11"],
   ["035420", "035720"], ["005380", "000270"], ["207940", "068270"], ["373220", "051910"],
+  // ETF 마퀴 대결 (2026-08) — 쓰레드에서 실제로 붙이는 조합. ETF-vs-ETF 필터로 이것들만 살아남음
+  ["VOO", "QQQ"], ["VOO", "SCHD"], ["SCHD", "SCHG"], ["VOO", "VTI"],
+  ["VTI", "VXUS"], ["JEPQ", "QQQ"], ["SMH", "XLK"], ["EEM", "VWO"],
+  ["EWY", "EWT"], ["XLE", "XLK"], ["VNQ", "VOO"], ["QQQ", "VGT"],
+  ["VUG", "SCHD"], ["QQQM", "VOO"], ["JEPI", "SCHD"], ["GLD", "TLT"],
 ];
 
 function loadPrices(ticker) {
@@ -79,6 +87,17 @@ const target = new Date(now); target.setFullYear(target.getFullYear() - TARGET_Y
 const known = new Set(Object.values(TICKER_CATEGORIES).flat());
 const label = (t) => TICKER_LABELS[t] || t;
 
+// ETF-vs-ETF 필터: 카테고리명에 ETF가 들어가거나 명백한 ETF 그룹만 ETF로 취급
+const ETF_CATEGORIES = [
+  "미국 인덱스 ETF", "반도체 ETF", "테크 섹터 ETF", "AI·로보틱스 ETF", "크립토 ETF",
+  "원자력·우라늄 ETF", "방산 ETF", "레버리지 ETF", "배당·인컴 ETF", "커버드콜·초고배당",
+  "GICS 11섹터 ETF", "테마 섹터 ETF", "안전자산", "아시아 국가 ETF", "유럽 국가 ETF",
+  "기타 국가 ETF", "국내 ETF",
+];
+const ETF_SET = new Set(ETF_CATEGORIES.flatMap((c) => TICKER_CATEGORIES[c] || []));
+["069500", "360750", "458730"].forEach((t) => ETF_SET.add(t)); // 국내 자산에 섞인 명백한 ETF
+const isETF = (t) => ETF_SET.has(t);
+
 // 미니 차트용: 두 포트폴리오 곡선을 ~30점으로 다운샘플 (총수익률 % 시리즈)
 function downsampleChart(pvA, pvB, points = 30) {
   const n = Math.min(pvA?.length ?? 0, pvB?.length ?? 0);
@@ -98,6 +117,7 @@ function downsampleChart(pvA, pvB, points = 30) {
 const pool = [];
 for (const [a, b] of PAIRS) {
   if (!known.has(a) || !known.has(b)) continue;
+  if (!isETF(a) || !isETF(b)) continue; // ETF-vs-ETF만 (2026-08 ETF 중심 개편)
   const pa = loadPrices(a), pb = loadPrices(b);
   if (!pa || !pb) continue;
   // 공정 비교: 둘 다 데이터가 있는 공통 시작일 (최대 5년)

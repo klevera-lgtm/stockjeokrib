@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, readdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { TICKER_CATEGORIES } from "../src/utils/tickers.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -41,7 +42,18 @@ const EVENT_DATES = [
   { id: "tariff",   date: new Date("2025-04-01") },
 ];
 
-const LEVERAGE_TICKERS = new Set(["TQQQ", "SOXL", "UPRO"]);
+// 레버리지 ETF 전체 (기존엔 3개만 제외했지만, 카테고리 전체로 정확히 제외 — NVDL·TECL·QLD 등 포함)
+const LEVERAGE_TICKERS = new Set(TICKER_CATEGORIES["레버리지 ETF"] || ["TQQQ", "SOXL", "UPRO"]);
+
+// ETF 유니버스 (ETF 전용 조합). 레버리지 ETF도 포함(→ "ETF 전체" 모드), "ETF 조합"에선 위 세트로 걸러짐
+const ETF_CATEGORIES = [
+  "미국 인덱스 ETF", "반도체 ETF", "테크 섹터 ETF", "AI·로보틱스 ETF", "크립토 ETF",
+  "원자력·우라늄 ETF", "방산 ETF", "레버리지 ETF", "배당·인컴 ETF", "커버드콜·초고배당",
+  "GICS 11섹터 ETF", "테마 섹터 ETF", "안전자산", "아시아 국가 ETF", "유럽 국가 ETF",
+  "기타 국가 ETF", "국내 ETF",
+];
+const ETF_TICKERS = new Set(ETF_CATEGORIES.flatMap((c) => TICKER_CATEGORIES[c] || []));
+["069500", "360750", "458730"].forEach((t) => ETF_TICKERS.add(t)); // 국내 자산에 섞인 명백한 ETF
 
 const ALL_APP_TICKERS = [...new Set([
   "TSLA","AAPL","NVDA","MSFT","AMZN","GOOGL","META","NFLX","AMD","AVGO",
@@ -100,6 +112,16 @@ function loadPricesSync(ticker) {
   } catch {
     return null;
   }
+}
+
+// 데이터 오염 감지: 배당·분할 조정된(auto_adjust) 일봉에서 인접일 5배 급등/80% 급락은
+// 현실적으로 불가능 → 데이터 오류(JEM 등). 이런 티커는 랭킹 전체에서 제외.
+function isCleanData(prices) {
+  for (let i = 1; i < prices.length; i++) {
+    const r = prices[i].close / prices[i - 1].close;
+    if (r > 5 || r < 0.2) return false;
+  }
+  return true;
 }
 
 // ── Indicators ─────────────────────────────────────────────────────────────
@@ -200,8 +222,11 @@ function runStrategy(allPrices, strategy, monthlyAmount, startDate, endDate) {
   return isFinite(cagr) ? { strategy, cagr, simpleReturn, finalValue, totalInvested } : null;
 }
 
-function findBestForPeriod(allPrices, startDate, endDate) {
-  const results = ALL_STRATEGIES
+// 단기(≤6달)는 조건부 전략이 아주 조금만 투자해 % 뻥튀기되는 문제가 커서, 안정적 전략만 사용
+const SHORT_STABLE_STRATEGIES = ["daily", "weekly-fri", "monthly-first"];
+
+function findBestForPeriod(allPrices, startDate, endDate, strategies = ALL_STRATEGIES) {
+  const results = strategies
     .map(s => runStrategy(allPrices, s, 300000, startDate, endDate))
     .filter(r => r && r.cagr > -0.99);
   if (results.length === 0) return null;
@@ -244,11 +269,16 @@ function main() {
   console.log(`\n가격 데이터 로드 중... (${allTickers.length}개 티커)\n`);
 
   const priceData = {};
+  const dirtyTickers = [];
   for (const ticker of allTickers) {
     const prices = loadPricesSync(ticker);
-    if (prices && prices.length > 20) priceData[ticker] = prices;
+    if (!prices || prices.length <= 20) continue;
+    if (!isCleanData(prices)) { dirtyTickers.push(ticker); continue; }
+    priceData[ticker] = prices;
   }
-  console.log(`로드 성공: ${Object.keys(priceData).length}개\n`);
+  console.log(`로드 성공: ${Object.keys(priceData).length}개`);
+  if (dirtyTickers.length) console.log(`⚠️ 데이터 이상치로 제외: ${dirtyTickers.join(", ")}`);
+  console.log("");
 
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
@@ -284,39 +314,43 @@ function main() {
     process.stdout.write(`${key} 계산 중...`);
     result.combos[key] = {};
 
-    for (const withLeverage of [true, false]) {
-      const lKey = withLeverage ? "with" : "without";
+    // 이 기간의 각 티커 최적 전략을 한 번만 계산 → 4개 버킷(전체/ETF × 레버리지 포함/제외)이 공유
+    const strategies = months <= 6 ? SHORT_STABLE_STRATEGIES : ALL_STRATEGIES;
+    const scoredAll = [];
+    for (const [ticker, prices] of Object.entries(priceData)) {
+      if (prices[0].date > startDate) continue;
+      if (prices[prices.length - 1].date < sevenDaysAgo) continue;
+      const best = findBestForPeriod(prices, startDate, now, strategies);
+      if (best) scoredAll.push({ ticker, strategy: best.strategy, cagr: best.cagr, simpleReturn: best.simpleReturn });
+    }
 
-      const eligible = Object.entries(priceData).filter(([ticker, prices]) => {
-        if (!withLeverage && LEVERAGE_TICKERS.has(ticker)) return false;
-        return prices[0].date <= startDate && prices[prices.length - 1].date >= sevenDaysAgo;
-      });
+    const capCagr = (v) => Math.round(Math.min(Math.max(v, -1), 99.99) * 10000) / 10000;
 
-      const scored = [];
-      for (const [ticker, prices] of eligible) {
-        const best = findBestForPeriod(prices, startDate, now);
-        if (best) scored.push({ ticker, strategy: best.strategy, cagr: best.cagr, simpleReturn: best.simpleReturn });
+    for (const universe of ["all", "etf"]) {
+      for (const withLeverage of [true, false]) {
+        const bKey = `${universe}_${withLeverage ? "with" : "without"}`;
+
+        let scored = scoredAll;
+        if (universe === "etf") scored = scored.filter((r) => ETF_TICKERS.has(r.ticker));
+        if (!withLeverage) scored = scored.filter((r) => !LEVERAGE_TICKERS.has(r.ticker));
+
+        const top5 = [...scored].sort((a, b) => b.cagr - a.cagr).slice(0, 5);
+        const combined = top5.length > 0
+          ? top5.reduce((s, r) => s + r.cagr, 0) / top5.length
+          : 0;
+        const combinedSimple = top5.length > 0
+          ? top5.reduce((s, r) => s + r.simpleReturn, 0) / top5.length
+          : 0;
+
+        result.combos[key][bKey] = {
+          tickers: top5.map((r) => r.ticker),
+          strategies: top5.map((r) => r.strategy),
+          cagrs: top5.map((r) => capCagr(r.cagr)),
+          simpleReturns: top5.map((r) => Math.round(r.simpleReturn * 10000) / 10000),
+          combinedCagr: capCagr(combined),
+          combinedSimpleReturn: Math.round(combinedSimple * 10000) / 10000,
+        };
       }
-
-      scored.sort((a, b) => b.cagr - a.cagr);
-      const top5 = scored.slice(0, 5);
-      const combined = top5.length > 0
-        ? top5.reduce((s, r) => s + r.cagr, 0) / top5.length
-        : 0;
-      const combinedSimple = top5.length > 0
-        ? top5.reduce((s, r) => s + r.simpleReturn, 0) / top5.length
-        : 0;
-
-      const capCagr = (v) => Math.round(Math.min(Math.max(v, -1), 99.99) * 10000) / 10000;
-
-      result.combos[key][lKey] = {
-        tickers: top5.map(r => r.ticker),
-        strategies: top5.map(r => r.strategy),
-        cagrs: top5.map(r => capCagr(r.cagr)),
-        simpleReturns: top5.map(r => Math.round(r.simpleReturn * 10000) / 10000),
-        combinedCagr: capCagr(combined),
-        combinedSimpleReturn: Math.round(combinedSimple * 10000) / 10000,
-      };
     }
 
     console.log(` ✓`);

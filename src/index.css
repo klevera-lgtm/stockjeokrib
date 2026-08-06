@@ -2247,6 +2247,50 @@ input, select {
 }
 .fc-period-label { font-size: 13px; font-weight: 600; color: var(--text-primary); }
 .fc-badge { font-size: 11px; color: var(--text-secondary); }
+.fc-badge--free { color: #16A34A; font-weight: 700; }
+
+/* 조합 2×2 토글 (전체/ETF × 레버리지 제외/포함) */
+.fc-toggle-2d {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px 4px;
+}
+.fc-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fc-toggle-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  width: 48px;
+  flex-shrink: 0;
+}
+.fc-toggle-2d .fc-toggle {
+  flex: 1;
+  padding: 0;
+}
+.fc-mode-caption {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  padding: 2px 16px 8px;
+  margin: 0;
+}
+.fc-daily-free {
+  margin: 0 16px 10px;
+  padding: 9px 12px;
+  background: rgba(22,163,74,0.08);
+  border: 1px solid rgba(22,163,74,0.25);
+  border-radius: 10px;
+  font-size: 12.5px;
+  color: var(--text-primary);
+  text-align: center;
+}
+.fc-daily-free strong { color: #16A34A; font-weight: 700; }
 
 .fc-cagr {
   display: flex;
@@ -2326,6 +2370,39 @@ input, select {
   cursor: pointer;
 }
 .fc-chart-btn:active { opacity: 0.85; }
+
+/* 조합 → 내 종목 담기 (리텐션 접착제) */
+.fc-save-btn {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 9px 0;
+  background: #16A34A;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(22,163,74,0.24);
+}
+.fc-save-btn:active { background: #15803D; }
+.fc-save-btn.done {
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border);
+  box-shadow: none;
+  font-weight: 600;
+  cursor: default;
+}
+.fc-save-limit {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 6px 16px 0;
+  margin: 0;
+}
+.fc-save-limit strong { color: var(--primary); }
 
 .fc-updated {
   text-align: center;

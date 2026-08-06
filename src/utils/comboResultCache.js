@@ -86,7 +86,7 @@ const FREE_LONG = ["6yr", "7yr", "8yr", "9yr", "10yr"];
 
 export async function precomputeFeaturedCombos(data, monthlyAmount = 300000) {
   for (const periodKey of FREE_LONG) {
-    for (const lKey of ["without", "with"]) {
+    for (const lKey of ["all_without", "all_with", "etf_without", "etf_with"]) {
       const combo = data.combos?.[periodKey]?.[lKey];
       if (!combo || combo.tickers.length === 0) continue;
 
