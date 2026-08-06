@@ -539,13 +539,12 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                       }
                     </div>
                   </div>
+                  {idx === 0 && saveCTA}
                   </React.Fragment>
                 );
               })}
             </div>
           )}
-
-          {revealed && saveCTA}
 
           {results.list[0] && (
             <button className="ssheet-trigger" onClick={() => setShowShare(true)}>

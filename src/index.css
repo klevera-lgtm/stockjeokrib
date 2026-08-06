@@ -4585,9 +4585,8 @@ input, select {
 .save-stock-hint strong { color: var(--text-secondary); font-weight: 700; }
 .save-notify-btn { width: 100%; margin-top: 8px; }
 .save-notify-on { font-size: 12.5px; color: var(--text-tertiary); text-align: center; margin-top: 8px; }
-@media (prefers-color-scheme: dark) {
-  .period-clamp-note { color: #FCD34D; background: rgba(251, 191, 36, 0.12); border-color: rgba(251, 191, 36, 0.4); }
-}
+/* 다크모드 override 제거: 토스 웹뷰에서 배경은 밝은데 글씨만 노랑=안 보임.
+   불투명 밝은 앰버(진한 갈색 글씨)로 고정해 어느 배경에서도 읽히게. */
 
 /* ── 평단 계산기 ─────────────────────────────── */
 .avg { padding: 4px 16px 10px; }
