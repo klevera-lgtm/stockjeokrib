@@ -176,7 +176,7 @@ function InsiderChart({ ticker, transactions, txFilter }) {
   if (!candle) return null;
   return (
     <div className="insider-chart-wrap">
-      <canvas ref={canvasRef} />
+      <div className="insider-chart-canvas"><canvas ref={canvasRef} /></div>
       <div className="insider-chart-legend">
         <span className="insider-legend-buy">● 내부자 매수</span>
         <span className="insider-legend-sell">● 내부자 매도</span>
