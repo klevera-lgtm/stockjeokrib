@@ -120,6 +120,7 @@ input, select {
 
 .content-area {
   flex: 1;
+  padding-top: 34px; /* 고정된 .miniapp-tag 높이만큼 확보 */
   padding-bottom: 120px;
   overflow-y: auto;
 }
@@ -560,6 +561,26 @@ input, select {
   50% { box-shadow: 0 0 0 6px rgba(49,130,246,0.15); }
   100% { box-shadow: 0 0 0 0 rgba(49,130,246,0); }
 }
+/* 매수 시점 안내: 정기형=문구, 조건부=음영 구간 범례 */
+.buy-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.buy-band-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 11px;
+  border-radius: 2px;
+  background: rgba(229,62,62,0.28);
+  flex-shrink: 0;
+}
+
 .chart-selected-label {
   font-size: 13px;
   font-weight: 600;
@@ -3153,6 +3174,38 @@ input, select {
 .insight-arrow { font-size: 20px; color: rgba(255,255,255,0.4); flex-shrink: 0; }
 
 /* ── 코인 칩 바 (콘텐츠 최상단, 네비바 아래) ── */
+/* '토스 미니앱 · 주식적립왕' 발견 태그 — 스샷에 자동으로 잡히게 (규정: 우리 브랜드 primary) */
+.miniapp-tag {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+  z-index: 20;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px 6px;
+}
+.miniapp-tag-plat {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+  border-radius: 5px;
+  letter-spacing: 0.02em;
+}
+.miniapp-tag-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
 .coin-chip-bar {
   display: flex;
   align-items: center;

@@ -418,18 +418,30 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             const toReturnPct = (pv) =>
               pv.map((d) => d.invested > 0 ? (d.value / d.invested - 1) * 100 : 0);
             const selPct = toReturnPct(selected.portfolioValues);
-            // 매수(투입) 시점 = invested가 늘어난 날. 너무 잦으면(매일·매주) 점 생략.
+            // 정기형(매일·매주·매달)은 뻔하니 문구로, 조건부(MA·급락·RSI)는 매수 구간 음영으로
             const pvs = selected.portfolioValues;
-            const buySet = new Set();
+            const s = selected.strategy;
+            const periodic = s === "daily" || s.startsWith("weekly") || s.startsWith("monthly");
+            const buyIdx = [];
             for (let i = 0; i < pvs.length; i++) {
-              if (i === 0 ? pvs[i].invested > 0 : pvs[i].invested > pvs[i - 1].invested) buySet.add(i);
+              if (i === 0 ? pvs[i].invested > 0 : pvs[i].invested > pvs[i - 1].invested) buyIdx.push(i);
             }
-            const showBuys = buySet.size > 0 && buySet.size <= 80;
+            // 인접(2거래일 이내) 매수일을 하나의 구간으로 병합
+            const buyBands = [];
+            if (!periodic && buyIdx.length) {
+              let start = buyIdx[0], prev = buyIdx[0];
+              for (let k = 1; k < buyIdx.length; k++) {
+                if (buyIdx[k] - prev <= 2) prev = buyIdx[k];
+                else { buyBands.push({ startIdx: start, endIdx: prev }); start = prev = buyIdx[k]; }
+              }
+              buyBands.push({ startIdx: start, endIdx: prev });
+            }
             return (
               <div ref={chartRef} className={`chart-highlight-wrap${chartFlash ? " chart-flash" : ""}`}>
               <div className="chart-selected-label">📊 {STRATEGY_LABELS[selected.strategy]}</div>
               <LineChart
                 labels={selected.portfolioValues.map((d) => d.date)}
+                bands={buyBands}
                 datasets={[
                   {
                     label: STRATEGY_LABELS[selected.strategy],
@@ -450,19 +462,16 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
                     tension: 0.3,
                     pointRadius: 0,
                   }] : []),
-                  ...(showBuys ? [{
-                    label: "매수 시점",
-                    data: selPct.map((v, i) => (buySet.has(i) ? v : null)),
-                    showLine: false,
-                    pointRadius: 3,
-                    pointHoverRadius: 4,
-                    pointBackgroundColor: "#E53E3E",
-                    pointBorderColor: "#E53E3E",
-                    borderColor: "#E53E3E",
-                  }] : []),
                 ]}
                 yType="pct"
               />
+              {periodic ? (
+                <p className="buy-note">🗓️ 정해진 날마다 꾸준히 담는 방식이에요</p>
+              ) : buyIdx.length > 0 && (
+                <p className="buy-note buy-note--band">
+                  <span className="buy-band-swatch" /> 음영 = 담은 구간 · 총 {buyIdx.length}번 담음
+                </p>
+              )}
               </div>
             );
           })()}

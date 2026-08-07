@@ -268,6 +268,11 @@ export default function App() {
   return (
     <div className="app">
       <div className="content-area">
+        {/* 스샷에 자동으로 잡히는 발견 훅 — 규정상 우리 브랜드가 primary, '토스 미니앱'은 태그 */}
+        <div className="miniapp-tag">
+          <span className="miniapp-tag-plat">토스 미니앱</span>
+          <span className="miniapp-tag-name">주식적립왕</span>
+        </div>
         {!basic && (
           <div className="coin-chip-bar">
             <button className="coin-chip" onClick={() => { logClick("coin_chip_open"); setShowCoinShop(true); }}>

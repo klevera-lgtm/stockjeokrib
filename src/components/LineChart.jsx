@@ -12,13 +12,33 @@ import {
 } from "chart.js";
 import "chart.js/auto";
 
-export default function LineChart({ data, labels, datasets, title, yType = "won" }) {
+export default function LineChart({ data, labels, datasets, title, yType = "won", bands }) {
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
 
   useEffect(() => {
     if (!canvasRef.current) return;
     if (chartRef.current) chartRef.current.destroy();
+
+    // 매수 구간 음영 (조건부 전략) — 라인 뒤에 옅은 빨강 세로 밴드
+    const buyBandsPlugin = {
+      id: "buyBands",
+      beforeDatasetsDraw(chart) {
+        if (!bands || !bands.length) return;
+        const { ctx, chartArea, scales } = chart;
+        ctx.save();
+        ctx.fillStyle = "rgba(229,62,62,0.12)";
+        for (const b of bands) {
+          let x1 = scales.x.getPixelForValue(b.startIdx);
+          let x2 = scales.x.getPixelForValue(b.endIdx);
+          if (!isFinite(x1) || !isFinite(x2)) continue;
+          let w = x2 - x1;
+          if (w < 3) { x1 = (x1 + x2) / 2 - 1.5; w = 3; } // 얇아도 보이게 최소폭
+          ctx.fillRect(x1, chartArea.top, w, chartArea.bottom - chartArea.top);
+        }
+        ctx.restore();
+      },
+    };
 
     chartRef.current = new Chart(canvasRef.current, {
       type: "line",
@@ -84,10 +104,11 @@ export default function LineChart({ data, labels, datasets, title, yType = "won"
           },
         },
       },
+      plugins: [buyBandsPlugin],
     });
 
     return () => chartRef.current?.destroy();
-  }, [data, labels, datasets, title]);
+  }, [data, labels, datasets, title, bands]);
 
   return (
     <div className="chart-container">
