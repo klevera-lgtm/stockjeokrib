@@ -3469,6 +3469,8 @@ input, select {
 .trade-step { font-size: 12px; font-weight: 600; color: var(--text-tertiary); padding: 4px 8px; border-radius: 6px; }
 .trade-step.active { background: var(--primary); color: #fff; }
 .trade-step.done { color: var(--primary); }
+.trade-step.clickable { cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.trade-step.clickable:active { background: var(--primary-light); }
 .trade-step-arrow { color: var(--text-tertiary); font-size: 12px; }
 
 .trade-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }

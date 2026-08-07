@@ -372,22 +372,45 @@ export default function TradingSimulation({ onCoinsChanged, initialTicker }) {
 
   const label = strategyType ? strategyLabel(strategyType, strategyParams || {}) : "";
 
+  // 스텝 번호: 지나온(번호 작은) 단계만 클릭해 뒤로 점프 (선택은 유지 — setStep만 호출)
+  const STEP_STAGE = {
+    ticker: 0, timeframe: 1,
+    strategy: 2, "ma-params": 2, "rsi-params": 2, "dualma-params": 2,
+    "bollinger-params": 2, "combo-select": 2, "combo-params": 2,
+    period: 3, "top10-period": 3, result: 4, "top10-result": 4,
+  };
+  const curStage = STEP_STAGE[step] ?? 0;
+  const isTop10Flow = step === "top10-period" || step === "top10-result";
+  const STEP_NAV = [
+    { label: "종목", stage: 0, target: "ticker" },
+    { label: "봉",   stage: 1, target: "timeframe" },
+    { label: "전략", stage: 2, target: "strategy" },
+    { label: "기간", stage: 3, target: isTop10Flow ? "top10-period" : "period" },
+    { label: "결과", stage: 4, target: null },
+  ];
+
   return (
     <div className="trade-sim">
       <h2 className="section-title">백테스트 시뮬레이션</h2>
       <p className="section-desc">전략의 과거 성과를 테스트해 보세요</p>
 
-      {/* Step indicator */}
+      {/* Step indicator — 지나온 단계 클릭 시 뒤로 점프 (선택 유지) */}
       <div className="trade-steps">
-        <span className={`trade-step${step === "ticker" ? " active" : ticker ? " done" : ""}`}>종목</span>
-        <span className="trade-step-arrow">›</span>
-        <span className={`trade-step${step === "timeframe" ? " active" : timeframe && step !== "ticker" ? " done" : ""}`}>봉</span>
-        <span className="trade-step-arrow">›</span>
-        <span className={`trade-step${["strategy", "ma-params", "rsi-params", "dualma-params", "bollinger-params", "combo-select", "combo-params"].includes(step) ? " active" : strategyType || step === "top10-period" || step === "top10-result" ? " done" : ""}`}>전략</span>
-        <span className="trade-step-arrow">›</span>
-        <span className={`trade-step${step === "period" || step === "top10-period" ? " active" : period ? " done" : ""}`}>기간</span>
-        <span className="trade-step-arrow">›</span>
-        <span className={`trade-step${step === "result" || step === "top10-result" ? " active" : ""}`}>결과</span>
+        {STEP_NAV.flatMap((s, i) => {
+          const back = s.stage < curStage && s.target;
+          const cls = `trade-step${s.stage === curStage ? " active" : s.stage < curStage ? " done" : ""}${back ? " clickable" : ""}`;
+          const el = (
+            <span
+              key={s.label}
+              className={cls}
+              onClick={back ? () => { setStep(s.target); logClick("trade_step_back", { to: s.target }); } : undefined}
+              role={back ? "button" : undefined}
+            >
+              {s.label}
+            </span>
+          );
+          return i === 0 ? [el] : [<span key={`arw-${i}`} className="trade-step-arrow">›</span>, el];
+        })}
       </div>
 
       {/* Step 1: Ticker */}
