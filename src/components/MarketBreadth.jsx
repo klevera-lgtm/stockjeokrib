@@ -43,7 +43,7 @@ function findZones(arr) {
   const zones = [];
   let cur = null;
   for (let i = 0; i < arr.length; i++) {
-    const t = arr[i] >= 80 ? "hot" : arr[i] <= 20 ? "cold" : null;
+    const t = arr[i] <= 20 ? "cold" : null; // 바닥(≤20)만 음영 — 과열(≥80)은 강세장서 계속 빨개져 의미 적어 제외
     if (t && cur?.type === t) cur.end = i;
     else {
       if (cur) zones.push(cur);
@@ -58,8 +58,11 @@ const COLD_HORIZONS = [10, 30, 60, 90];
 
 function computeColdStats(breadthArr, pricesArr) {
   if (!breadthArr?.length || !pricesArr?.length) return null;
+  // 시작부 워밍업(이평선 계산 전 breadth≈0) 스킵 — 가짜 바닥 진입 방지
+  let s = 0;
+  while (s < breadthArr.length && (breadthArr[s] ?? 0) <= 2) s++;
   const entries = [];
-  for (let i = 1; i < breadthArr.length; i++) {
+  for (let i = s + 1; i < breadthArr.length; i++) {
     if (breadthArr[i] < 20 && breadthArr[i - 1] >= 20) entries.push(i);
   }
   if (entries.length === 0) return null;
@@ -116,8 +119,7 @@ const zoneBgPlugin = {
     zones.forEach((z) => {
       const x1 = x.getPixelForValue(z.start);
       const x2 = x.getPixelForValue(z.end);
-      ctx.fillStyle =
-        z.type === "hot" ? "rgba(255,59,48,0.10)" : "rgba(49,130,246,0.10)";
+      ctx.fillStyle = "rgba(0,185,107,0.13)"; // 바닥(cold) = 초록 (매수하기 좋은 구간)
       ctx.fillRect(x1, area.top, Math.max(x2 - x1, 3), area.bottom - area.top);
     });
     ctx.restore();
@@ -178,18 +180,22 @@ export default function MarketBreadth({ onCoinsChanged }) {
     const allBreadth = idx.breadth?.[activePeriod] ?? idx.breadth?.pct_above_20 ?? [];
     const periodLabel = PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일";
     const rangeStart = Math.max(0, allDates.length - range);
+    // 시작부 워밍업(이평선 계산 전 breadth≈0) 구간 스킵 → 5년뷰가 진짜 데이터부터 + 가짜 초록 바닥존 방지
+    let warmupEnd = 0;
+    while (warmupEnd < allBreadth.length && (allBreadth[warmupEnd] ?? 0) <= 2) warmupEnd++;
+    const viewStart = Math.max(rangeStart, warmupEnd);
 
     let slicedDates, slicedPrices, slicedBreadth;
     if (zoomedRange) {
-      const zs = rangeStart + zoomedRange.start;
-      const ze = Math.min(allDates.length, rangeStart + zoomedRange.end + 1);
+      const zs = viewStart + zoomedRange.start;
+      const ze = Math.min(allDates.length, viewStart + zoomedRange.end + 1);
       slicedDates = allDates.slice(zs, ze);
       slicedPrices = allPrices.slice(zs, ze);
       slicedBreadth = allBreadth.slice(zs, ze);
     } else {
-      slicedDates = allDates.slice(rangeStart);
-      slicedPrices = allPrices.slice(rangeStart);
-      slicedBreadth = allBreadth.slice(rangeStart);
+      slicedDates = allDates.slice(viewStart);
+      slicedPrices = allPrices.slice(viewStart);
+      slicedBreadth = allBreadth.slice(viewStart);
     }
 
     const zones = findZones(slicedBreadth);
@@ -236,7 +242,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
               const buffer = 40;
               const start = Math.max(0, hit.start - buffer);
               const end = Math.min(slicedBreadth.length - 1, hit.end + buffer);
-              const zeAbs = rangeStart + hit.end;
+              const zeAbs = viewStart + hit.end;
               const pEnd = allPrices[zeAbs];
               let ret30 = null, ret60 = null;
               if (pEnd && zeAbs + 30 < allDates.length)
@@ -245,8 +251,8 @@ export default function MarketBreadth({ onCoinsChanged }) {
                 ret60 = ((allPrices[zeAbs + 60] - pEnd) / pEnd) * 100;
               setZoomedRange({
                 start, end, type: hit.type,
-                startDate: allDates[rangeStart + hit.start],
-                endDate: allDates[rangeStart + hit.end],
+                startDate: allDates[viewStart + hit.start],
+                endDate: allDates[viewStart + hit.end],
                 ret30, ret60,
               });
             }
@@ -294,8 +300,8 @@ export default function MarketBreadth({ onCoinsChanged }) {
             grid: {
               drawOnChartArea: true,
               color: (ctx) =>
-                ctx.tick.value === 80 || ctx.tick.value === 20
-                  ? "rgba(255,59,48,0.3)"
+                ctx.tick.value === 20 ? "rgba(0,185,107,0.45)"
+                  : ctx.tick.value === 80 ? "rgba(255,59,48,0.28)"
                   : "transparent",
               lineWidth: (ctx) =>
                 ctx.tick.value === 80 || ctx.tick.value === 20 ? 1.5 : 0,
@@ -476,7 +482,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
         {zoomedRange && (
           <div className="breadth-zoom-info">
             <span className={`breadth-zone-tag ${zoomedRange.type}`}>
-              {zoomedRange.type === "hot" ? "🔴 과열" : "🔵 침체"} 구간
+              🟢 바닥 (과매도) 구간
             </span>
             <span className="breadth-zone-dates">
               {zoomedRange.startDate} ~ {zoomedRange.endDate}
@@ -503,8 +509,7 @@ export default function MarketBreadth({ onCoinsChanged }) {
         )}
 
         <div className="breadth-legend">
-          <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "rgba(255,59,48,0.35)" }} />과열 (80%+)</span>
-          <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "rgba(49,130,246,0.35)" }} />침체 (20%-)</span>
+          <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "rgba(0,185,107,0.4)" }} />바닥 (20%-, 매수 유리)</span>
           <span className="breadth-legend-item"><span className="breadth-dot" style={{ background: "#f59e0b" }} />Breadth {PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일"}</span>
         </div>
         {!zoomedRange && (

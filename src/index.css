@@ -3997,7 +3997,7 @@ input, select {
 }
 .breadth-zone-tag { font-weight: 600; font-size: 13px; }
 .breadth-zone-tag.hot { color: #ff3b30; }
-.breadth-zone-tag.cold { color: #3182f6; }
+.breadth-zone-tag.cold { color: #00b96b; }
 .breadth-zone-dates { color: var(--text-secondary); font-size: 12px; }
 .breadth-zone-returns {
   display: flex; gap: 12px; width: 100%;
