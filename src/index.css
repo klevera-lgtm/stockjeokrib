@@ -3872,6 +3872,9 @@ input, select {
   width: 8px; height: 8px; border-radius: 50%; display: inline-block;
 }
 .breadth-chart-wrap { height: 260px; }
+.breadth-chart-price { height: 172px; }
+.breadth-chart-panel { height: 82px; }
+.breadth-panel-cap { font-size: 11px; font-weight: 600; color: var(--text-secondary); margin: 8px 0 2px; }
 
 .breadth-premium-section { margin: 8px 0 16px; }
 .breadth-premium-title {

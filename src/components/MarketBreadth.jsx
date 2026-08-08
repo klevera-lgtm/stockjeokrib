@@ -145,6 +145,8 @@ export default function MarketBreadth({ onCoinsChanged }) {
   const [zoomedRange, setZoomedRange] = useState(null);
   const chartRef = useRef(null);
   const canvasRef = useRef(null);
+  const breadthChartRef = useRef(null);
+  const breadthCanvasRef = useRef(null);
   const basic = isBasic();
 
   function fetchBreadth() {
@@ -169,8 +171,9 @@ export default function MarketBreadth({ onCoinsChanged }) {
   useEffect(() => { setZoomedRange(null); }, [activeIndex, range, activePeriod]);
 
   const drawChart = useCallback(() => {
-    if (!data || !canvasRef.current) return;
+    if (!data || !canvasRef.current || !breadthCanvasRef.current) return;
     if (chartRef.current) chartRef.current.destroy();
+    if (breadthChartRef.current) breadthChartRef.current.destroy();
 
     const idx = data[activeIndex];
     if (!idx) return;
@@ -199,39 +202,33 @@ export default function MarketBreadth({ onCoinsChanged }) {
     }
 
     const zones = findZones(slicedBreadth);
+    // 두 차트 x축 정렬용: y축 폭을 동일하게 고정
+    const fixYWidth = { afterFit: (s) => { s.width = 50; } };
+    const xTicks = {
+      maxTicksLimit: 5,
+      callback(val) {
+        const label = this.getLabelForValue(val);
+        if (!label) return "";
+        const d = new Date(label);
+        return `${d.getFullYear()}.${d.getMonth() + 1}`;
+      },
+    };
 
+    // ── 위: 가격 + 초록 매수존 밴드 (탭하면 확대) ──
     chartRef.current = new Chart(canvasRef.current, {
       type: "line",
       data: {
         labels: slicedDates,
-        datasets: [
-          {
-            label: `${activeIndex} 가격`,
-            data: slicedPrices,
-            borderColor: "#3182f6",
-            backgroundColor: "rgba(49,130,246,0.08)",
-            fill: true,
-            tension: 0.2,
-            pointRadius: 0,
-            borderWidth: 2,
-            yAxisID: "y",
-          },
-          {
-            label: `${periodLabel} 이평선 상회 비율`,
-            data: slicedBreadth,
-            borderColor: "#f59e0b",
-            borderWidth: 1.5,
-            borderDash: [4, 3],
-            pointRadius: 0,
-            tension: 0.2,
-            fill: false,
-            yAxisID: "y1",
-          },
-        ],
+        datasets: [{
+          label: `${activeIndex} 가격`,
+          data: slicedPrices,
+          borderColor: "#3182f6",
+          backgroundColor: "rgba(49,130,246,0.08)",
+          fill: true, tension: 0.2, pointRadius: 0, borderWidth: 1.8,
+        }],
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
+        responsive: true, maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
         onClick: !zoomedRange
           ? (event, _el, chart) => {
@@ -259,62 +256,60 @@ export default function MarketBreadth({ onCoinsChanged }) {
           : undefined,
         plugins: {
           legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => {
-                if (ctx.datasetIndex === 0)
-                  return `${activeIndex}: $${ctx.raw?.toFixed(2) ?? ctx.raw}`;
-                if (ctx.datasetIndex === 1)
-                  return `Breadth ${periodLabel}: ${ctx.raw?.toFixed(1)}%`;
-                return null;
-              },
-            },
-          },
+          tooltip: { callbacks: { label: (ctx) => `${activeIndex}: $${ctx.raw?.toFixed(2) ?? ctx.raw}` } },
           zoneBg: { zones },
         },
         scales: {
-          x: {
-            ticks: {
-              maxTicksLimit: 5,
-              callback(val) {
-                const label = this.getLabelForValue(val);
-                if (!label) return "";
-                const d = new Date(label);
-                return `${d.getFullYear()}.${d.getMonth() + 1}`;
-              },
-            },
-            grid: { display: false },
-          },
+          x: { ticks: { display: false }, grid: { display: false } },
           y: {
-            position: "right",
-            ticks: {
-              callback: (v) => `$${v >= 1000 ? Math.round(v) : v.toFixed(0)}`,
-            },
+            position: "right", ...fixYWidth,
+            ticks: { callback: (v) => `$${v >= 1000 ? Math.round(v) : v.toFixed(0)}` },
             grid: { color: "rgba(128,128,128,0.1)" },
-          },
-          y1: {
-            position: "left",
-            min: 0,
-            max: 100,
-            ticks: { callback: (v) => `${v}%`, stepSize: 20 },
-            grid: {
-              drawOnChartArea: true,
-              color: (ctx) =>
-                ctx.tick.value === 20 ? "rgba(0,185,107,0.45)"
-                  : ctx.tick.value === 80 ? "rgba(255,59,48,0.28)"
-                  : "transparent",
-              lineWidth: (ctx) =>
-                ctx.tick.value === 80 || ctx.tick.value === 20 ? 1.5 : 0,
-              borderDash: [4, 4],
-            },
           },
         },
       },
       plugins: [zoneBgPlugin],
     });
+
+    // ── 아래: Breadth % 패널 (20선=초록 매수, 80선=과열 참고) ──
+    breadthChartRef.current = new Chart(breadthCanvasRef.current, {
+      type: "line",
+      data: {
+        labels: slicedDates,
+        datasets: [{
+          label: `${periodLabel} 이평선 상회 비율`,
+          data: slicedBreadth,
+          borderColor: "#f59e0b",
+          backgroundColor: "rgba(245,158,11,0.08)",
+          fill: true, borderWidth: 1.6, pointRadius: 0, tension: 0.2,
+        }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (ctx) => `Breadth ${periodLabel}: ${ctx.raw?.toFixed(1)}%` } },
+        },
+        scales: {
+          x: { ticks: xTicks, grid: { display: false } },
+          y: {
+            position: "right", ...fixYWidth,
+            min: 0, max: 100,
+            ticks: { callback: (v) => `${v}%`, stepSize: 20 },
+            grid: {
+              drawOnChartArea: true,
+              color: (ctx) => ctx.tick.value === 20 ? "rgba(0,185,107,0.5)" : ctx.tick.value === 80 ? "rgba(255,59,48,0.3)" : "transparent",
+              lineWidth: (ctx) => ctx.tick.value === 80 || ctx.tick.value === 20 ? 1.5 : 0,
+              borderDash: [4, 4],
+            },
+          },
+        },
+      },
+    });
   }, [data, activeIndex, range, activePeriod, zoomedRange]);
 
-  useEffect(() => { drawChart(); return () => chartRef.current?.destroy(); }, [drawChart]);
+  useEffect(() => { drawChart(); return () => { chartRef.current?.destroy(); breadthChartRef.current?.destroy(); }; }, [drawChart]);
 
   const coldStats = useMemo(() => {
     try {
@@ -515,8 +510,12 @@ export default function MarketBreadth({ onCoinsChanged }) {
         {!zoomedRange && (
           <p className="breadth-zone-hint">색칠된 구간을 탭하면 확대돼요</p>
         )}
-        <div className="breadth-chart-wrap">
+        <div className="breadth-chart-wrap breadth-chart-price">
           <canvas ref={canvasRef} />
+        </div>
+        <p className="breadth-panel-cap">Breadth % · {PERIODS.find((p) => p.key === activePeriod)?.label ?? "20일"} 이평선 상회</p>
+        <div className="breadth-chart-wrap breadth-chart-panel">
+          <canvas ref={breadthCanvasRef} />
         </div>
       </div>
 
