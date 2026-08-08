@@ -40,13 +40,16 @@ function getPeriodDates(yearsBack) {
   return { start, end };
 }
 
-function makeSimShareText(ticker, result, monthlyAmount) {
-  return `👑 주식적립왕 시뮬 결과\n\n${getTickerName(ticker)} · ${Math.round(result.years)}년\n월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립 →\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)}`;
+function makeSimShareText(ticker, result, amountLabel) {
+  return `👑 주식적립왕 시뮬 결과\n\n${getTickerName(ticker)} · ${Math.round(result.years)}년\n${amountLabel} 적립 →\n원금 ${formatKRW(result.totalInvested)} → ${formatKRW(result.finalValue)}\n수익률 ${formatPct(result.totalReturn)}`;
 }
 
 export default function StrategyResult({ initialTicker = null, onOpenTest = null, onNavigate = null, embedded = false }) {
   const [ticker, setTicker] = useState(initialTicker);
   const [monthlyAmount, setMonthlyAmount] = useState(300000);
+  const [amountMode, setAmountMode] = useState("daily"); // "daily" | "monthly" — 하루 만원 훅이 기본
+  const [dailyAmount, setDailyAmount] = useState(10000);  // 일 기준 금액 (기본 하루 만원)
+  const [customUnlocked, setCustomUnlocked] = useState(() => isBasic() || isUnlockedToday("custom_amount"));
   const [customStart, setCustomStart] = useState("");
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -63,6 +66,10 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
   const [notifyOn, setNotifyOn] = useState(notifyConsent() === "granted"); // 알림 동의 여부
   const [chartIdx, setChartIdx] = useState(0);
   const basic = isBasic();
+  // 하루 X원 = 매일(달력) X원 ≈ 월 X×30.44 → 엔진은 월 단위라 이걸 먹임
+  const effMonthly = amountMode === "daily" ? Math.round(dailyAmount * 30.44) : monthlyAmount;
+  const fmtAmt = (v) => (v >= 10000 ? `${v % 10000 ? (v / 10000).toFixed(1) : (v / 10000).toFixed(0)}만원` : `${v.toLocaleString()}원`);
+  const amountLabel = amountMode === "daily" ? `하루 ${fmtAmt(dailyAmount)}` : `월 ${fmtAmt(monthlyAmount)}`;
   const autoRanRef = useRef(false);
   const formRef = useRef(null);
   const chartRef = useRef(null);
@@ -108,9 +115,22 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
     }
   }
 
+  // 직접 입력 금액: 코인 1개로 해제 (그날 하루 유지). 베이직은 상시.
+  function handleCustomUnlock() {
+    if (customUnlocked) return;
+    if (unlockToday("custom_amount")) {
+      setCustomUnlocked(true);
+      setRemaining(getQueryBalance());
+      logClick("custom_amount_unlock", { ticker });
+    } else {
+      gateActionRef.current = "custom";
+      setShowQueryGate(true);
+    }
+  }
+
   const run = useCallback(async () => {
     if (!ticker) return;
-    logClick("sim_run", { ticker, amount: monthlyAmount });
+    logClick("sim_run", { ticker, amount: effMonthly, mode: amountMode });
     saveRecent(ticker);
     setLoading(true);
     setError(null);
@@ -128,7 +148,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
       }
 
       const allResults = ALL_STRATEGIES.map((s) =>
-        runStrategy(prices, s, monthlyAmount, startDate, endDate)
+        runStrategy(prices, s, effMonthly, startDate, endDate)
       ).filter(Boolean);
 
       allResults.sort((a, b) => b.totalReturn - a.totalReturn);
@@ -139,8 +159,8 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
         .filter((n) => n <= availYears + 0.15)
         .map((n) => {
           const s = new Date(endDate); s.setFullYear(s.getFullYear() - n);
-          const dca = runStrategy(prices, "daily", monthlyAmount, s, endDate);
-          const lump = runStrategy(prices, "lumpsum", monthlyAmount, s, endDate);
+          const dca = runStrategy(prices, "daily", effMonthly, s, endDate);
+          const lump = runStrategy(prices, "lumpsum", effMonthly, s, endDate);
           return dca && lump ? { years: n, dca, lump } : null;
         })
         .filter(Boolean);
@@ -152,7 +172,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
     } finally {
       setLoading(false);
     }
-  }, [ticker, monthlyAmount, customStart, basic]);
+  }, [ticker, effMonthly, customStart, basic]);
 
   useEffect(() => {
     if (initialTicker && !autoRanRef.current) {
@@ -273,32 +293,39 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
 
       {ticker && (
         <div className="form-section" ref={formRef}>
-          <label className="form-label">월 납입금</label>
+          <div className="amount-mode-toggle">
+            <button className={`amt-mode${amountMode === "daily" ? " on" : ""}`} onClick={() => setAmountMode("daily")}>하루 기준</button>
+            <button className={`amt-mode${amountMode === "monthly" ? " on" : ""}`} onClick={() => setAmountMode("monthly")}>한 달 기준</button>
+          </div>
+          <label className="form-label">{amountMode === "daily" ? "하루 적립액" : "월 납입금"}</label>
           <div className="amount-row">
-            {[100000, 300000, 500000, 1000000].map((v) => (
-              <button
-                key={v}
-                className={`chip${monthlyAmount === v ? " active" : ""}`}
-                onClick={() => setMonthlyAmount(v)}
-              >
-                {(v / 10000).toFixed(0)}만원
-              </button>
-            ))}
-            {basic ? (
+            {(amountMode === "daily" ? [10000, 30000, 50000, 100000] : [100000, 300000, 500000, 1000000]).map((v) => {
+              const cur = amountMode === "daily" ? dailyAmount : monthlyAmount;
+              const set = amountMode === "daily" ? setDailyAmount : setMonthlyAmount;
+              return (
+                <button key={v} className={`chip${cur === v ? " active" : ""}`} onClick={() => set(v)}>
+                  {(v / 10000).toFixed(0)}만원
+                </button>
+              );
+            })}
+            {customUnlocked ? (
               <input
                 type="number"
                 className="amount-input"
-                value={monthlyAmount}
-                min={10000}
-                step={10000}
-                onChange={(e) => setMonthlyAmount(Number(e.target.value))}
+                value={amountMode === "daily" ? dailyAmount : monthlyAmount}
+                min={amountMode === "daily" ? 1000 : 10000}
+                step={amountMode === "daily" ? 1000 : 10000}
+                onChange={(e) => (amountMode === "daily" ? setDailyAmount : setMonthlyAmount)(Number(e.target.value))}
               />
             ) : (
-              <button className="chip chip--locked" onClick={() => setShowUpgrade(true)}>
-                직접 입력 🔒
+              <button className="chip chip--locked" onClick={handleCustomUnlock}>
+                직접 입력 🪙
               </button>
             )}
           </div>
+          {amountMode === "daily" && (
+            <p className="amount-bridge">💡 하루 <strong>{fmtAmt(dailyAmount)}</strong> = 월 약 {fmtAmt(Math.round(dailyAmount * 30.44 / 10000) * 10000)} 기준</p>
+          )}
 
           <div className="period-row">
             <label className="form-label">시작 연월</label>
@@ -327,7 +354,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
             key={ticker}
             tickers={[ticker]}
             weights={{ [ticker]: 100 }}
-            monthlyAmount={monthlyAmount}
+            monthlyAmount={effMonthly}
             dataYears={dataMeta?.years ?? 0}
             onNeedUpgrade={() => setShowUpgrade(true)}
           />
@@ -581,7 +608,7 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
 
           <AdBanner className="ad-banner-results" />
 
-          <StrategyGuide monthlyAmount={monthlyAmount} />
+          <StrategyGuide monthlyAmount={effMonthly} />
 
           {!basic && (
             <div className="upgrade-banner">
@@ -597,7 +624,12 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
       {showQueryGate && (
         <QueryGateModal
           onClose={() => setShowQueryGate(false)}
-          onEarned={() => (gateActionRef.current === "lump" ? handleLumpUnlock(gateLumpYearsRef.current) : handleReveal())}
+          onEarned={() => {
+            const a = gateActionRef.current;
+            if (a === "lump") handleLumpUnlock(gateLumpYearsRef.current);
+            else if (a === "custom") handleCustomUnlock();
+            else handleReveal();
+          }}
           onUpgrade={() => setShowUpgrade(true)}
         />
       )}
@@ -616,9 +648,9 @@ export default function StrategyResult({ initialTicker = null, onOpenTest = null
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
       {showShare && results?.list?.[0] && (
         <ShareSheet
-          text={makeSimShareText(ticker, results.list[0], monthlyAmount)}
+          text={makeSimShareText(ticker, results.list[0], amountLabel)}
           card={{
-            title: `${getTickerName(ticker)} · 월 ${(monthlyAmount / 10000).toFixed(0)}만원 적립`,
+            title: `${getTickerName(ticker)} · ${amountLabel} 적립`,
             period: `${Math.round(results.list[0].years)}년`,
             invested: results.list[0].totalInvested,
             finalValue: results.list[0].finalValue,

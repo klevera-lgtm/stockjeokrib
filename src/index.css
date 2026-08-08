@@ -236,6 +236,33 @@ input, select {
   text-align: center;
 }
 
+/* 하루/한 달 기준 토글 (적립 금액) */
+.amount-mode-toggle {
+  display: inline-flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px;
+  margin-bottom: 10px;
+}
+.amt-mode {
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.amt-mode.on { background: var(--primary); color: #fff; }
+.amount-bridge {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 8px 0 0;
+}
+.amount-bridge strong { color: var(--primary); }
+
 .form-label {
   display: block;
   font-size: 12px;
