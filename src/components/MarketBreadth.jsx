@@ -126,6 +126,27 @@ const zoneBgPlugin = {
   },
 };
 
+// breadth 패널: 20선(초록 매수)·80선(빨강 과열) — 눈금 생략/채움과 무관하게 항상 그림
+const breadthRefLinesPlugin = {
+  id: "breadthRefLines",
+  afterDatasetsDraw(chart) {
+    const { ctx, chartArea: area, scales: { y } } = chart;
+    if (!y) return;
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1.5;
+    for (const [val, color] of [[20, "rgba(0,185,107,0.6)"], [80, "rgba(255,59,48,0.45)"]]) {
+      const py = y.getPixelForValue(val);
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(area.left, py);
+      ctx.lineTo(area.right, py);
+      ctx.stroke();
+    }
+    ctx.restore();
+  },
+};
+
 export default function MarketBreadth({ onCoinsChanged }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -297,15 +318,11 @@ export default function MarketBreadth({ onCoinsChanged }) {
             position: "right", ...fixYWidth,
             min: 0, max: 100,
             ticks: { callback: (v) => `${v}%`, stepSize: 20 },
-            grid: {
-              drawOnChartArea: true,
-              color: (ctx) => ctx.tick.value === 20 ? "rgba(0,185,107,0.5)" : ctx.tick.value === 80 ? "rgba(255,59,48,0.3)" : "transparent",
-              lineWidth: (ctx) => ctx.tick.value === 80 || ctx.tick.value === 20 ? 1.5 : 0,
-              borderDash: [4, 4],
-            },
+            grid: { display: false },
           },
         },
       },
+      plugins: [breadthRefLinesPlugin],
     });
   }, [data, activeIndex, range, activePeriod, zoomedRange]);
 
