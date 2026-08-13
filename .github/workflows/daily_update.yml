@@ -21,6 +21,11 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: ⬢ Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: 📦 Install dependencies
         run: |
           pip install yfinance pandas requests
@@ -32,6 +37,11 @@ jobs:
         run: |
           cd scripts
           python update_daily.py
+
+      - name: 📊 Compute market signals (VIX·낙폭)
+        run: |
+          OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeVixSignal.mjs
+          OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeDrawdown.mjs
 
       - name: 💾 Commit & Push updated CSVs
         run: |
