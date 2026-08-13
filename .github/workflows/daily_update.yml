@@ -38,10 +38,14 @@ jobs:
           cd scripts
           python update_daily.py
 
-      - name: 📊 Compute market signals (VIX·낙폭)
+      - name: 🏛️ Update constituent prices (S&P500·NDX100·Dow30)
+        run: python scripts/update_constituents.py
+
+      - name: 📊 Compute market signals (VIX·낙폭·내부지표)
         run: |
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeVixSignal.mjs
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeDrawdown.mjs
+          OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeMarketInternals.mjs
 
       - name: 💾 Commit & Push updated CSVs
         run: |
