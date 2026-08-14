@@ -47,6 +47,7 @@ jobs:
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeDrawdown.mjs
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeMarketInternals.mjs
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeSectorHeatmap.mjs
+          OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeDailyMovers.mjs
 
       - name: 💾 Commit & Push updated CSVs
         run: |
