@@ -42,12 +42,15 @@ jobs:
         run: python scripts/update_constituents.py
 
       - name: 📊 Compute market signals (VIX·낙폭·내부지표·섹터)
+        env:
+          ECOS_API_KEY: ${{ secrets.ECOS_API_KEY }}
         run: |
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeVixSignal.mjs
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeDrawdown.mjs
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeMarketInternals.mjs
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeSectorHeatmap.mjs
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeDailyMovers.mjs
+          OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeRateFxSpread.mjs
 
       - name: 💾 Commit & Push updated CSVs
         run: |
