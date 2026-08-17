@@ -21,8 +21,27 @@ const KEY = process.env.ECOS_API_KEY || "sample";
 const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
 const START = "20100101";
 
+// 재시도 + UA + 타임아웃 (CI 러너의 간헐적 네트워크 실패 대응)
+async function fetchRetry(url, { json = false, tries = 3, timeout = 30000 } = {}) {
+  let lastErr;
+  for (let i = 0; i < tries; i++) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), timeout);
+      const res = await fetch(url, { signal: ctrl.signal, headers: { "User-Agent": "Mozilla/5.0 (stockjeokrib-ci)" } });
+      clearTimeout(t);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return json ? await res.json() : await res.text();
+    } catch (e) {
+      lastErr = e;
+      await new Promise((r) => setTimeout(r, 2000 * (i + 1)));
+    }
+  }
+  throw lastErr;
+}
+
 async function fredDaily(id) {
-  const text = await (await fetch(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${id}`)).text();
+  const text = await fetchRetry(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${id}`);
   const m = {};
   for (const line of text.trim().split(/\r?\n/).slice(1)) {
     const [d, v] = line.split(",");
@@ -34,7 +53,7 @@ async function fredDaily(id) {
 
 async function ecosDaily(statCode, item) {
   const url = `https://ecos.bok.or.kr/api/StatisticSearch/${KEY}/json/kr/1/10000/${statCode}/D/${START}/${today}/${item}`;
-  const j = await (await fetch(url)).json();
+  const j = await fetchRetry(url, { json: true });
   const rows = j?.StatisticSearch?.row || [];
   const m = {};
   for (const r of rows) {
@@ -45,6 +64,7 @@ async function ecosDaily(statCode, item) {
   return m;
 }
 
+try {
 const [kr3, us3, fx] = await Promise.all([
   ecosDaily("817Y002", "010200000"), // 국고채(3년) 일별
   fredDaily("DGS3"),                  // 미국 국채 3년
@@ -52,8 +72,8 @@ const [kr3, us3, fx] = await Promise.all([
 ]);
 
 if (Object.keys(kr3).length === 0) {
-  console.error("ECOS 국고채3년 0행 — API 키/한도 확인 필요 (현재 KEY=" + (KEY === "sample" ? "sample" : "설정됨") + ")");
-  process.exit(1);
+  console.warn("ECOS 국고채3년 0행 — 스킵(기존 JSON 유지). KEY=" + (KEY === "sample" ? "sample" : "설정됨"));
+  process.exit(0);
 }
 
 // 공통 날짜 정렬
@@ -102,3 +122,7 @@ console.log(`상관계수 r = ${r}`);
 console.log(`현재: 한국3년 ${output.current.krRate}% · 미국3년 ${output.current.usRate}% · 금리차 ${output.current.diff}%p · 환율 ${output.current.fx}`);
 console.log(`차트 포인트: ${series.dates.length}`);
 console.log(`\n✅ rateFxSpread.json 저장`);
+} catch (e) {
+  console.warn("rateFxSpread 실패 — 스킵(기존 JSON 유지):", e.message);
+  process.exit(0);
+}
