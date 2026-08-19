@@ -117,17 +117,23 @@ if (tdates.length) {
   termSpread = { current: { date: tLast, value: tVal, status: tStatus }, series: ts };
 }
 
-const lastD = dates[dates.length - 1];
+// 현재 스냅샷: 공통 날짜에 묶지 않고 '각 지표의 가장 최근 가용값'을 씀.
+// (환율·한국금리는 당일 발표, 미국금리 FRED는 T-1~2 지연 → 최신값 fwd-fill)
+// → 환율이 미국금리 지연에 발목 잡혀 며칠 전으로 굳던 문제 해결. 매일 전진.
+const fxLast = Object.keys(fx).sort().pop();
+const krCur = Object.keys(kr3).filter((d) => d <= fxLast).sort().pop();
+const usCur = Object.keys(us3).filter((d) => d <= fxLast).sort().pop();
 const output = {
-  updated: lastD,
+  updated: fxLast,
   startDate: dates[0],
   correlation: r,
   current: {
-    date: lastD,
-    krRate: +kr3[lastD].toFixed(2),
-    usRate: +us3[lastD].toFixed(2),
-    diff: +(kr3[lastD] - us3[lastD]).toFixed(2),
-    fx: +fx[lastD].toFixed(1),
+    date: fxLast,
+    krRate: +kr3[krCur].toFixed(2),
+    usRate: +us3[usCur].toFixed(2),
+    diff: +(kr3[krCur] - us3[usCur]).toFixed(2),
+    fx: +fx[fxLast].toFixed(1),
+    rateDate: usCur, // 금리차 기준일(미국금리 최신 발표일) — 환율일과 다를 수 있음
   },
   series,
   termSpread,
@@ -135,9 +141,9 @@ const output = {
 };
 writeFileSync(OUTPUT, JSON.stringify(output));
 
-console.log(`\n=== 금리차 ↔ 환율 (${dates[0]} ~ ${lastD}, ${dates.length}일) ===`);
+console.log(`\n=== 금리차 ↔ 환율 (${dates[0]} ~ ${fxLast}, ${dates.length}일) ===`);
 console.log(`상관계수 r = ${r}`);
-console.log(`현재: 한국3년 ${output.current.krRate}% · 미국3년 ${output.current.usRate}% · 금리차 ${output.current.diff}%p · 환율 ${output.current.fx}`);
+console.log(`현재(환율 ${fxLast} · 금리차 ${usCur}): 한국3년 ${output.current.krRate}% · 미국3년 ${output.current.usRate}% · 금리차 ${output.current.diff}%p · 환율 ${output.current.fx}`);
 console.log(`차트 포인트: ${series.dates.length}`);
 if (termSpread) console.log(`장단기차(10Y−2Y): ${termSpread.current.value}%p (${termSpread.current.status}) · ${termSpread.series.dates.length}pt`);
 console.log(`\n✅ rateFxSpread.json 저장`);
