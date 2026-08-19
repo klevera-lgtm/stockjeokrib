@@ -2,7 +2,8 @@
 // node scripts/computeRateFxSpread.mjs  →  public/rateFxSpread.json
 //
 // 한국 국고채3년(한국은행 ECOS, 일별) − 미국 국채3년(FRED DGS3, 일별) = 금리차,
-// 원/달러(FRED DEXKOUS)와 오버레이. 이론(자본이동)대로 금리차 낮을수록 환율↑.
+// 원/달러 매매기준율(ECOS 731Y001, 당일)와 오버레이. 이론(자본이동)대로 금리차 낮을수록 환율↑.
+// + 미국 장단기 금리차(FRED T10Y2Y, 10년−2년) — 경기 참고 신호(환율 예측 아님).
 // 정직: 상관계수를 실제로 계산해 함께 보여주고, "금리차만이 요인 아님" 명시.
 // ⚠️ 정보 제공용, 예측/매매 권유 아님.
 //
@@ -65,10 +66,11 @@ async function ecosDaily(statCode, item) {
 }
 
 try {
-const [kr3, us3, fx] = await Promise.all([
+const [kr3, us3, fx, term] = await Promise.all([
   ecosDaily("817Y002", "010200000"), // 국고채(3년) 일별
   fredDaily("DGS3"),                  // 미국 국채 3년
-  fredDaily("DEXKOUS"),               // 원/달러
+  ecosDaily("731Y001", "0000001"),   // 원/달러 매매기준율 (당일 — 매일 갱신)
+  fredDaily("T10Y2Y"),               // 미국 장단기 금리차(10년−2년) · 경기 참고
 ]);
 
 if (Object.keys(kr3).length === 0) {
@@ -100,6 +102,21 @@ function corr(a, b) {
 }
 const r = corr(dailyDiff, dailyFx);
 
+// 미국 장단기 금리차(10년−2년) — 경기 참고 신호 (환율 예측 아님). 2010년 이후만.
+let termSpread = null;
+const tdates = Object.keys(term).filter((d) => d >= "2010-01-01").sort();
+if (tdates.length) {
+  const ts = { dates: [], values: [] };
+  for (let i = 0; i < tdates.length; i += 5) {
+    ts.dates.push(tdates[i]);
+    ts.values.push(+term[tdates[i]].toFixed(2));
+  }
+  const tLast = tdates[tdates.length - 1];
+  const tVal = +term[tLast].toFixed(2);
+  const tStatus = tVal < 0 ? "역전" : tVal < 0.25 ? "평탄" : "정상";
+  termSpread = { current: { date: tLast, value: tVal, status: tStatus }, series: ts };
+}
+
 const lastD = dates[dates.length - 1];
 const output = {
   updated: lastD,
@@ -113,6 +130,7 @@ const output = {
     fx: +fx[lastD].toFixed(1),
   },
   series,
+  termSpread,
   note: "한국 국고채3년 − 미국 국채3년(금리차) vs 원/달러 · 정보 제공용 · 예측 아님",
 };
 writeFileSync(OUTPUT, JSON.stringify(output));
@@ -121,6 +139,7 @@ console.log(`\n=== 금리차 ↔ 환율 (${dates[0]} ~ ${lastD}, ${dates.length}
 console.log(`상관계수 r = ${r}`);
 console.log(`현재: 한국3년 ${output.current.krRate}% · 미국3년 ${output.current.usRate}% · 금리차 ${output.current.diff}%p · 환율 ${output.current.fx}`);
 console.log(`차트 포인트: ${series.dates.length}`);
+if (termSpread) console.log(`장단기차(10Y−2Y): ${termSpread.current.value}%p (${termSpread.current.status}) · ${termSpread.series.dates.length}pt`);
 console.log(`\n✅ rateFxSpread.json 저장`);
 } catch (e) {
   console.warn("rateFxSpread 실패 — 스킵(기존 JSON 유지):", e.message);
