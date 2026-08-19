@@ -78,19 +78,31 @@ if (Object.keys(kr3).length === 0) {
   process.exit(0);
 }
 
-// 공통 날짜 정렬
+// 상관계수용: 엄격 공통 날짜(한·미 금리 + 환율 모두 존재)
 const dates = Object.keys(kr3).filter((d) => us3[d] != null && fx[d] != null).sort();
-const series = { dates: [], diff: [], fx: [] };
 const dailyDiff = [], dailyFx = [];
 for (const d of dates) {
-  const diff = +(kr3[d] - us3[d]).toFixed(2);
-  dailyDiff.push(diff); dailyFx.push(fx[d]);
+  dailyDiff.push(+(kr3[d] - us3[d]).toFixed(2)); dailyFx.push(fx[d]);
 }
-// 차트용 주 1회 다운샘플
-for (let i = 0; i < dates.length; i += 5) {
-  series.dates.push(dates[i]);
-  series.diff.push(+(kr3[dates[i]] - us3[dates[i]]).toFixed(2));
-  series.fx.push(+fx[dates[i]].toFixed(1));
+
+// 차트 시리즈: 환율 날짜 기준으로 '최신까지'(미국금리는 최근값 fwd-fill) + 5일 다운샘플 + 마지막 점 항상 포함
+// → 미국금리 발표 지연 때문에 차트가 며칠 전에서 끊기던 문제 해결(카드 날짜와 일치)
+const start = dates[0];
+const chartDates = Object.keys(fx).filter((d) => d >= start && kr3[d] != null).sort();
+const usSorted = Object.keys(us3).sort();
+const usFill = {}; let ui = 0, lastU = null;
+for (const d of chartDates) {
+  while (ui < usSorted.length && usSorted[ui] <= d) { lastU = us3[usSorted[ui]]; ui++; }
+  usFill[d] = lastU;
+}
+const series = { dates: [], diff: [], fx: [] };
+for (let i = 0; i < chartDates.length; i++) {
+  if (i % 5 !== 0 && i !== chartDates.length - 1) continue;
+  const d = chartDates[i], u = usFill[d];
+  if (u == null) continue;
+  series.dates.push(d);
+  series.diff.push(+(kr3[d] - u).toFixed(2));
+  series.fx.push(+fx[d].toFixed(1));
 }
 
 // 상관계수 (일별 전체)
