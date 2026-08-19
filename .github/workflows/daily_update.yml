@@ -56,7 +56,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 충돌 방지: 최신 origin 위에 새로 계산한 데이터를 그대로 얹음(rebase 충돌 원천 차단)
+          git fetch origin main
+          git reset --soft origin/main
           git add data/
           git diff --staged --quiet || git commit -m "📈 Daily update: $(date +'%Y-%m-%d')"
-          git pull --rebase origin main
           git push
