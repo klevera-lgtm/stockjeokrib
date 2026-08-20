@@ -34,6 +34,8 @@ def yf_symbol(ticker: str) -> str:
     # 앱 티커 → yfinance 심볼 (국내 지수/종목 변환)
     if ticker == "VIX":  # 공포지수: 캐럿 심볼로 조회, 파일명은 VIX.csv 유지
         return "^VIX"
+    if ticker in ("BTC", "ETH", "SOL", "XRP"):  # 크립토 코인 → -USD (24/7)
+        return ticker + "-USD"
     if ticker in ("KS11", "KQ11"):
         return "^" + ticker
     if ticker.isdigit():  # 6자리 국내 종목코드 → KRX(.KS)

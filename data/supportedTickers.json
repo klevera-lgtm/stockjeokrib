@@ -75,6 +75,7 @@
   "BOTZ",
   "BOXX",
   "BRK-B",
+  "BTC",
   "CAT",
   "CHAT",
   "CLSK",
@@ -102,6 +103,7 @@
   "EEM",
   "EIDO",
   "ELPW",
+  "ETH",
   "ETHA",
   "EWA",
   "EWG",
@@ -263,6 +265,7 @@
   "SNDK",
   "SNOW",
   "SOFI",
+  "SOL",
   "SOXL",
   "SOXQ",
   "SOXS",
@@ -339,6 +342,7 @@
   "XLV",
   "XLY",
   "XOM",
+  "XRP",
   "XYLD",
   "YMAX"
 ]

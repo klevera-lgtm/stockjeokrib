@@ -46,6 +46,7 @@ const CATS = [
   { key: "country",   label: "나라별",          note: "단일 국가 ETF",        leverage: false, tickers: uniq([...ASIA,...EUR,...OTHER]).filter(t=>!BROAD.has(t)) },
   { key: "leverage",  label: "레버리지 ETF",    note: "2~3배 · 고위험",       leverage: true,  tickers: LEV },
   { key: "mag7",      label: "매그니피센트 7",  note: "빅테크 7종",           leverage: false, tickers: ["AAPL","MSFT","GOOGL","AMZN","NVDA","META","TSLA"] },
+  { key: "crypto",    label: "크립토 코인",     note: "BTC·ETH·SOL·XRP · 초고위험", leverage: false, crypto: true, min: 2, tickers: ["BTC","ETH","SOL","XRP"] },
 ];
 
 const PERIODS = [1,2,3,5,10,15,20];
@@ -93,11 +94,11 @@ for (const cat of CATS) {
       if (s.dates[0] > cut) continue;                  // 시작이 cutoff 이후면 이력 부족
       rows.push({ t, ret: +((last / base - 1)).toFixed(4) });
     }
-    if (rows.length < MIN_TICKERS) continue;            // 정직 컷
+    if (rows.length < (cat.min || MIN_TICKERS)) continue; // 정직 컷(고정 소수집합은 min 낮춤)
     rows.sort((a, b) => b.ret - a.ret);
     periods[p] = { years: p, count: rows.length, rows: rows.slice(0, TOP_N) };
   }
-  out.categories[cat.key] = { label: cat.label, note: cat.note, leverage: cat.leverage, periods };
+  out.categories[cat.key] = { label: cat.label, note: cat.note, leverage: cat.leverage, crypto: !!cat.crypto, periods };
 }
 
 writeFileSync(OUTPUT, JSON.stringify(out));
