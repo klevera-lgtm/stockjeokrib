@@ -53,6 +53,7 @@ jobs:
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeRateFxSpread.mjs
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computePerfRankings.mjs
           OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeWeeklyMovers.mjs
+          OUT_DIR="$GITHUB_WORKSPACE/data/signals" node scripts/computeEtfFlows.mjs
 
       - name: 💾 Commit & Push updated CSVs
         run: |
