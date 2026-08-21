@@ -66,12 +66,15 @@ async function ecosDaily(statCode, item) {
 }
 
 try {
-const [kr3, us3, fx, term] = await Promise.all([
+// 환율 오버레이의 핵심 3종 (하나라도 실패하면 전체 스킵)
+const [kr3, us3, fx] = await Promise.all([
   ecosDaily("817Y002", "010200000"), // 국고채(3년) 일별
   fredDaily("DGS3"),                  // 미국 국채 3년
   ecosDaily("731Y001", "0000001"),   // 원/달러 매매기준율 (당일 — 매일 갱신)
-  fredDaily("T10Y2Y"),               // 미국 장단기 금리차(10년−2년) · 경기 참고
 ]);
+// 장단기 금리차는 부가지표 — 실패해도 환율 갱신은 살림
+let term = {};
+try { term = await fredDaily("T10Y2Y"); } catch (e) { console.warn("T10Y2Y 실패 — termSpread만 스킵:", e.message); }
 
 if (Object.keys(kr3).length === 0) {
   console.warn("ECOS 국고채3년 0행 — 스킵(기존 JSON 유지). KEY=" + (KEY === "sample" ? "sample" : "설정됨"));
@@ -119,7 +122,8 @@ let termSpread = null;
 const tdates = Object.keys(term).filter((d) => d >= "2010-01-01").sort();
 if (tdates.length) {
   const ts = { dates: [], values: [] };
-  for (let i = 0; i < tdates.length; i += 5) {
+  for (let i = 0; i < tdates.length; i++) {
+    if (i % 5 !== 0 && i !== tdates.length - 1) continue; // 5일 다운샘플 + 마지막 점 항상 포함
     ts.dates.push(tdates[i]);
     ts.values.push(+term[tdates[i]].toFixed(2));
   }
