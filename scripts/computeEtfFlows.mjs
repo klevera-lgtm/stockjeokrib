@@ -13,7 +13,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_DIR = process.env.OUT_DIR || join(__dirname, "..", "public");
 const OUTPUT = join(OUT_DIR, "etfFlows.json");
 const RAW = "https://raw.githubusercontent.com/kittycapital/btc-etf-dashboard/main/data/";
-const RECENT = 90;
+const RECENT = 370; // 1년 탭용 (60/90/1년 토글). 화면에서 기간별 슬라이스+주간합산
 
 const ASSETS = [
   { key: "btc", label: "비트코인", file: "etf_flows.json", priceFile: "btc_price.json" },
