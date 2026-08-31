@@ -1,28 +1,28 @@
 {
-  "updatedAt": "2026-08-31",
+  "updatedAt": "2026-08-23",
   "goalAmount": 100000000,
   "rankings": {
     "1yr": {
       "with": [
         {
           "ticker": "SNDK",
-          "monthlyRequired": 2269000,
-          "totalInvested": 27228000
-        },
-        {
-          "ticker": "MRNA",
-          "monthlyRequired": 2504000,
-          "totalInvested": 30048000
+          "monthlyRequired": 1820000,
+          "totalInvested": 21840000
         },
         {
           "ticker": "AXTI",
-          "monthlyRequired": 2704000,
-          "totalInvested": 32448000
+          "monthlyRequired": 2003000,
+          "totalInvested": 24036000
+        },
+        {
+          "ticker": "SYRE",
+          "monthlyRequired": 3012000,
+          "totalInvested": 36144000
         },
         {
           "ticker": "MU",
-          "monthlyRequired": 3588000,
-          "totalInvested": 43056000
+          "monthlyRequired": 3243000,
+          "totalInvested": 38916000
         },
         {
           "ticker": "DELL",
@@ -30,101 +30,101 @@
           "totalInvested": 43104000
         },
         {
-          "ticker": "SYRE",
-          "monthlyRequired": 3721000,
-          "totalInvested": 44652000
+          "ticker": "AAOI",
+          "monthlyRequired": 3800000,
+          "totalInvested": 45600000
         },
         {
           "ticker": "LITE",
-          "monthlyRequired": 4183000,
-          "totalInvested": 50196000
-        },
-        {
-          "ticker": "STX",
-          "monthlyRequired": 4432000,
-          "totalInvested": 53184000
-        },
-        {
-          "ticker": "INTW",
-          "monthlyRequired": 4583000,
-          "totalInvested": 54996000
+          "monthlyRequired": 4044000,
+          "totalInvested": 48528000
         },
         {
           "ticker": "MRVL",
-          "monthlyRequired": 4658000,
-          "totalInvested": 55896000
+          "monthlyRequired": 4108000,
+          "totalInvested": 49296000
+        },
+        {
+          "ticker": "STX",
+          "monthlyRequired": 4112000,
+          "totalInvested": 49344000
         },
         {
           "ticker": "000660",
-          "monthlyRequired": 4675000,
-          "totalInvested": 56100000
+          "monthlyRequired": 4167000,
+          "totalInvested": 50004000
         },
         {
-          "ticker": "AAOI",
-          "monthlyRequired": 4690000,
-          "totalInvested": 56280000
+          "ticker": "INTW",
+          "monthlyRequired": 4191000,
+          "totalInvested": 50292000
         },
         {
           "ticker": "PENG",
-          "monthlyRequired": 4844000,
-          "totalInvested": 58128000
+          "monthlyRequired": 4452000,
+          "totalInvested": 53424000
         },
         {
           "ticker": "SIMO",
-          "monthlyRequired": 4893000,
-          "totalInvested": 58716000
+          "monthlyRequired": 4491000,
+          "totalInvested": 53892000
         },
         {
           "ticker": "WDC",
-          "monthlyRequired": 4899000,
-          "totalInvested": 58788000
+          "monthlyRequired": 4596000,
+          "totalInvested": 55152000
         },
         {
-          "ticker": "PANW",
-          "monthlyRequired": 5053000,
-          "totalInvested": 60636000
-        },
-        {
-          "ticker": "TEAM",
-          "monthlyRequired": 5087000,
-          "totalInvested": 61044000
-        },
-        {
-          "ticker": "OKTA",
-          "monthlyRequired": 5098000,
-          "totalInvested": 61176000
-        },
-        {
-          "ticker": "AMD",
-          "monthlyRequired": 5180000,
-          "totalInvested": 62160000
+          "ticker": "SOXL",
+          "monthlyRequired": 4622000,
+          "totalInvested": 55464000
         },
         {
           "ticker": "DOCN",
-          "monthlyRequired": 5248000,
-          "totalInvested": 62976000
+          "monthlyRequired": 4835000,
+          "totalInvested": 58020000
+        },
+        {
+          "ticker": "NBIS",
+          "monthlyRequired": 4914000,
+          "totalInvested": 58968000
+        },
+        {
+          "ticker": "AMD",
+          "monthlyRequired": 4922000,
+          "totalInvested": 59064000
+        },
+        {
+          "ticker": "005930",
+          "monthlyRequired": 4960000,
+          "totalInvested": 59520000
+        },
+        {
+          "ticker": "PANW",
+          "monthlyRequired": 5125000,
+          "totalInvested": 61500000
         }
       ],
       "without": [
         {
           "ticker": "SNDK",
-          "monthlyRequired": 2269000,
-          "totalInvested": 27228000
-        },
-        {
-          "ticker": "MRNA",
-          "monthlyRequired": 2504000,
-          "totalInvested": 30048000
+          "monthlyRequired": 1820000,
+          "totalInvested": 21840000
         },
         {
           "ticker": "AXTI",
-          "monthlyRequired": 2704000,
-          "totalInvested": 32448000
+          "monthlyRequired": 2003000,
+          "totalInvested": 24036000
+        },
+        {
+          "ticker": "SYRE",
+          "monthlyRequired": 3012000,
+          "totalInvested": 36144000
         },
         {
           "ticker": "MU",
-          "monthlyRequired": 3588000,
-          "totalInvested": 43056000
+          "monthlyRequired": 3243000,
+          "totalInvested": 38916000
         },
         {
           "ticker": "DELL",
@@ -132,79 +132,79 @@
           "totalInvested": 43104000
         },
         {
-          "ticker": "SYRE",
-          "monthlyRequired": 3721000,
-          "totalInvested": 44652000
+          "ticker": "AAOI",
+          "monthlyRequired": 3800000,
+          "totalInvested": 45600000
         },
         {
           "ticker": "LITE",
-          "monthlyRequired": 4183000,
-          "totalInvested": 50196000
-        },
-        {
-          "ticker": "STX",
-          "monthlyRequired": 4432000,
-          "totalInvested": 53184000
-        },
-        {
-          "ticker": "INTW",
-          "monthlyRequired": 4583000,
-          "totalInvested": 54996000
+          "monthlyRequired": 4044000,
+          "totalInvested": 48528000
         },
         {
           "ticker": "MRVL",
-          "monthlyRequired": 4658000,
-          "totalInvested": 55896000
+          "monthlyRequired": 4108000,
+          "totalInvested": 49296000
+        },
+        {
+          "ticker": "STX",
+          "monthlyRequired": 4112000,
+          "totalInvested": 49344000
         },
         {
           "ticker": "000660",
-          "monthlyRequired": 4675000,
-          "totalInvested": 56100000
+          "monthlyRequired": 4167000,
+          "totalInvested": 50004000
         },
         {
-          "ticker": "AAOI",
-          "monthlyRequired": 4690000,
-          "totalInvested": 56280000
+          "ticker": "INTW",
+          "monthlyRequired": 4191000,
+          "totalInvested": 50292000
         },
         {
           "ticker": "PENG",
-          "monthlyRequired": 4844000,
-          "totalInvested": 58128000
+          "monthlyRequired": 4452000,
+          "totalInvested": 53424000
         },
         {
           "ticker": "SIMO",
-          "monthlyRequired": 4893000,
-          "totalInvested": 58716000
+          "monthlyRequired": 4491000,
+          "totalInvested": 53892000
         },
         {
           "ticker": "WDC",
-          "monthlyRequired": 4899000,
-          "totalInvested": 58788000
-        },
-        {
-          "ticker": "PANW",
-          "monthlyRequired": 5053000,
-          "totalInvested": 60636000
-        },
-        {
-          "ticker": "TEAM",
-          "monthlyRequired": 5087000,
-          "totalInvested": 61044000
-        },
-        {
-          "ticker": "OKTA",
-          "monthlyRequired": 5098000,
-          "totalInvested": 61176000
-        },
-        {
-          "ticker": "AMD",
-          "monthlyRequired": 5180000,
-          "totalInvested": 62160000
+          "monthlyRequired": 4596000,
+          "totalInvested": 55152000
         },
         {
           "ticker": "DOCN",
-          "monthlyRequired": 5248000,
-          "totalInvested": 62976000
+          "monthlyRequired": 4835000,
+          "totalInvested": 58020000
+        },
+        {
+          "ticker": "NBIS",
+          "monthlyRequired": 4914000,
+          "totalInvested": 58968000
+        },
+        {
+          "ticker": "AMD",
+          "monthlyRequired": 4922000,
+          "totalInvested": 59064000
+        },
+        {
+          "ticker": "005930",
+          "monthlyRequired": 4960000,
+          "totalInvested": 59520000
+        },
+        {
+          "ticker": "PANW",
+          "monthlyRequired": 5125000,
+          "totalInvested": 61500000
+        },
+        {
+          "ticker": "INTC",
+          "monthlyRequired": 5143000,
+          "totalInvested": 61716000
         }
       ]
     },
@@ -212,205 +212,205 @@
       "with": [
         {
           "ticker": "AXTI",
-          "monthlyRequired": 153000,
-          "totalInvested": 5508000
+          "monthlyRequired": 126000,
+          "totalInvested": 4536000
         },
         {
           "ticker": "LITE",
-          "monthlyRequired": 259000,
-          "totalInvested": 9324000
+          "monthlyRequired": 264000,
+          "totalInvested": 9504000
         },
         {
           "ticker": "BE",
-          "monthlyRequired": 281000,
-          "totalInvested": 10116000
+          "monthlyRequired": 291000,
+          "totalInvested": 10476000
         },
         {
           "ticker": "MU",
-          "monthlyRequired": 377000,
-          "totalInvested": 13572000
-        },
-        {
-          "ticker": "WDC",
-          "monthlyRequired": 400000,
-          "totalInvested": 14400000
+          "monthlyRequired": 359000,
+          "totalInvested": 12924000
         },
         {
           "ticker": "000660",
-          "monthlyRequired": 413000,
-          "totalInvested": 14868000
+          "monthlyRequired": 388000,
+          "totalInvested": 13968000
         },
         {
-          "ticker": "STX",
-          "monthlyRequired": 422000,
-          "totalInvested": 15192000
+          "ticker": "WDC",
+          "monthlyRequired": 394000,
+          "totalInvested": 14184000
         },
         {
           "ticker": "RKLB",
-          "monthlyRequired": 458000,
-          "totalInvested": 16488000
+          "monthlyRequired": 401000,
+          "totalInvested": 14436000
         },
         {
-          "ticker": "CRDO",
-          "monthlyRequired": 498000,
-          "totalInvested": 17928000
+          "ticker": "STX",
+          "monthlyRequired": 406000,
+          "totalInvested": 14616000
         },
         {
           "ticker": "AAOI",
-          "monthlyRequired": 508000,
-          "totalInvested": 18288000
+          "monthlyRequired": 428000,
+          "totalInvested": 15408000
         },
         {
           "ticker": "ASTS",
-          "monthlyRequired": 521000,
-          "totalInvested": 18756000
+          "monthlyRequired": 431000,
+          "totalInvested": 15516000
+        },
+        {
+          "ticker": "CRDO",
+          "monthlyRequired": 493000,
+          "totalInvested": 17748000
         },
         {
           "ticker": "HUT",
-          "monthlyRequired": 610000,
-          "totalInvested": 21960000
-        },
-        {
-          "ticker": "PLTR",
-          "monthlyRequired": 664000,
-          "totalInvested": 23904000
+          "monthlyRequired": 592000,
+          "totalInvested": 21312000
         },
         {
           "ticker": "GH",
-          "monthlyRequired": 676000,
-          "totalInvested": 24336000
-        },
-        {
-          "ticker": "DELL",
-          "monthlyRequired": 728000,
-          "totalInvested": 26208000
+          "monthlyRequired": 634000,
+          "totalInvested": 22824000
         },
         {
           "ticker": "SYRE",
-          "monthlyRequired": 760000,
-          "totalInvested": 27360000
+          "monthlyRequired": 636000,
+          "totalInvested": 22896000
         },
         {
           "ticker": "IREN",
-          "monthlyRequired": 769000,
-          "totalInvested": 27684000
+          "monthlyRequired": 640000,
+          "totalInvested": 23040000
+        },
+        {
+          "ticker": "PLTR",
+          "monthlyRequired": 672000,
+          "totalInvested": 24192000
         },
         {
           "ticker": "HOOD",
-          "monthlyRequired": 775000,
-          "totalInvested": 27900000
+          "monthlyRequired": 732000,
+          "totalInvested": 26352000
         },
         {
           "ticker": "SOXL",
-          "monthlyRequired": 807000,
-          "totalInvested": 29052000
+          "monthlyRequired": 737000,
+          "totalInvested": 26532000
+        },
+        {
+          "ticker": "DELL",
+          "monthlyRequired": 740000,
+          "totalInvested": 26640000
         },
         {
           "ticker": "COHR",
-          "monthlyRequired": 820000,
-          "totalInvested": 29520000
+          "monthlyRequired": 777000,
+          "totalInvested": 27972000
         }
       ],
       "without": [
         {
           "ticker": "AXTI",
-          "monthlyRequired": 153000,
-          "totalInvested": 5508000
+          "monthlyRequired": 126000,
+          "totalInvested": 4536000
         },
         {
           "ticker": "LITE",
-          "monthlyRequired": 259000,
-          "totalInvested": 9324000
+          "monthlyRequired": 264000,
+          "totalInvested": 9504000
         },
         {
           "ticker": "BE",
-          "monthlyRequired": 281000,
-          "totalInvested": 10116000
+          "monthlyRequired": 291000,
+          "totalInvested": 10476000
         },
         {
           "ticker": "MU",
-          "monthlyRequired": 377000,
-          "totalInvested": 13572000
-        },
-        {
-          "ticker": "WDC",
-          "monthlyRequired": 400000,
-          "totalInvested": 14400000
+          "monthlyRequired": 359000,
+          "totalInvested": 12924000
         },
         {
           "ticker": "000660",
-          "monthlyRequired": 413000,
-          "totalInvested": 14868000
+          "monthlyRequired": 388000,
+          "totalInvested": 13968000
         },
         {
-          "ticker": "STX",
-          "monthlyRequired": 422000,
-          "totalInvested": 15192000
+          "ticker": "WDC",
+          "monthlyRequired": 394000,
+          "totalInvested": 14184000
         },
         {
           "ticker": "RKLB",
-          "monthlyRequired": 458000,
-          "totalInvested": 16488000
+          "monthlyRequired": 401000,
+          "totalInvested": 14436000
         },
         {
-          "ticker": "CRDO",
-          "monthlyRequired": 498000,
-          "totalInvested": 17928000
+          "ticker": "STX",
+          "monthlyRequired": 406000,
+          "totalInvested": 14616000
         },
         {
           "ticker": "AAOI",
-          "monthlyRequired": 508000,
-          "totalInvested": 18288000
+          "monthlyRequired": 428000,
+          "totalInvested": 15408000
         },
         {
           "ticker": "ASTS",
-          "monthlyRequired": 521000,
-          "totalInvested": 18756000
+          "monthlyRequired": 431000,
+          "totalInvested": 15516000
+        },
+        {
+          "ticker": "CRDO",
+          "monthlyRequired": 493000,
+          "totalInvested": 17748000
         },
         {
           "ticker": "HUT",
-          "monthlyRequired": 610000,
-          "totalInvested": 21960000
-        },
-        {
-          "ticker": "PLTR",
-          "monthlyRequired": 664000,
-          "totalInvested": 23904000
+          "monthlyRequired": 592000,
+          "totalInvested": 21312000
         },
         {
           "ticker": "GH",
-          "monthlyRequired": 676000,
-          "totalInvested": 24336000
-        },
-        {
-          "ticker": "DELL",
-          "monthlyRequired": 728000,
-          "totalInvested": 26208000
+          "monthlyRequired": 634000,
+          "totalInvested": 22824000
         },
         {
           "ticker": "SYRE",
-          "monthlyRequired": 760000,
-          "totalInvested": 27360000
+          "monthlyRequired": 636000,
+          "totalInvested": 22896000
         },
         {
           "ticker": "IREN",
-          "monthlyRequired": 769000,
-          "totalInvested": 27684000
+          "monthlyRequired": 640000,
+          "totalInvested": 23040000
+        },
+        {
+          "ticker": "PLTR",
+          "monthlyRequired": 672000,
+          "totalInvested": 24192000
         },
         {
           "ticker": "HOOD",
-          "monthlyRequired": 775000,
-          "totalInvested": 27900000
+          "monthlyRequired": 732000,
+          "totalInvested": 26352000
+        },
+        {
+          "ticker": "DELL",
+          "monthlyRequired": 740000,
+          "totalInvested": 26640000
         },
         {
           "ticker": "COHR",
-          "monthlyRequired": 820000,
-          "totalInvested": 29520000
+          "monthlyRequired": 777000,
+          "totalInvested": 27972000
         },
         {
           "ticker": "SIMO",
-          "monthlyRequired": 832000,
-          "totalInvested": 29952000
+          "monthlyRequired": 783000,
+          "totalInvested": 28188000
         }
       ]
     },
@@ -418,33 +418,33 @@
       "with": [
         {
           "ticker": "AAOI",
-          "monthlyRequired": 94000,
-          "totalInvested": 5640000
+          "monthlyRequired": 80000,
+          "totalInvested": 4800000
         },
         {
           "ticker": "AXTI",
-          "monthlyRequired": 108000,
-          "totalInvested": 6480000
+          "monthlyRequired": 90000,
+          "totalInvested": 5400000
         },
         {
           "ticker": "LITE",
-          "monthlyRequired": 144000,
-          "totalInvested": 8640000
+          "monthlyRequired": 148000,
+          "totalInvested": 8880000
         },
         {
           "ticker": "000660",
+          "monthlyRequired": 149000,
+          "totalInvested": 8940000
+        },
+        {
+          "ticker": "MU",
           "monthlyRequired": 157000,
           "totalInvested": 9420000
         },
         {
-          "ticker": "MU",
-          "monthlyRequired": 163000,
-          "totalInvested": 9780000
-        },
-        {
           "ticker": "BE",
-          "monthlyRequired": 163000,
-          "totalInvested": 9780000
+          "monthlyRequired": 170000,
+          "totalInvested": 10200000
         },
         {
           "ticker": "WDC",
@@ -452,101 +452,101 @@
           "totalInvested": 10260000
         },
         {
-          "ticker": "PLTR",
+          "ticker": "STX",
           "monthlyRequired": 178000,
           "totalInvested": 10680000
         },
         {
-          "ticker": "STX",
+          "ticker": "RKLB",
           "monthlyRequired": 183000,
           "totalInvested": 10980000
         },
         {
-          "ticker": "VRT",
-          "monthlyRequired": 204000,
-          "totalInvested": 12240000
+          "ticker": "PLTR",
+          "monthlyRequired": 184000,
+          "totalInvested": 11040000
         },
         {
-          "ticker": "RKLB",
+          "ticker": "VRT",
+          "monthlyRequired": 199000,
+          "totalInvested": 11940000
+        },
+        {
+          "ticker": "ASTS",
           "monthlyRequired": 206000,
           "totalInvested": 12360000
         },
         {
-          "ticker": "ASTS",
-          "monthlyRequired": 244000,
-          "totalInvested": 14640000
-        },
-        {
           "ticker": "USD",
-          "monthlyRequired": 249000,
-          "totalInvested": 14940000
-        },
-        {
-          "ticker": "DELL",
-          "monthlyRequired": 257000,
-          "totalInvested": 15420000
-        },
-        {
-          "ticker": "APP",
-          "monthlyRequired": 263000,
-          "totalInvested": 15780000
-        },
-        {
-          "ticker": "HOOD",
-          "monthlyRequired": 288000,
-          "totalInvested": 17280000
+          "monthlyRequired": 243000,
+          "totalInvested": 14580000
         },
         {
           "ticker": "INOD",
-          "monthlyRequired": 296000,
-          "totalInvested": 17760000
+          "monthlyRequired": 259000,
+          "totalInvested": 15540000
         },
         {
-          "ticker": "HUT",
-          "monthlyRequired": 310000,
-          "totalInvested": 18600000
+          "ticker": "DELL",
+          "monthlyRequired": 264000,
+          "totalInvested": 15840000
         },
         {
-          "ticker": "NVDA",
-          "monthlyRequired": 322000,
-          "totalInvested": 19320000
+          "ticker": "APP",
+          "monthlyRequired": 272000,
+          "totalInvested": 16320000
+        },
+        {
+          "ticker": "HOOD",
+          "monthlyRequired": 277000,
+          "totalInvested": 16620000
+        },
+        {
+          "ticker": "SYRE",
+          "monthlyRequired": 292000,
+          "totalInvested": 17520000
         },
         {
           "ticker": "FTAI",
-          "monthlyRequired": 323000,
-          "totalInvested": 19380000
+          "monthlyRequired": 298000,
+          "totalInvested": 17880000
+        },
+        {
+          "ticker": "HUT",
+          "monthlyRequired": 304000,
+          "totalInvested": 18240000
         }
       ],
       "without": [
         {
           "ticker": "AAOI",
-          "monthlyRequired": 94000,
-          "totalInvested": 5640000
+          "monthlyRequired": 80000,
+          "totalInvested": 4800000
         },
         {
           "ticker": "AXTI",
-          "monthlyRequired": 108000,
-          "totalInvested": 6480000
+          "monthlyRequired": 90000,
+          "totalInvested": 5400000
         },
         {
           "ticker": "LITE",
-          "monthlyRequired": 144000,
-          "totalInvested": 8640000
+          "monthlyRequired": 148000,
+          "totalInvested": 8880000
         },
         {
           "ticker": "000660",
+          "monthlyRequired": 149000,
+          "totalInvested": 8940000
+        },
+        {
+          "ticker": "MU",
           "monthlyRequired": 157000,
           "totalInvested": 9420000
         },
         {
-          "ticker": "MU",
-          "monthlyRequired": 163000,
-          "totalInvested": 9780000
-        },
-        {
           "ticker": "BE",
-          "monthlyRequired": 163000,
-          "totalInvested": 9780000
+          "monthlyRequired": 170000,
+          "totalInvested": 10200000
         },
         {
           "ticker": "WDC",
@@ -554,69 +554,69 @@
           "totalInvested": 10260000
         },
         {
-          "ticker": "PLTR",
+          "ticker": "STX",
           "monthlyRequired": 178000,
           "totalInvested": 10680000
         },
         {
-          "ticker": "STX",
+          "ticker": "RKLB",
           "monthlyRequired": 183000,
           "totalInvested": 10980000
         },
         {
-          "ticker": "VRT",
-          "monthlyRequired": 204000,
-          "totalInvested": 12240000
+          "ticker": "PLTR",
+          "monthlyRequired": 184000,
+          "totalInvested": 11040000
         },
         {
-          "ticker": "RKLB",
+          "ticker": "VRT",
+          "monthlyRequired": 199000,
+          "totalInvested": 11940000
+        },
+        {
+          "ticker": "ASTS",
           "monthlyRequired": 206000,
           "totalInvested": 12360000
         },
         {
-          "ticker": "ASTS",
-          "monthlyRequired": 244000,
-          "totalInvested": 14640000
+          "ticker": "INOD",
+          "monthlyRequired": 259000,
+          "totalInvested": 15540000
         },
         {
           "ticker": "DELL",
-          "monthlyRequired": 257000,
-          "totalInvested": 15420000
+          "monthlyRequired": 264000,
+          "totalInvested": 15840000
         },
         {
           "ticker": "APP",
-          "monthlyRequired": 263000,
-          "totalInvested": 15780000
+          "monthlyRequired": 272000,
+          "totalInvested": 16320000
         },
         {
           "ticker": "HOOD",
-          "monthlyRequired": 288000,
-          "totalInvested": 17280000
+          "monthlyRequired": 277000,
+          "totalInvested": 16620000
         },
         {
-          "ticker": "INOD",
-          "monthlyRequired": 296000,
-          "totalInvested": 17760000
-        },
-        {
-          "ticker": "HUT",
-          "monthlyRequired": 310000,
-          "totalInvested": 18600000
-        },
-        {
-          "ticker": "NVDA",
-          "monthlyRequired": 322000,
-          "totalInvested": 19320000
+          "ticker": "SYRE",
+          "monthlyRequired": 292000,
+          "totalInvested": 17520000
         },
         {
           "ticker": "FTAI",
-          "monthlyRequired": 323000,
-          "totalInvested": 19380000
+          "monthlyRequired": 298000,
+          "totalInvested": 17880000
         },
         {
-          "ticker": "ATI",
-          "monthlyRequired": 335000,
-          "totalInvested": 20100000
+          "ticker": "HUT",
+          "monthlyRequired": 304000,
+          "totalInvested": 18240000
+        },
+        {
+          "ticker": "NVDA",
+          "monthlyRequired": 323000,
+          "totalInvested": 19380000
         }
       ]
     },
@@ -629,78 +629,78 @@
         },
         {
           "ticker": "INOD",
-          "monthlyRequired": 41000,
-          "totalInvested": 4920000
+          "monthlyRequired": 36000,
+          "totalInvested": 4320000
         },
         {
           "ticker": "LEU",
+          "monthlyRequired": 40000,
+          "totalInvested": 4800000
+        },
+        {
+          "ticker": "USD",
           "monthlyRequired": 42000,
           "totalInvested": 5040000
         },
         {
-          "ticker": "USD",
-          "monthlyRequired": 43000,
-          "totalInvested": 5160000
+          "ticker": "000660",
+          "monthlyRequired": 47000,
+          "totalInvested": 5640000
         },
         {
           "ticker": "MU",
-          "monthlyRequired": 50000,
-          "totalInvested": 6000000
-        },
-        {
-          "ticker": "000660",
-          "monthlyRequired": 50000,
-          "totalInvested": 6000000
+          "monthlyRequired": 48000,
+          "totalInvested": 5760000
         },
         {
           "ticker": "BTC",
+          "monthlyRequired": 51000,
+          "totalInvested": 6120000
+        },
+        {
+          "ticker": "STX",
           "monthlyRequired": 52000,
           "totalInvested": 6240000
         },
         {
-          "ticker": "STX",
-          "monthlyRequired": 53000,
-          "totalInvested": 6360000
+          "ticker": "AXTI",
+          "monthlyRequired": 54000,
+          "totalInvested": 6480000
         },
         {
-          "ticker": "DELL",
+          "ticker": "AAOI",
+          "monthlyRequired": 57000,
+          "totalInvested": 6840000
+        },
+        {
+          "ticker": "AMD",
           "monthlyRequired": 62000,
           "totalInvested": 7440000
         },
         {
-          "ticker": "LITE",
-          "monthlyRequired": 63000,
-          "totalInvested": 7560000
+          "ticker": "FTAI",
+          "monthlyRequired": 62000,
+          "totalInvested": 7440000
         },
         {
-          "ticker": "AMD",
+          "ticker": "DELL",
           "monthlyRequired": 64000,
           "totalInvested": 7680000
         },
         {
-          "ticker": "AXTI",
+          "ticker": "LITE",
           "monthlyRequired": 65000,
           "totalInvested": 7800000
         },
         {
-          "ticker": "AAOI",
-          "monthlyRequired": 67000,
-          "totalInvested": 8040000
-        },
-        {
-          "ticker": "FTAI",
-          "monthlyRequired": 67000,
-          "totalInvested": 8040000
-        },
-        {
           "ticker": "NTRA",
+          "monthlyRequired": 76000,
+          "totalInvested": 9120000
+        },
+        {
+          "ticker": "LRCX",
           "monthlyRequired": 77000,
           "totalInvested": 9240000
-        },
-        {
-          "ticker": "TECL",
-          "monthlyRequired": 80000,
-          "totalInvested": 9600000
         },
         {
           "ticker": "WDC",
@@ -708,7 +708,7 @@
           "totalInvested": 9720000
         },
         {
-          "ticker": "LRCX",
+          "ticker": "TECL",
           "monthlyRequired": 81000,
           "totalInvested": 9720000
         },
@@ -718,9 +718,9 @@
           "totalInvested": 9840000
         },
         {
-          "ticker": "ANET",
-          "monthlyRequired": 87000,
-          "totalInvested": 10440000
+          "ticker": "KLAC",
+          "monthlyRequired": 86000,
+          "totalInvested": 10320000
         }
       ],
       "without": [
@@ -731,66 +731,71 @@
         },
         {
           "ticker": "INOD",
-          "monthlyRequired": 41000,
-          "totalInvested": 4920000
+          "monthlyRequired": 36000,
+          "totalInvested": 4320000
         },
         {
           "ticker": "LEU",
-          "monthlyRequired": 42000,
-          "totalInvested": 5040000
-        },
-        {
-          "ticker": "MU",
-          "monthlyRequired": 50000,
-          "totalInvested": 6000000
+          "monthlyRequired": 40000,
+          "totalInvested": 4800000
         },
         {
           "ticker": "000660",
-          "monthlyRequired": 50000,
-          "totalInvested": 6000000
+          "monthlyRequired": 47000,
+          "totalInvested": 5640000
+        },
+        {
+          "ticker": "MU",
+          "monthlyRequired": 48000,
+          "totalInvested": 5760000
         },
         {
           "ticker": "BTC",
+          "monthlyRequired": 51000,
+          "totalInvested": 6120000
+        },
+        {
+          "ticker": "STX",
           "monthlyRequired": 52000,
           "totalInvested": 6240000
         },
         {
-          "ticker": "STX",
-          "monthlyRequired": 53000,
-          "totalInvested": 6360000
+          "ticker": "AXTI",
+          "monthlyRequired": 54000,
+          "totalInvested": 6480000
         },
         {
-          "ticker": "DELL",
+          "ticker": "AAOI",
+          "monthlyRequired": 57000,
+          "totalInvested": 6840000
+        },
+        {
+          "ticker": "AMD",
           "monthlyRequired": 62000,
           "totalInvested": 7440000
         },
         {
-          "ticker": "LITE",
-          "monthlyRequired": 63000,
-          "totalInvested": 7560000
+          "ticker": "FTAI",
+          "monthlyRequired": 62000,
+          "totalInvested": 7440000
         },
         {
-          "ticker": "AMD",
+          "ticker": "DELL",
           "monthlyRequired": 64000,
           "totalInvested": 7680000
         },
         {
-          "ticker": "AXTI",
+          "ticker": "LITE",
           "monthlyRequired": 65000,
           "totalInvested": 7800000
         },
         {
-          "ticker": "AAOI",
-          "monthlyRequired": 67000,
-          "totalInvested": 8040000
-        },
-        {
-          "ticker": "FTAI",
-          "monthlyRequired": 67000,
-          "totalInvested": 8040000
-        },
-        {
           "ticker": "NTRA",
+          "monthlyRequired": 76000,
+          "totalInvested": 9120000
+        },
+        {
+          "ticker": "LRCX",
           "monthlyRequired": 77000,
           "totalInvested": 9240000
         },
@@ -800,19 +805,14 @@
           "totalInvested": 9720000
         },
         {
-          "ticker": "LRCX",
-          "monthlyRequired": 81000,
-          "totalInvested": 9720000
-        },
-        {
           "ticker": "AVGO",
           "monthlyRequired": 82000,
           "totalInvested": 9840000
         },
         {
-          "ticker": "ANET",
-          "monthlyRequired": 87000,
-          "totalInvested": 10440000
+          "ticker": "KLAC",
+          "monthlyRequired": 86000,
+          "totalInvested": 10320000
         },
         {
           "ticker": "SMCI",
@@ -820,9 +820,9 @@
           "totalInvested": 10560000
         },
         {
-          "ticker": "KLAC",
-          "monthlyRequired": 91000,
-          "totalInvested": 10920000
+          "ticker": "ANET",
+          "monthlyRequired": 90000,
+          "totalInvested": 10800000
         }
       ]
     }
