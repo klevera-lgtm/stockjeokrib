@@ -1,9 +1,9 @@
 {
-  "last_updated": "2026-09-05",
-  "updated_at": "2026-09-05T23:28:05.751285",
+  "last_updated": "2026-09-06",
+  "updated_at": "2026-09-06T23:22:57.026652",
   "total_tickers": 147,
-  "updated": 32,
-  "skipped": 339,
+  "updated": 370,
+  "skipped": 1,
   "failed": [],
   "categories": {
     "미국 대형주 ETF": [
