@@ -1,47 +1,47 @@
 {
-  "updatedAt": "2026-09-13",
+  "updatedAt": "2026-09-20",
   "events": {
     "dotcom": {
       "topGainers": [
         {
           "ticker": "TECL",
-          "returnPct": 85923
+          "returnPct": 88173.7
         },
         {
           "ticker": "NVDA",
-          "returnPct": 66117
+          "returnPct": 67324.3
         },
         {
           "ticker": "000660",
-          "returnPct": 52725
+          "returnPct": 54036.9
         },
         {
           "ticker": "STRL",
-          "returnPct": 41831.5
+          "returnPct": 42458.4
         },
         {
           "ticker": "TQQQ",
-          "returnPct": 34347.1
+          "returnPct": 35152.7
         },
         {
           "ticker": "AVGO",
-          "returnPct": 31776.8
+          "returnPct": 31391.1
         },
         {
           "ticker": "TSLA",
-          "returnPct": 22845.2
+          "returnPct": 22771.7
         },
         {
           "ticker": "SOXL",
-          "returnPct": 20174.1
+          "returnPct": 20482
         },
         {
-          "ticker": "NFLX",
-          "returnPct": 19789.9
+          "ticker": "ISRG",
+          "returnPct": 19297.1
         },
         {
           "ticker": "AAPL",
-          "returnPct": 19053.7
+          "returnPct": 19276.2
         }
       ]
     },
@@ -49,43 +49,43 @@
       "topGainers": [
         {
           "ticker": "TECL",
-          "returnPct": 85923
+          "returnPct": 88173.7
         },
         {
           "ticker": "NVDA",
-          "returnPct": 77296.6
+          "returnPct": 78707.7
         },
         {
           "ticker": "TQQQ",
-          "returnPct": 34347.1
+          "returnPct": 35152.7
         },
         {
           "ticker": "AVGO",
-          "returnPct": 31776.8
+          "returnPct": 31391.1
         },
         {
           "ticker": "MU",
-          "returnPct": 23599.7
+          "returnPct": 24584.8
         },
         {
           "ticker": "TSLA",
-          "returnPct": 22845.2
+          "returnPct": 22771.7
         },
         {
           "ticker": "USD",
-          "returnPct": 20209
+          "returnPct": 20716.4
         },
         {
           "ticker": "SOXL",
-          "returnPct": 20174.1
-        },
-        {
-          "ticker": "NFLX",
-          "returnPct": 17468.1
+          "returnPct": 20482
         },
         {
           "ticker": "BTC",
-          "returnPct": 16790
+          "returnPct": 17669.2
+        },
+        {
+          "ticker": "NFLX",
+          "returnPct": 16194.8
         }
       ]
     },
@@ -93,43 +93,43 @@
       "topGainers": [
         {
           "ticker": "NVDA",
-          "returnPct": 44413.6
+          "returnPct": 45225.2
         },
         {
           "ticker": "BTC",
-          "returnPct": 27330.2
+          "returnPct": 28758.1
         },
         {
           "ticker": "AMD",
-          "returnPct": 23360.5
+          "returnPct": 25346.4
         },
         {
           "ticker": "USD",
-          "returnPct": 11566.4
+          "returnPct": 11857.8
         },
         {
           "ticker": "SOL",
-          "returnPct": 10599.7
+          "returnPct": 11580.7
         },
         {
           "ticker": "STRL",
-          "returnPct": 10244.9
+          "returnPct": 10399.6
         },
         {
           "ticker": "SOXL",
-          "returnPct": 7520.5
+          "returnPct": 7636.3
         },
         {
           "ticker": "TECL",
-          "returnPct": 6100.2
+          "returnPct": 6262.4
         },
         {
           "ticker": "000660",
-          "returnPct": 5711.8
+          "returnPct": 5856.1
         },
         {
           "ticker": "MU",
-          "returnPct": 5163.8
+          "returnPct": 5382.6
         }
       ]
     },
@@ -137,43 +137,43 @@
       "topGainers": [
         {
           "ticker": "SOL",
-          "returnPct": 10599.7
-        },
-        {
-          "ticker": "SITM",
-          "returnPct": 4789.7
+          "returnPct": 11580.7
         },
         {
           "ticker": "INOD",
-          "returnPct": 4650.9
+          "returnPct": 5001.8
         },
         {
           "ticker": "SNDK",
-          "returnPct": 4437.1
+          "returnPct": 4877.3
+        },
+        {
+          "ticker": "SITM",
+          "returnPct": 4625.2
         },
         {
           "ticker": "AMD",
-          "returnPct": 4237.2
+          "returnPct": 4604.4
         },
         {
           "ticker": "STRL",
-          "returnPct": 4144.5
+          "returnPct": 4208
         },
         {
           "ticker": "AEHR",
-          "returnPct": 4089.8
-        },
-        {
-          "ticker": "LEU",
-          "returnPct": 3983.4
-        },
-        {
-          "ticker": "NVDA",
-          "returnPct": 3704.6
+          "returnPct": 4036.7
         },
         {
           "ticker": "NTRA",
-          "returnPct": 3546.7
+          "returnPct": 3995.2
+        },
+        {
+          "ticker": "LEU",
+          "returnPct": 3793.6
+        },
+        {
+          "ticker": "NVDA",
+          "returnPct": 3774
         }
       ]
     },
@@ -181,43 +181,43 @@
       "topGainers": [
         {
           "ticker": "SOL",
-          "returnPct": 10599.7
+          "returnPct": 11580.7
         },
         {
           "ticker": "LEU",
-          "returnPct": 5849.6
+          "returnPct": 5573
         },
         {
           "ticker": "NVDA",
-          "returnPct": 5084.4
-        },
-        {
-          "ticker": "AEHR",
-          "returnPct": 4883.7
-        },
-        {
-          "ticker": "SITM",
-          "returnPct": 4789.7
+          "returnPct": 5179
         },
         {
           "ticker": "SNDK",
-          "returnPct": 4437.1
+          "returnPct": 4877.3
+        },
+        {
+          "ticker": "AEHR",
+          "returnPct": 4820.5
+        },
+        {
+          "ticker": "SITM",
+          "returnPct": 4625.2
         },
         {
           "ticker": "STRL",
-          "returnPct": 3962.3
+          "returnPct": 4023.1
         },
         {
           "ticker": "USD",
-          "returnPct": 3796.4
+          "returnPct": 3893.7
         },
         {
           "ticker": "000660",
-          "returnPct": 2738.4
+          "returnPct": 2808.9
         },
         {
-          "ticker": "SMCI",
-          "returnPct": 2582.3
+          "ticker": "INOD",
+          "returnPct": 2757
         }
       ]
     },
@@ -225,43 +225,43 @@
       "topGainers": [
         {
           "ticker": "SOL",
-          "returnPct": 10599.7
-        },
-        {
-          "ticker": "INOD",
-          "returnPct": 4527
+          "returnPct": 11580.7
         },
         {
           "ticker": "SNDK",
-          "returnPct": 4437.1
+          "returnPct": 4877.3
+        },
+        {
+          "ticker": "INOD",
+          "returnPct": 4868.7
         },
         {
           "ticker": "AEHR",
-          "returnPct": 4304.2
+          "returnPct": 4248.4
         },
         {
           "ticker": "STRL",
-          "returnPct": 3660.4
+          "returnPct": 3716.6
         },
         {
           "ticker": "NVDA",
-          "returnPct": 3074.8
+          "returnPct": 3132.7
         },
         {
           "ticker": "BE",
-          "returnPct": 3008.8
+          "returnPct": 2894.7
         },
         {
           "ticker": "DELL",
-          "returnPct": 2806.6
+          "returnPct": 2810.6
         },
         {
           "ticker": "NVDL",
-          "returnPct": 2490.2
+          "returnPct": 2572.2
         },
         {
-          "ticker": "SITM",
-          "returnPct": 2476.7
+          "ticker": "USD",
+          "returnPct": 2419.1
         }
       ]
     },
@@ -269,43 +269,43 @@
       "topGainers": [
         {
           "ticker": "SOL",
-          "returnPct": 10599.7
+          "returnPct": 11580.7
         },
         {
           "ticker": "INOD",
-          "returnPct": 6721.8
+          "returnPct": 7225.6
         },
         {
           "ticker": "BE",
-          "returnPct": 6082.7
+          "returnPct": 5855.8
         },
         {
           "ticker": "AEHR",
-          "returnPct": 5855.3
+          "returnPct": 5779.9
         },
         {
           "ticker": "STRL",
-          "returnPct": 5473
-        },
-        {
-          "ticker": "HUT",
-          "returnPct": 4486
+          "returnPct": 5556.3
         },
         {
           "ticker": "SNDK",
-          "returnPct": 4437.1
+          "returnPct": 4877.3
+        },
+        {
+          "ticker": "HUT",
+          "returnPct": 4492.6
         },
         {
           "ticker": "FTAI",
-          "returnPct": 4275.9
+          "returnPct": 4386
         },
         {
           "ticker": "USD",
-          "returnPct": 3927.6
+          "returnPct": 4028.2
         },
         {
           "ticker": "NVDA",
-          "returnPct": 3510.5
+          "returnPct": 3576.3
         }
       ]
     },
@@ -313,43 +313,43 @@
       "topGainers": [
         {
           "ticker": "SOL",
-          "returnPct": 5424.2
+          "returnPct": 5930.7
         },
         {
           "ticker": "SNDK",
-          "returnPct": 4437.1
+          "returnPct": 4877.3
         },
         {
           "ticker": "AEHR",
-          "returnPct": 3812.8
+          "returnPct": 3763.2
         },
         {
           "ticker": "STRL",
-          "returnPct": 2758.2
+          "returnPct": 2800.9
         },
         {
           "ticker": "NVDL",
-          "returnPct": 2490.2
+          "returnPct": 2572.2
         },
         {
           "ticker": "DELL",
-          "returnPct": 1599.7
+          "returnPct": 1602
         },
         {
           "ticker": "NVDA",
-          "returnPct": 1571.3
+          "returnPct": 1601.8
         },
         {
           "ticker": "STX",
-          "returnPct": 1530.4
+          "returnPct": 1586.6
         },
         {
           "ticker": "000660",
-          "returnPct": 1416.7
+          "returnPct": 1454.3
         },
         {
           "ticker": "CRDO",
-          "returnPct": 1298.7
+          "returnPct": 1409.8
         }
       ]
     },
@@ -357,43 +357,43 @@
       "topGainers": [
         {
           "ticker": "SNDK",
-          "returnPct": 4437.1
+          "returnPct": 4877.3
         },
         {
           "ticker": "NVDL",
-          "returnPct": 2490.2
+          "returnPct": 2572.2
         },
         {
           "ticker": "AAOI",
-          "returnPct": 1899.2
+          "returnPct": 1895.6
         },
         {
           "ticker": "STRL",
-          "returnPct": 1800.5
-        },
-        {
-          "ticker": "000660",
-          "returnPct": 1369.2
+          "returnPct": 1828.9
         },
         {
           "ticker": "CRDO",
-          "returnPct": 1298.7
+          "returnPct": 1409.8
+        },
+        {
+          "ticker": "000660",
+          "returnPct": 1405.7
         },
         {
           "ticker": "BE",
-          "returnPct": 1145.5
+          "returnPct": 1099.8
         },
         {
           "ticker": "ATI",
-          "returnPct": 1120.9
+          "returnPct": 1077.1
         },
         {
           "ticker": "NBIS",
-          "returnPct": 1022.8
+          "returnPct": 1017.7
         },
         {
           "ticker": "DELL",
-          "returnPct": 996
+          "returnPct": 997.5
         }
       ]
     },
@@ -401,43 +401,43 @@
       "topGainers": [
         {
           "ticker": "SNDK",
-          "returnPct": 4437.1
+          "returnPct": 4877.3
         },
         {
           "ticker": "NVDL",
-          "returnPct": 2490.2
+          "returnPct": 2572.2
         },
         {
           "ticker": "AAOI",
-          "returnPct": 2457.3
+          "returnPct": 2452.7
         },
         {
           "ticker": "STRL",
-          "returnPct": 1827
+          "returnPct": 1855.8
         },
         {
           "ticker": "BE",
-          "returnPct": 1711.8
+          "returnPct": 1645.3
         },
         {
           "ticker": "000660",
-          "returnPct": 1422.5
+          "returnPct": 1460.3
         },
         {
           "ticker": "CRDO",
-          "returnPct": 1173
+          "returnPct": 1274.1
         },
         {
           "ticker": "MU",
-          "returnPct": 1124.9
-        },
-        {
-          "ticker": "VRT",
-          "returnPct": 1123.1
+          "returnPct": 1175.8
         },
         {
           "ticker": "PLTR",
-          "returnPct": 1077.7
+          "returnPct": 1151
+        },
+        {
+          "ticker": "VRT",
+          "returnPct": 1086.6
         }
       ]
     },
@@ -445,43 +445,43 @@
       "topGainers": [
         {
           "ticker": "SNDK",
-          "returnPct": 4437.1
+          "returnPct": 4877.3
         },
         {
           "ticker": "AAOI",
-          "returnPct": 3759.3
+          "returnPct": 3752.4
         },
         {
           "ticker": "NVDL",
-          "returnPct": 2490.2
+          "returnPct": 2572.2
         },
         {
           "ticker": "USD",
-          "returnPct": 2132.1
+          "returnPct": 2187.9
         },
         {
           "ticker": "000660",
-          "returnPct": 2129.3
+          "returnPct": 2184.6
         },
         {
           "ticker": "PLTR",
-          "returnPct": 1833.3
-        },
-        {
-          "ticker": "APP",
-          "returnPct": 1792.3
+          "returnPct": 1953.6
         },
         {
           "ticker": "MU",
-          "returnPct": 1708.7
+          "returnPct": 1783.9
         },
         {
           "ticker": "STX",
-          "returnPct": 1708.2
+          "returnPct": 1770.5
         },
         {
-          "ticker": "VRT",
-          "returnPct": 1639.8
+          "ticker": "APP",
+          "returnPct": 1699.4
+        },
+        {
+          "ticker": "INOD",
+          "returnPct": 1647.4
         }
       ]
     },
@@ -489,43 +489,43 @@
       "topGainers": [
         {
           "ticker": "SNDK",
-          "returnPct": 4437.1
+          "returnPct": 4877.3
         },
         {
           "ticker": "AAOI",
-          "returnPct": 3759.3
-        },
-        {
-          "ticker": "APP",
-          "returnPct": 2321.2
+          "returnPct": 3752.4
         },
         {
           "ticker": "PLTR",
-          "returnPct": 2074.6
+          "returnPct": 2210
+        },
+        {
+          "ticker": "APP",
+          "returnPct": 2202.4
         },
         {
           "ticker": "000660",
-          "returnPct": 2014.7
+          "returnPct": 2067.2
         },
         {
           "ticker": "RGTI",
-          "returnPct": 1909.2
+          "returnPct": 1973.7
         },
         {
           "ticker": "NVDL",
-          "returnPct": 1827
-        },
-        {
-          "ticker": "LITE",
-          "returnPct": 1654.4
+          "returnPct": 1888
         },
         {
           "ticker": "MU",
-          "returnPct": 1626.6
+          "returnPct": 1698.3
+        },
+        {
+          "ticker": "LITE",
+          "returnPct": 1661.8
         },
         {
           "ticker": "IREN",
-          "returnPct": 1499.6
+          "returnPct": 1603.6
         }
       ]
     },
@@ -533,43 +533,43 @@
       "topGainers": [
         {
           "ticker": "AAOI",
-          "returnPct": 5504.3
+          "returnPct": 5494.1
         },
         {
           "ticker": "SNDK",
-          "returnPct": 4437.1
+          "returnPct": 4877.3
         },
         {
           "ticker": "IREN",
-          "returnPct": 3583.2
+          "returnPct": 3822.7
         },
         {
           "ticker": "NVDL",
-          "returnPct": 3414.2
+          "returnPct": 3525.4
         },
         {
           "ticker": "APP",
-          "returnPct": 2919.2
+          "returnPct": 2771
         },
         {
           "ticker": "PLTR",
-          "returnPct": 2517.1
+          "returnPct": 2680
         },
         {
           "ticker": "000660",
-          "returnPct": 2361.1
+          "returnPct": 2422.2
         },
         {
           "ticker": "HUT",
-          "returnPct": 2310.8
+          "returnPct": 2314.2
         },
         {
           "ticker": "USD",
-          "returnPct": 2058.5
+          "returnPct": 2112.4
         },
         {
           "ticker": "RGTI",
-          "returnPct": 1997.5
+          "returnPct": 2064.8
         }
       ]
     },
@@ -577,43 +577,43 @@
       "topGainers": [
         {
           "ticker": "SNDK",
-          "returnPct": 4437.1
+          "returnPct": 4877.3
         },
         {
           "ticker": "AXTI",
-          "returnPct": 2969.7
+          "returnPct": 3219
         },
         {
           "ticker": "BE",
-          "returnPct": 2674.1
+          "returnPct": 2572.3
         },
         {
           "ticker": "LITE",
-          "returnPct": 1318.6
+          "returnPct": 1324.5
         },
         {
           "ticker": "RGTI",
-          "returnPct": 1141.5
+          "returnPct": 1181.3
         },
         {
           "ticker": "NBIS",
-          "returnPct": 1014.9
+          "returnPct": 1009.9
         },
         {
           "ticker": "000660",
-          "returnPct": 906.9
+          "returnPct": 931.9
         },
         {
           "ticker": "MU",
-          "returnPct": 882.9
-        },
-        {
-          "ticker": "WDC",
-          "returnPct": 801.9
+          "returnPct": 923.8
         },
         {
           "ticker": "STX",
-          "returnPct": 762.3
+          "returnPct": 792.1
+        },
+        {
+          "ticker": "WDC",
+          "returnPct": 790.2
         }
       ]
     },
@@ -621,43 +621,43 @@
       "topGainers": [
         {
           "ticker": "AXTI",
-          "returnPct": 4105.8
+          "returnPct": 4447.4
         },
         {
           "ticker": "SNDK",
-          "returnPct": 3295
+          "returnPct": 3624.4
         },
         {
           "ticker": "LITE",
-          "returnPct": 1357.8
+          "returnPct": 1363.9
         },
         {
           "ticker": "BE",
-          "returnPct": 1198.3
+          "returnPct": 1150.6
         },
         {
           "ticker": "AEHR",
-          "returnPct": 1106.2
+          "returnPct": 1091
         },
         {
           "ticker": "MU",
-          "returnPct": 1002.2
+          "returnPct": 1048
         },
         {
           "ticker": "WDC",
-          "returnPct": 998.3
+          "returnPct": 984
         },
         {
           "ticker": "STX",
-          "returnPct": 895.4
+          "returnPct": 929.7
         },
         {
           "ticker": "NBIS",
-          "returnPct": 889.6
+          "returnPct": 885.2
         },
         {
-          "ticker": "000660",
-          "returnPct": 825.3
+          "ticker": "INTW",
+          "returnPct": 864.1
         }
       ]
     }
