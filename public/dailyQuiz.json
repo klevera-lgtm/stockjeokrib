@@ -1,24 +1,24 @@
 {
-  "updated": "2026-10-12",
+  "updated": "2026-10-05",
   "period": 5,
   "pool": [
     {
       "ticker": "SCHD",
       "label": "배당 ETF",
-      "ret": 35.5,
-      "cagr": 6.3,
+      "ret": 34.4,
+      "cagr": 6.1,
       "choices": [
         15,
-        70,
-        40
+        60,
+        30
       ],
       "answer": 2
     },
     {
       "ticker": "MCD",
       "label": "맥도날드",
-      "ret": -10.8,
-      "cagr": -2.3,
+      "ret": -12.1,
+      "cagr": -2.5,
       "choices": [
         -20,
         -10,
@@ -29,10 +29,10 @@
     {
       "ticker": "TSLA",
       "label": "테슬라",
-      "ret": 45.6,
-      "cagr": 7.8,
+      "ret": 41.2,
+      "cagr": 7.2,
       "choices": [
-        50,
+        40,
         80,
         20
       ],
@@ -41,20 +41,20 @@
     {
       "ticker": "SOXL",
       "label": "반도체 3배 ETF",
-      "ret": 453.8,
-      "cagr": 40.9,
+      "ret": 550,
+      "cagr": 45.5,
       "choices": [
-        850,
-        200,
-        450
+        1000,
+        250,
+        550
       ],
       "answer": 2
     },
     {
       "ticker": "BA",
       "label": "보잉",
-      "ret": 0,
-      "cagr": 0,
+      "ret": 1.6,
+      "cagr": 0.3,
       "choices": [
         -5,
         0,
@@ -65,8 +65,8 @@
     {
       "ticker": "KO",
       "label": "코카콜라",
-      "ret": 44.8,
-      "cagr": 7.7,
+      "ret": 41.2,
+      "cagr": 7.2,
       "choices": [
         20,
         80,
@@ -77,23 +77,23 @@
     {
       "ticker": "COST",
       "label": "코스트코",
-      "ret": 43,
-      "cagr": 7.4,
+      "ret": 39.5,
+      "cagr": 6.9,
       "choices": [
         40,
         20,
-        80
+        70
       ],
       "answer": 0
     },
     {
       "ticker": "META",
       "label": "메타",
-      "ret": 125.5,
-      "cagr": 17.7,
+      "ret": 128.9,
+      "cagr": 18.1,
       "choices": [
         125,
-        225,
+        250,
         60
       ],
       "answer": 0
@@ -101,7 +101,7 @@
     {
       "ticker": "QQQ",
       "label": "나스닥100 ETF",
-      "ret": 81.3,
+      "ret": 81.4,
       "cagr": 12.7,
       "choices": [
         150,
@@ -113,11 +113,11 @@
     {
       "ticker": "AMZN",
       "label": "아마존",
-      "ret": 63.8,
-      "cagr": 10.4,
+      "ret": 57.2,
+      "cagr": 9.5,
       "choices": [
-        30,
-        125,
+        25,
+        100,
         60
       ],
       "answer": 2
@@ -125,23 +125,23 @@
     {
       "ticker": "GOOGL",
       "label": "알파벳(구글)",
-      "ret": 129.4,
-      "cagr": 18.1,
+      "ret": 124.6,
+      "cagr": 17.6,
       "choices": [
         125,
         60,
-        250
+        225
       ],
       "answer": 0
     },
     {
       "ticker": "MA",
       "label": "마스터카드",
-      "ret": 38.1,
-      "cagr": 6.7,
+      "ret": 29.8,
+      "cagr": 5.4,
       "choices": [
-        70,
-        40,
+        60,
+        30,
         15
       ],
       "answer": 1
@@ -149,20 +149,20 @@
     {
       "ticker": "WMT",
       "label": "월마트",
-      "ret": 77.5,
-      "cagr": 12.2,
+      "ret": 66.7,
+      "cagr": 10.8,
       "choices": [
-        150,
+        125,
         30,
-        80
+        70
       ],
       "answer": 2
     },
     {
       "ticker": "SPY",
       "label": "S&P500 ETF",
-      "ret": 57.9,
-      "cagr": 9.6,
+      "ret": 56.5,
+      "cagr": 9.4,
       "choices": [
         25,
         100,
@@ -173,20 +173,20 @@
     {
       "ticker": "AAPL",
       "label": "애플",
-      "ret": 74.7,
-      "cagr": 11.8,
+      "ret": 73.7,
+      "cagr": 11.7,
       "choices": [
         30,
         70,
-        150
+        125
       ],
       "answer": 1
     },
     {
       "ticker": "DIA",
       "label": "다우존스 ETF",
-      "ret": 38.4,
-      "cagr": 6.7,
+      "ret": 37.3,
+      "cagr": 6.6,
       "choices": [
         70,
         15,
@@ -197,11 +197,11 @@
     {
       "ticker": "SMH",
       "label": "반도체 ETF",
-      "ret": 231.5,
-      "cagr": 27.2,
+      "ret": 248.1,
+      "cagr": 28.4,
       "choices": [
         450,
-        225,
+        250,
         100
       ],
       "answer": 1
@@ -209,7 +209,7 @@
     {
       "ticker": "JPM",
       "label": "JP모건",
-      "ret": 92.8,
+      "ret": 92.9,
       "cagr": 14.1,
       "choices": [
         175,
@@ -221,22 +221,22 @@
     {
       "ticker": "DIS",
       "label": "디즈니",
-      "ret": 5.5,
-      "cagr": 1.1,
+      "ret": -0.4,
+      "cagr": -0.1,
       "choices": [
+        0,
         5,
-        10,
-        0
+        -5
       ],
       "answer": 0
     },
     {
       "ticker": "AMD",
       "label": "AMD",
-      "ret": 376.7,
-      "cagr": 36.8,
+      "ret": 398.9,
+      "cagr": 38,
       "choices": [
-        700,
+        750,
         400,
         175
       ],
@@ -245,19 +245,19 @@
     {
       "ticker": "INTC",
       "label": "인텔",
-      "ret": 216.2,
-      "cagr": 26,
+      "ret": 260.9,
+      "cagr": 29.3,
       "choices": [
-        225,
-        100,
-        400
+        250,
+        125,
+        500
       ],
       "answer": 0
     },
     {
       "ticker": "TQQQ",
       "label": "나스닥100 3배 ETF",
-      "ret": 240.2,
+      "ret": 239.8,
       "cagr": 27.8,
       "choices": [
         250,
@@ -269,11 +269,11 @@
     {
       "ticker": "NVDA",
       "label": "엔비디아",
-      "ret": 433.8,
-      "cagr": 39.9,
+      "ret": 448.7,
+      "cagr": 40.7,
       "choices": [
         200,
-        800,
+        850,
         450
       ],
       "answer": 2
@@ -281,8 +281,8 @@
     {
       "ticker": "NKE",
       "label": "나이키",
-      "ret": -55.2,
-      "cagr": -14.9,
+      "ret": -56.6,
+      "cagr": -15.4,
       "choices": [
         -100,
         -25,
@@ -293,8 +293,8 @@
     {
       "ticker": "AVGO",
       "label": "브로드컴",
-      "ret": 267.6,
-      "cagr": 29.8,
+      "ret": 263.9,
+      "cagr": 29.6,
       "choices": [
         500,
         125,
@@ -305,22 +305,22 @@
     {
       "ticker": "NFLX",
       "label": "넷플릭스",
-      "ret": 43.4,
-      "cagr": 7.5,
+      "ret": 36.8,
+      "cagr": 6.5,
       "choices": [
-        20,
+        15,
         40,
-        80
+        70
       ],
       "answer": 1
     },
     {
       "ticker": "SBUX",
       "label": "스타벅스",
-      "ret": 2.8,
-      "cagr": 0.5,
+      "ret": 7.2,
+      "cagr": 1.4,
       "choices": [
-        10,
+        15,
         5,
         0
       ],
@@ -329,8 +329,8 @@
     {
       "ticker": "IWM",
       "label": "러셀2000 소형주 ETF",
-      "ret": 37,
-      "cagr": 6.5,
+      "ret": 38.4,
+      "cagr": 6.7,
       "choices": [
         15,
         40,
@@ -341,23 +341,23 @@
     {
       "ticker": "MSFT",
       "label": "마이크로소프트",
-      "ret": 53,
-      "cagr": 8.9,
+      "ret": 48.4,
+      "cagr": 8.2,
       "choices": [
         50,
-        25,
-        100
+        20,
+        90
       ],
       "answer": 0
     },
     {
       "ticker": "V",
       "label": "비자",
-      "ret": 48.7,
-      "cagr": 8.3,
+      "ret": 39.4,
+      "cagr": 6.9,
       "choices": [
-        90,
-        50,
+        70,
+        40,
         20
       ],
       "answer": 1
@@ -365,8 +365,8 @@
     {
       "ticker": "VOO",
       "label": "S&P500 ETF",
-      "ret": 58.2,
-      "cagr": 9.6,
+      "ret": 56.8,
+      "cagr": 9.4,
       "choices": [
         60,
         25,
@@ -377,23 +377,23 @@
     {
       "ticker": "000660",
       "label": "SK하이닉스",
-      "ret": 992.6,
-      "cagr": 61.5,
+      "ret": 1102.1,
+      "cagr": 64.6,
       "choices": [
-        450,
-        1850,
-        1000
+        500,
+        2050,
+        1100
       ],
       "answer": 2
     },
     {
       "ticker": "005930",
       "label": "삼성전자",
-      "ret": 264.7,
-      "cagr": 29.6,
+      "ret": 285,
+      "cagr": 31,
       "choices": [
         275,
-        500,
+        550,
         125
       ],
       "answer": 0
@@ -401,20 +401,20 @@
     {
       "ticker": "SOXX",
       "label": "반도체 ETF",
-      "ret": 195.6,
-      "cagr": 24.3,
+      "ret": 212.4,
+      "cagr": 25.7,
       "choices": [
-        350,
+        400,
         200,
-        90
+        100
       ],
       "answer": 1
     },
     {
       "ticker": "JEPI",
       "label": "JP모건 인컴 ETF",
-      "ret": 20.4,
-      "cagr": 3.8,
+      "ret": 19.2,
+      "cagr": 3.6,
       "choices": [
         40,
         10,
