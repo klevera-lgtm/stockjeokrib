@@ -291,6 +291,7 @@
   "QYLD",
   "RBLX",
   "RBNE",
+  "RBRK",
   "RDDT",
   "RETO",
   "RGTI",
@@ -419,6 +420,7 @@
   "XOM",
   "XRP",
   "XRPT",
+  "XXII",
   "XYLD",
   "YMAX"
 ]
