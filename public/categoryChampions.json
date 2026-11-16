@@ -1,130 +1,130 @@
 {
-  "updated": "2026-11-16",
+  "updated": "2026-11-02",
   "strategy": "daily",
   "overall": {
     "years": 5,
     "top": [
       {
+        "ticker": "AAOI",
+        "return": 1020.8,
+        "cagr": 62.3,
+        "mdd": -76.7
+      },
+      {
         "ticker": "BE",
-        "return": 814.5,
-        "cagr": 55.8,
+        "return": 871.8,
+        "cagr": 57.8,
         "mdd": -52.6
       },
       {
+        "ticker": "MU",
+        "return": 836,
+        "cagr": 56.6,
+        "mdd": -48.7
+      },
+      {
         "ticker": "PLTR",
-        "return": 736,
-        "cagr": 53.1,
+        "return": 821.4,
+        "cagr": 56.1,
         "mdd": -47.3
       },
       {
-        "ticker": "MU",
-        "return": 715.7,
-        "cagr": 52.3,
-        "mdd": -48.6
-      },
-      {
-        "ticker": "AAOI",
-        "return": 704.2,
-        "cagr": 51.9,
-        "mdd": -78.9
-      },
-      {
         "ticker": "000660",
-        "return": 666.7,
-        "cagr": 50.4,
-        "mdd": -60.9
-      },
-      {
-        "ticker": "RKLB",
-        "return": 660.3,
-        "cagr": 50.2,
-        "mdd": -69.1
+        "return": 804.5,
+        "cagr": 55.5,
+        "mdd": -57.8
       },
       {
         "ticker": "WDC",
-        "return": 512.1,
-        "cagr": 43.8,
-        "mdd": -64.4
+        "return": 663.8,
+        "cagr": 50.3,
+        "mdd": -55.2
       },
       {
-        "ticker": "HOOD",
-        "return": 334.7,
-        "cagr": 34.3,
-        "mdd": -56.5
-      },
-      {
-        "ticker": "AMD",
-        "return": 312.3,
-        "cagr": 32.8,
-        "mdd": -50.7
+        "ticker": "RKLB",
+        "return": 578.5,
+        "cagr": 46.8,
+        "mdd": -65.9
       },
       {
         "ticker": "NTRA",
-        "return": 304.5,
-        "cagr": 32.3,
-        "mdd": -41.6
+        "return": 427.2,
+        "cagr": 39.5,
+        "mdd": -42.8
+      },
+      {
+        "ticker": "HOOD",
+        "return": 375.6,
+        "cagr": 36.7,
+        "mdd": -56.5
+      },
+      {
+        "ticker": "NVDA",
+        "return": 367,
+        "cagr": 36.2,
+        "mdd": -35.7
       }
     ],
     "worst": [
       {
         "ticker": "NIO",
-        "return": -55,
-        "cagr": -14.8,
-        "mdd": -55.9
+        "return": -51,
+        "cagr": -13.3,
+        "mdd": -56
       },
       {
         "ticker": "NKE",
-        "return": -49.5,
-        "cagr": -12.8,
-        "mdd": -33.2
-      },
-      {
-        "ticker": "ITA",
-        "return": -46.8,
-        "cagr": -11.9,
-        "mdd": -72.3
+        "return": -49.2,
+        "cagr": -12.7,
+        "mdd": -33.4
       },
       {
         "ticker": "MARA",
-        "return": -43.4,
-        "cagr": -10.8,
-        "mdd": -69.2
+        "return": -45.9,
+        "cagr": -11.6,
+        "mdd": -69.3
       },
       {
         "ticker": "EIDO",
-        "return": -40.7,
-        "cagr": -10,
-        "mdd": -37.5
-      },
-      {
-        "ticker": "051910",
-        "return": -38.8,
-        "cagr": -9.4,
-        "mdd": -42.3
+        "return": -44.7,
+        "cagr": -11.2,
+        "mdd": -37.6
       },
       {
         "ticker": "035720",
-        "return": -37.6,
-        "cagr": -9,
-        "mdd": -44.2
+        "return": -42.6,
+        "cagr": -10.5,
+        "mdd": -43.5
+      },
+      {
+        "ticker": "051910",
+        "return": -38.5,
+        "cagr": -9.3,
+        "mdd": -42.4
       },
       {
         "ticker": "ADBE",
-        "return": -36.4,
-        "cagr": -8.7,
-        "mdd": -41
-      },
-      {
-        "ticker": "RIVN",
-        "return": -27.1,
-        "cagr": -6.1,
-        "mdd": -56.2
+        "return": -35.1,
+        "cagr": -8.3,
+        "mdd": -41.3
       },
       {
         "ticker": "305720",
-        "return": -25.4,
-        "cagr": -5.7,
+        "return": -22,
+        "cagr": -4.8,
         "mdd": -46.1
+      },
+      {
+        "ticker": "371460",
+        "return": -21.3,
+        "cagr": -4.7,
+        "mdd": -40.9
+      },
+      {
+        "ticker": "035420",
+        "return": -18.8,
+        "cagr": -4.1,
+        "mdd": -33.1
       }
     ]
   },
@@ -133,62 +133,62 @@
     "ranking": [
       {
         "ticker": "SGOV",
-        "return": 9.3,
-        "cagr": 1.8,
+        "return": 9.6,
+        "cagr": 1.9,
         "mdd": -0.2
       },
       {
         "ticker": "SHY",
-        "return": 6,
-        "cagr": 1.2,
+        "return": 6.8,
+        "cagr": 1.3,
         "mdd": -0.3
       },
       {
         "ticker": "BND",
-        "return": 3.1,
-        "cagr": 0.6,
+        "return": 4.6,
+        "cagr": 0.9,
         "mdd": -1.9
       },
       {
         "ticker": "AGG",
-        "return": 3.1,
-        "cagr": 0.6,
+        "return": 4.5,
+        "cagr": 0.9,
         "mdd": -1.9
       },
       {
         "ticker": "IEF",
-        "return": -0.2,
-        "cagr": 0,
+        "return": 1.7,
+        "cagr": 0.3,
         "mdd": -2.8
       },
       {
         "ticker": "HYG",
-        "return": 11.6,
-        "cagr": 2.2,
-        "mdd": -3.7
+        "return": 12.4,
+        "cagr": 2.4,
+        "mdd": -3.9
       },
       {
         "ticker": "PFF",
-        "return": -0.2,
-        "cagr": 0,
-        "mdd": -6.3
+        "return": 1.9,
+        "cagr": 0.4,
+        "mdd": -6.4
       },
       {
         "ticker": "TLT",
-        "return": -10.8,
-        "cagr": -2.3,
+        "return": -8.3,
+        "cagr": -1.7,
         "mdd": -6.5
       },
       {
         "ticker": "XLP",
-        "return": 26.8,
-        "cagr": 4.9,
+        "return": 23.1,
+        "cagr": 4.2,
         "mdd": -8.6
       },
       {
         "ticker": "088980",
-        "return": -3.6,
-        "cagr": -0.7,
+        "return": -5.8,
+        "cagr": -1.2,
         "mdd": -8.8
       }
     ]
@@ -200,54 +200,54 @@
       "note": null,
       "ranking": [
         {
-          "ticker": "BE",
-          "return": 814.5,
-          "cagr": 55.8
+          "ticker": "AAOI",
+          "return": 1020.8,
+          "cagr": 62.3
         },
         {
-          "ticker": "PLTR",
-          "return": 736,
-          "cagr": 53.1
+          "ticker": "BE",
+          "return": 871.8,
+          "cagr": 57.8
         },
         {
           "ticker": "MU",
-          "return": 715.7,
-          "cagr": 52.3
+          "return": 836,
+          "cagr": 56.6
         },
         {
-          "ticker": "AAOI",
-          "return": 704.2,
-          "cagr": 51.9
-        },
-        {
-          "ticker": "RKLB",
-          "return": 660.3,
-          "cagr": 50.2
+          "ticker": "PLTR",
+          "return": 821.4,
+          "cagr": 56.1
         },
         {
           "ticker": "WDC",
-          "return": 512.1,
-          "cagr": 43.8
+          "return": 663.8,
+          "cagr": 50.3
         },
         {
-          "ticker": "HOOD",
-          "return": 334.7,
-          "cagr": 34.3
-        },
-        {
-          "ticker": "AMD",
-          "return": 312.3,
-          "cagr": 32.8
+          "ticker": "RKLB",
+          "return": 578.5,
+          "cagr": 46.8
         },
         {
           "ticker": "NTRA",
-          "return": 304.5,
-          "cagr": 32.3
+          "return": 427.2,
+          "cagr": 39.5
+        },
+        {
+          "ticker": "HOOD",
+          "return": 375.6,
+          "cagr": 36.7
+        },
+        {
+          "ticker": "NVDA",
+          "return": 367,
+          "cagr": 36.2
         },
         {
           "ticker": "GH",
-          "return": 273.2,
-          "cagr": 30.2
+          "return": 340.4,
+          "cagr": 34.6
         }
       ]
     },
@@ -258,53 +258,53 @@
       "ranking": [
         {
           "ticker": "QQQM",
-          "return": 62.7,
-          "cagr": 10.2
+          "return": 65.8,
+          "cagr": 10.7
         },
         {
           "ticker": "QQQ",
-          "return": 62.4,
-          "cagr": 10.2
+          "return": 65.5,
+          "cagr": 10.6
         },
         {
           "ticker": "SCHG",
-          "return": 56.7,
-          "cagr": 9.4
+          "return": 58.5,
+          "cagr": 9.7
         },
         {
           "ticker": "VUG",
-          "return": 54,
-          "cagr": 9
+          "return": 56,
+          "cagr": 9.3
         },
         {
           "ticker": "VOO",
-          "return": 51.8,
-          "cagr": 8.7
+          "return": 52.6,
+          "cagr": 8.8
         },
         {
           "ticker": "IVV",
-          "return": 51.7,
-          "cagr": 8.7
+          "return": 52.6,
+          "cagr": 8.8
         },
         {
           "ticker": "SPY",
-          "return": 51.5,
-          "cagr": 8.7
+          "return": 52.3,
+          "cagr": 8.8
         },
         {
           "ticker": "VTI",
-          "return": 50.1,
-          "cagr": 8.5
+          "return": 50.8,
+          "cagr": 8.6
         },
         {
           "ticker": "COWZ",
-          "return": 39.3,
-          "cagr": 6.9
+          "return": 40.2,
+          "cagr": 7
         },
         {
           "ticker": "DIA",
-          "return": 39.1,
-          "cagr": 6.8
+          "return": 37.9,
+          "cagr": 6.7
         }
       ]
     },
@@ -315,33 +315,33 @@
       "ranking": [
         {
           "ticker": "HACK",
-          "return": 84.1,
-          "cagr": 13
+          "return": 98.5,
+          "cagr": 14.7
         },
         {
           "ticker": "VGT",
-          "return": 78.3,
-          "cagr": 12.3
+          "return": 88.4,
+          "cagr": 13.5
         },
         {
           "ticker": "XLK",
-          "return": 76.6,
-          "cagr": 12.1
+          "return": 87.1,
+          "cagr": 13.4
         },
         {
           "ticker": "IGV",
-          "return": 30.2,
-          "cagr": 5.4
+          "return": 34.4,
+          "cagr": 6.1
         },
         {
           "ticker": "WCLD",
-          "return": 26.7,
-          "cagr": 4.9
+          "return": 33.8,
+          "cagr": 6
         },
         {
           "ticker": "BOTZ",
-          "return": 8.7,
-          "cagr": 1.7
+          "return": 12,
+          "cagr": 2.3
         }
       ]
     },
@@ -352,18 +352,18 @@
       "ranking": [
         {
           "ticker": "CHAT",
-          "return": 56.6,
-          "cagr": 16.2
+          "return": 67.7,
+          "cagr": 18.9
         },
         {
           "ticker": "AIQ",
-          "return": 39.2,
-          "cagr": 11.7
+          "return": 44.1,
+          "cagr": 13
         },
         {
           "ticker": "ROBO",
-          "return": 15.7,
-          "cagr": 5
+          "return": 20.4,
+          "cagr": 6.4
         }
       ]
     },
@@ -374,33 +374,33 @@
       "ranking": [
         {
           "ticker": "ETHA",
-          "return": 139.8,
-          "cagr": 142.3
-        },
-        {
-          "ticker": "FBTC",
-          "return": -8.2,
-          "cagr": -8.3
-        },
-        {
-          "ticker": "IBIT",
-          "return": -8.3,
-          "cagr": -8.4
-        },
-        {
-          "ticker": "BITO",
-          "return": -10.2,
-          "cagr": -10.3
+          "return": 178.5,
+          "cagr": 181.9
         },
         {
           "ticker": "BSOL",
-          "return": -11.9,
-          "cagr": -12.1
+          "return": 2.1,
+          "cagr": 2.2
+        },
+        {
+          "ticker": "FBTC",
+          "return": 1.2,
+          "cagr": 1.2
+        },
+        {
+          "ticker": "IBIT",
+          "return": 1,
+          "cagr": 1
+        },
+        {
+          "ticker": "BITO",
+          "return": -0.8,
+          "cagr": -0.9
         },
         {
           "ticker": "BITX",
-          "return": -24.5,
-          "cagr": -24.7
+          "return": -7.7,
+          "cagr": -7.7
         }
       ]
     },
@@ -411,18 +411,18 @@
       "ranking": [
         {
           "ticker": "URA",
-          "return": 25.1,
-          "cagr": 4.6
+          "return": 32.8,
+          "cagr": 5.9
         },
         {
           "ticker": "NLR",
-          "return": 24.1,
-          "cagr": 4.4
+          "return": 29.4,
+          "cagr": 5.3
         },
         {
           "ticker": "URNM",
-          "return": 0.4,
-          "cagr": 0.1
+          "return": 7.3,
+          "cagr": 1.4
         }
       ]
     },
@@ -433,53 +433,53 @@
       "ranking": [
         {
           "ticker": "USD",
-          "return": 327.7,
-          "cagr": 33.8
+          "return": 447.9,
+          "cagr": 40.6
         },
         {
           "ticker": "TECL",
-          "return": 154.7,
-          "cagr": 20.6
-        },
-        {
-          "ticker": "TQQQ",
-          "return": 140.1,
-          "cagr": 19.2
+          "return": 212.2,
+          "cagr": 25.6
         },
         {
           "ticker": "SOXL",
-          "return": 130.2,
-          "cagr": 18.2
+          "return": 204.1,
+          "cagr": 25
+        },
+        {
+          "ticker": "TQQQ",
+          "return": 158.5,
+          "cagr": 21
         },
         {
           "ticker": "SPXL",
-          "return": 129.5,
-          "cagr": 18.1
+          "return": 134.9,
+          "cagr": 18.7
         },
         {
           "ticker": "UPRO",
-          "return": 127.7,
-          "cagr": 17.9
+          "return": 133,
+          "cagr": 18.5
         },
         {
           "ticker": "QLD",
-          "return": 107.5,
-          "cagr": 15.8
+          "return": 116.8,
+          "cagr": 16.8
         },
         {
           "ticker": "UGL",
-          "return": 89.1,
-          "cagr": 13.6
+          "return": 91.8,
+          "cagr": 14
         },
         {
           "ticker": "SSO",
-          "return": 88.9,
-          "cagr": 13.6
+          "return": 91.4,
+          "cagr": 13.9
         },
         {
           "ticker": "AGQ",
-          "return": 13.6,
-          "cagr": 2.6
+          "return": 17.3,
+          "cagr": 3.3
         }
       ]
     },
@@ -490,53 +490,53 @@
       "ranking": [
         {
           "ticker": "SPYM",
-          "return": 51.8,
-          "cagr": 8.7
+          "return": 52.7,
+          "cagr": 8.9
         },
         {
           "ticker": "HDV",
-          "return": 49.8,
-          "cagr": 8.4
+          "return": 50.7,
+          "cagr": 8.6
         },
         {
           "ticker": "DGRO",
-          "return": 48.6,
-          "cagr": 8.3
+          "return": 47.3,
+          "cagr": 8.1
         },
         {
           "ticker": "SCHD",
-          "return": 46.9,
-          "cagr": 8
-        },
-        {
-          "ticker": "VIG",
-          "return": 45.1,
-          "cagr": 7.7
+          "return": 46,
+          "cagr": 7.9
         },
         {
           "ticker": "VYM",
-          "return": 44.8,
-          "cagr": 7.7
+          "return": 44.3,
+          "cagr": 7.6
         },
         {
-          "ticker": "DVY",
-          "return": 38.6,
-          "cagr": 6.8
+          "ticker": "VIG",
+          "return": 43.2,
+          "cagr": 7.5
         },
         {
           "ticker": "DGRW",
-          "return": 38.4,
+          "return": 39.2,
+          "cagr": 6.9
+        },
+        {
+          "ticker": "DVY",
+          "return": 38.1,
           "cagr": 6.7
         },
         {
           "ticker": "DIVO",
-          "return": 36.9,
+          "return": 37.2,
           "cagr": 6.5
         },
         {
-          "ticker": "SPYD",
-          "return": 32.6,
-          "cagr": 5.8
+          "ticker": "QYLD",
+          "return": 32.8,
+          "cagr": 5.9
         }
       ]
     },
@@ -546,24 +546,24 @@
       "note": "일부 종목이 상장 5년 미만이라 1년 기준이에요",
       "ranking": [
         {
+          "ticker": "NVDY",
+          "return": -6.1,
+          "cagr": -6.1
+        },
+        {
           "ticker": "YMAX",
-          "return": -11.1,
-          "cagr": -11.2
+          "return": -7.9,
+          "cagr": -8
         },
         {
           "ticker": "TSLY",
-          "return": -14.8,
-          "cagr": -15
-        },
-        {
-          "ticker": "NVDY",
-          "return": -25.2,
-          "cagr": -25.4
+          "return": -10.7,
+          "cagr": -10.8
         },
         {
           "ticker": "MSTY",
-          "return": -32.6,
-          "cagr": -32.9
+          "return": -23.2,
+          "cagr": -23.5
         }
       ]
     },
@@ -573,54 +573,54 @@
       "note": null,
       "ranking": [
         {
+          "ticker": "XOM",
+          "return": 87.6,
+          "cagr": 13.4
+        },
+        {
           "ticker": "ABBV",
-          "return": 85.7,
-          "cagr": 13.2
+          "return": 87.2,
+          "cagr": 13.4
         },
         {
           "ticker": "MO",
-          "return": 84.2,
+          "return": 84,
           "cagr": 13
         },
         {
           "ticker": "JNJ",
-          "return": 75,
-          "cagr": 11.9
-        },
-        {
-          "ticker": "XOM",
-          "return": 69.2,
-          "cagr": 11.1
-        },
-        {
-          "ticker": "MMM",
-          "return": 68.3,
+          "return": 68,
           "cagr": 11
         },
         {
-          "ticker": "IBM",
-          "return": 51.7,
-          "cagr": 8.7
+          "ticker": "CVX",
+          "return": 63.2,
+          "cagr": 10.3
         },
         {
-          "ticker": "CVX",
-          "return": 51.3,
-          "cagr": 8.7
+          "ticker": "MMM",
+          "return": 60.1,
+          "cagr": 9.9
+        },
+        {
+          "ticker": "IBM",
+          "return": 59.5,
+          "cagr": 9.8
         },
         {
           "ticker": "MAIN",
-          "return": 45,
-          "cagr": 7.7
+          "return": 42.7,
+          "cagr": 7.4
         },
         {
           "ticker": "VZ",
-          "return": 28.5,
-          "cagr": 5.1
+          "return": 24.1,
+          "cagr": 4.4
         },
         {
           "ticker": "T",
-          "return": 25.2,
-          "cagr": 4.6
+          "return": 21.2,
+          "cagr": 3.9
         }
       ]
     },
@@ -631,53 +631,53 @@
       "ranking": [
         {
           "ticker": "XLK",
-          "return": 76.6,
-          "cagr": 12.1
+          "return": 87.1,
+          "cagr": 13.4
         },
         {
           "ticker": "XLE",
-          "return": 60.4,
-          "cagr": 9.9
-        },
-        {
-          "ticker": "XLF",
-          "return": 46.5,
-          "cagr": 8
+          "return": 74.3,
+          "cagr": 11.8
         },
         {
           "ticker": "XLI",
-          "return": 44.3,
-          "cagr": 7.6
+          "return": 43.7,
+          "cagr": 7.5
         },
         {
-          "ticker": "XLC",
-          "return": 43,
-          "cagr": 7.4
+          "ticker": "XLF",
+          "return": 41.5,
+          "cagr": 7.2
         },
         {
           "ticker": "XLV",
-          "return": 39.4,
-          "cagr": 6.9
+          "return": 36.9,
+          "cagr": 6.5
         },
         {
-          "ticker": "XLY",
-          "return": 31.8,
+          "ticker": "XLC",
+          "return": 31.7,
           "cagr": 5.7
         },
         {
-          "ticker": "XLU",
-          "return": 27.3,
-          "cagr": 5
-        },
-        {
-          "ticker": "XLP",
-          "return": 26.8,
+          "ticker": "XLY",
+          "return": 26.9,
           "cagr": 4.9
         },
         {
           "ticker": "XLB",
-          "return": 25.2,
-          "cagr": 4.6
+          "return": 26.7,
+          "cagr": 4.9
+        },
+        {
+          "ticker": "XLU",
+          "return": 25.9,
+          "cagr": 4.7
+        },
+        {
+          "ticker": "XLP",
+          "return": 23.1,
+          "cagr": 4.2
         }
       ]
     },
@@ -688,53 +688,53 @@
       "ranking": [
         {
           "ticker": "QTUM",
-          "return": 113.5,
-          "cagr": 16.4
-        },
-        {
-          "ticker": "ARKX",
-          "return": 63.8,
-          "cagr": 10.4
-        },
-        {
-          "ticker": "XBI",
-          "return": 61.7,
-          "cagr": 10.1
-        },
-        {
-          "ticker": "PAVE",
-          "return": 52.9,
-          "cagr": 8.9
-        },
-        {
-          "ticker": "ARKF",
-          "return": 51.2,
-          "cagr": 8.6
-        },
-        {
-          "ticker": "ARKK",
-          "return": 42.6,
-          "cagr": 7.4
+          "return": 120.8,
+          "cagr": 17.2
         },
         {
           "ticker": "ARKG",
-          "return": 42.2,
-          "cagr": 7.3
+          "return": 68.9,
+          "cagr": 11.1
+        },
+        {
+          "ticker": "XBI",
+          "return": 67.6,
+          "cagr": 10.9
+        },
+        {
+          "ticker": "ARKX",
+          "return": 67.4,
+          "cagr": 10.9
+        },
+        {
+          "ticker": "ITA",
+          "return": 55.9,
+          "cagr": 9.3
+        },
+        {
+          "ticker": "PAVE",
+          "return": 54.8,
+          "cagr": 9.2
+        },
+        {
+          "ticker": "ARKF",
+          "return": 53.6,
+          "cagr": 9
+        },
+        {
+          "ticker": "ARKK",
+          "return": 53.2,
+          "cagr": 8.9
         },
         {
           "ticker": "VNQ",
-          "return": 17.1,
-          "cagr": 3.2
+          "return": 14,
+          "cagr": 2.7
         },
         {
           "ticker": "LIT",
-          "return": 8,
-          "cagr": 1.6
-        },
-        {
-          "ticker": "ICLN",
-          "return": 0.9,
-          "cagr": 0.2
+          "return": 9.6,
+          "cagr": 1.9
         }
       ]
     },
@@ -744,54 +744,54 @@
       "note": null,
       "ranking": [
         {
-          "ticker": "GDX",
-          "return": 116.3,
-          "cagr": 16.7
+          "ticker": "USO",
+          "return": 122.1,
+          "cagr": 17.3
         },
         {
-          "ticker": "USO",
-          "return": 90.3,
-          "cagr": 13.8
+          "ticker": "GDX",
+          "return": 105.5,
+          "cagr": 15.5
         },
         {
           "ticker": "SLV",
-          "return": 62.9,
-          "cagr": 10.3
+          "return": 65.5,
+          "cagr": 10.6
         },
         {
           "ticker": "IAU",
-          "return": 57.8,
-          "cagr": 9.6
+          "return": 58.8,
+          "cagr": 9.7
         },
         {
           "ticker": "GLD",
-          "return": 57.2,
-          "cagr": 9.5
+          "return": 58.2,
+          "cagr": 9.6
         },
         {
           "ticker": "HYG",
-          "return": 11.6,
-          "cagr": 2.2
+          "return": 12.4,
+          "cagr": 2.4
         },
         {
           "ticker": "SGOV",
-          "return": 9.3,
-          "cagr": 1.8
+          "return": 9.6,
+          "cagr": 1.9
         },
         {
           "ticker": "SHY",
-          "return": 6,
-          "cagr": 1.2
+          "return": 6.8,
+          "cagr": 1.3
         },
         {
           "ticker": "BND",
-          "return": 3.1,
-          "cagr": 0.6
+          "return": 4.6,
+          "cagr": 0.9
         },
         {
           "ticker": "AGG",
-          "return": 3.1,
-          "cagr": 0.6
+          "return": 4.5,
+          "cagr": 0.9
         }
       ]
     },
@@ -802,53 +802,53 @@
       "ranking": [
         {
           "ticker": "EWY",
-          "return": 111.6,
-          "cagr": 16.2
+          "return": 127.4,
+          "cagr": 17.9
         },
         {
           "ticker": "EWT",
-          "return": 106.2,
-          "cagr": 15.6
+          "return": 115.1,
+          "cagr": 16.6
         },
         {
           "ticker": "EWS",
-          "return": 54.9,
-          "cagr": 9.2
+          "return": 57.9,
+          "cagr": 9.6
         },
         {
           "ticker": "EWJ",
-          "return": 45,
-          "cagr": 7.7
+          "return": 47.2,
+          "cagr": 8.1
         },
         {
           "ticker": "EWH",
-          "return": 30.6,
-          "cagr": 5.5
-        },
-        {
-          "ticker": "VNM",
-          "return": 20.4,
-          "cagr": 3.8
+          "return": 27.7,
+          "cagr": 5
         },
         {
           "ticker": "EWM",
-          "return": 19.6,
-          "cagr": 3.7
+          "return": 23,
+          "cagr": 4.2
         },
         {
-          "ticker": "FXI",
-          "return": 14.8,
-          "cagr": 2.8
+          "ticker": "VNM",
+          "return": 18.3,
+          "cagr": 3.4
         },
         {
           "ticker": "THD",
-          "return": 13,
-          "cagr": 2.5
+          "return": 13.8,
+          "cagr": 2.6
         },
         {
-          "ticker": "INDA",
-          "return": 8.1,
-          "cagr": 1.6
+          "ticker": "FXI",
+          "return": 13.4,
+          "cagr": 2.6
+        },
+        {
+          "ticker": "MCHI",
+          "return": 3.9,
+          "cagr": 0.8
         }
       ]
     },
@@ -859,38 +859,38 @@
       "ranking": [
         {
           "ticker": "EWI",
-          "return": 76.4,
-          "cagr": 12
+          "return": 69.8,
+          "cagr": 11.2
         },
         {
           "ticker": "EWU",
-          "return": 47.1,
-          "cagr": 8
+          "return": 47.3,
+          "cagr": 8.1
         },
         {
           "ticker": "EZU",
-          "return": 46.2,
-          "cagr": 7.9
+          "return": 42,
+          "cagr": 7.3
         },
         {
           "ticker": "VGK",
-          "return": 43.3,
-          "cagr": 7.5
+          "return": 41.3,
+          "cagr": 7.2
         },
         {
           "ticker": "EWG",
-          "return": 43.3,
-          "cagr": 7.5
+          "return": 40.2,
+          "cagr": 7
         },
         {
           "ticker": "EWL",
-          "return": 37.2,
+          "return": 36.6,
           "cagr": 6.5
         },
         {
           "ticker": "EWQ",
-          "return": 22.7,
-          "cagr": 4.2
+          "return": 18.4,
+          "cagr": 3.4
         }
       ]
     },
@@ -901,53 +901,53 @@
       "ranking": [
         {
           "ticker": "ACWI",
-          "return": 48,
+          "return": 48.4,
           "cagr": 8.2
         },
         {
           "ticker": "VT",
-          "return": 46.9,
-          "cagr": 8
+          "return": 47.4,
+          "cagr": 8.1
         },
         {
-          "ticker": "EWW",
+          "ticker": "EEM",
           "return": 43.1,
           "cagr": 7.4
         },
         {
           "ticker": "VXUS",
-          "return": 42.7,
+          "return": 42.6,
           "cagr": 7.4
-        },
-        {
-          "ticker": "EEM",
-          "return": 42.5,
-          "cagr": 7.4
-        },
-        {
-          "ticker": "IEFA",
-          "return": 42.3,
-          "cagr": 7.3
         },
         {
           "ticker": "IEMG",
-          "return": 41.9,
+          "return": 42.4,
           "cagr": 7.3
         },
         {
-          "ticker": "VWO",
-          "return": 31.8,
-          "cagr": 5.7
+          "ticker": "IEFA",
+          "return": 41.8,
+          "cagr": 7.3
+        },
+        {
+          "ticker": "EWW",
+          "return": 38.8,
+          "cagr": 6.8
         },
         {
           "ticker": "EWA",
-          "return": 28.1,
-          "cagr": 5.1
+          "return": 30.4,
+          "cagr": 5.5
+        },
+        {
+          "ticker": "VWO",
+          "return": 29.9,
+          "cagr": 5.4
         },
         {
           "ticker": "EWZ",
-          "return": 21.2,
-          "cagr": 3.9
+          "return": 22.6,
+          "cagr": 4.2
         }
       ]
     },
@@ -958,53 +958,53 @@
       "ranking": [
         {
           "ticker": "000660",
-          "return": 666.7,
-          "cagr": 50.4
+          "return": 804.5,
+          "cagr": 55.5
         },
         {
           "ticker": "005930",
-          "return": 182.1,
-          "cagr": 23.1
+          "return": 210.1,
+          "cagr": 25.5
         },
         {
           "ticker": "105560",
-          "return": 146.2,
-          "cagr": 19.8
+          "return": 142.9,
+          "cagr": 19.5
         },
         {
           "ticker": "069500",
-          "return": 117.1,
-          "cagr": 16.8
+          "return": 138.5,
+          "cagr": 19
         },
         {
           "ticker": "KS11",
-          "return": 80,
-          "cagr": 12.5
+          "return": 95.5,
+          "cagr": 14.4
         },
         {
           "ticker": "360750",
-          "return": 49.1,
-          "cagr": 8.3
-        },
-        {
-          "ticker": "068270",
-          "return": 36.9,
-          "cagr": 6.5
+          "return": 51,
+          "cagr": 8.6
         },
         {
           "ticker": "005380",
-          "return": 34.9,
-          "cagr": 6.2
+          "return": 41.7,
+          "cagr": 7.2
+        },
+        {
+          "ticker": "068270",
+          "return": 22.7,
+          "cagr": 4.2
         },
         {
           "ticker": "000270",
-          "return": 13.9,
-          "cagr": 2.6
+          "return": 15.5,
+          "cagr": 2.9
         },
         {
           "ticker": "207940",
-          "return": 3.8,
-          "cagr": 0.7
+          "return": 9.5,
+          "cagr": 1.8
         }
       ]
     },
@@ -1015,53 +1015,53 @@
       "ranking": [
         {
           "ticker": "390390",
-          "return": 167.7,
-          "cagr": 21.8
+          "return": 192.4,
+          "cagr": 24
         },
         {
           "ticker": "091160",
-          "return": 166.1,
-          "cagr": 21.7
+          "return": 190.1,
+          "cagr": 23.8
         },
         {
           "ticker": "381180",
-          "return": 140,
-          "cagr": 19.2
+          "return": 155.5,
+          "cagr": 20.7
         },
         {
           "ticker": "102110",
-          "return": 117.6,
-          "cagr": 16.9
+          "return": 139.1,
+          "cagr": 19.1
         },
         {
           "ticker": "381170",
-          "return": 75.8,
-          "cagr": 12
+          "return": 78.8,
+          "cagr": 12.4
         },
         {
           "ticker": "379810",
-          "return": 63,
-          "cagr": 10.3
+          "return": 67.5,
+          "cagr": 10.9
         },
         {
           "ticker": "133690",
-          "return": 62.3,
-          "cagr": 10.2
+          "return": 66.8,
+          "cagr": 10.8
         },
         {
           "ticker": "379800",
-          "return": 49.9,
-          "cagr": 8.5
+          "return": 51.7,
+          "cagr": 8.7
         },
         {
           "ticker": "229200",
-          "return": -11.9,
-          "cagr": -2.5
+          "return": -8.5,
+          "cagr": -1.8
         },
         {
           "ticker": "305540",
-          "return": -18.5,
-          "cagr": -4
+          "return": -13.9,
+          "cagr": -3
         }
       ]
     }
